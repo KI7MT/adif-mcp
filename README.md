@@ -10,6 +10,7 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Core Project Health
+![ADIF](https://img.shields.io/badge/ADIF-3.1.5-blue)
 [![GitHub release](https://img.shields.io/github/v/release/KI7MT/adif-mcp)](https://github.com/KI7MT/adif-mcp/releases)
 [![GitHub tag](https://img.shields.io/github/v/tag/KI7MT/adif-mcp?sort=semver)](https://github.com/KI7MT/adif-mcp/tags)
 [![CI](https://github.com/KI7MT/adif-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/ci.yml)
@@ -24,6 +25,11 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 [![API Docs](https://img.shields.io/badge/API-Schema-blue)](https://adif-mcp.com/mcp/manifest.html)
 [![JSON Schema](https://img.shields.io/badge/Schema-JSON--Schema-lightgrey)](#)
 [![Manifest Validate](https://github.com/KI7MT/adif-mcp/actions/workflows/manifest-validate.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/manifest-validate.yml)
+
+
+## Compliance and Program Registry
+[![ADIF 3.1.5](https://img.shields.io/badge/ADIF-3.1.5-blue?label=Spec)](#-compliance--provenance)
+[![Program ID](https://img.shields.io/badge/Program%20ID-Registered-success)](https://adif.org.uk/programids.html)
 
 ---
 
@@ -49,6 +55,23 @@ Every amateur radio logger supports ADIF, but implementations are fragmented.
 - Build `adif-mcp-lotw` and `adif-mcp-eqsl` adapters
 - Expose MCP tools for validation, award tracking, and service sync
 - Support cross-logger interoperability with AI-driven agents
+
+## Compliance & Provenance
+
+ADIF-MCP and its plugins follow the [ADIF Specification](https://adif.org.uk) (currently 3.1.5) and use **registered Program IDs** to identify all exports:
+
+- `ADIF-MCP` — Core engine
+- `ADIF-MCP-LOTW` — Plugin for ARRL Logbook of The World
+- `ADIF-MCP-EQSL` — Plugin for eQSL.cc
+
+To ensure transparency and auditability, the project also uses **APP_ fields** for provenance when augmenting records.
+Examples include:
+
+- `APP_ADIF-MCP_OP` → operation performed (`normalize`, `validate`, `merge`)
+- `APP_ADIF-MCP-LOTW_ACTION` → LoTW plugin operation
+- `APP_ADIF-MCP-EQSL_TIME` → timestamp of eQSL merge
+
+See the [Program ID & APP_ Field Policy](docs/program-id-policy.md) for full details.
 
 ## License
 MIT — open and free for amateur radio use.

@@ -4,8 +4,8 @@ requires-python = ">=3.10"
 
 [[package]]
 name = "adif-mcp"
-version = "0.1.0"
-source = { virtual = "." }
+version = "0.1.4"
+source = { editable = "." }
 dependencies = [
     { name = "click" },
     { name = "pytest" },

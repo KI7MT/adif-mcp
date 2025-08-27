@@ -13,27 +13,83 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Ensure uv is installed
       - name: Install uv
         uses: astral-sh/setup-uv@v3
 
+      # Ensure python is install with a minimal version of 3.xx
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # Save all package versoins in uv.lock
       - name: Sync deps (frozen)
         run: uv sync --frozen
 
+      # Lint all python files
       - name: Lint (ruff)
         run: uv run ruff check .
 
+      # Checkes that python types are correct
       - name: Type-check (mypy)
         run: uv run mypy src
 
+      # Run local smoke tests defines in $(REPO_ROOT)/test
       - name: Tests (pytest)
         env:
           PYTHONWARNINGS: error
         run: uv run pytest -q
 
+      # Validate MCP manifest files against a minimal v1 schema
       - name: Validate MCP manifest
         run: python .github/scripts/validate_manifest.py
+
+      # Fetch all git tages
+      - name: Fetch tags
+        run: |
+          git fetch --tags --force --prune
+
+      # Conventional Commits check (Commitizen)
+      - name: Commitizen message check
+        run: |
+          uv run cz check
+
+      # Read version from pyproject.toml via Commitizen
+      - name: Read project version (pyproject)
+        id: pj
+        run: |
+          echo "version=$(uv run cz version --project)" >> "$GITHUB_OUTPUT"
+
+      # Read latest git tag (if any)
+      - name: Read latest git tag
+        id: tag
+        run: |
+          latest=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          echo "tag=${latest}" >> "$GITHUB_OUTPUT"
+
+      # If a tag exists, enforce pyproject version == latest tag (prefixed with 'v')
+      - name: Enforce pyproject == latest tag (when tag exists)
+        if: steps.tag.outputs.tag != 'none'
+        run: |
+          PJ="v${{ steps.pj.outputs.version }}"
+          TG="${{ steps.tag.outputs.tag }}"
+          echo "pyproject: ${PJ}"
+          echo "latest tag: ${TG}"
+          if [ "$PJ" != "$TG" ]; then
+            echo "::error ::Version mismatch (pyproject=${PJ}, tag=${TG})"
+            exit 1
+          fi
+
+      # On tag pushes, enforce tag matches pyproject (CI fails if mismatch)
+      - name: Enforce pushed tag matches pyproject (only on tag pushes)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          PJ="v$(uv run cz version --project)"
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "pyproject: ${PJ}"
+          echo "pushed tag: ${TAG}"
+          if [ "$PJ" != "$TAG" ]; then
+            echo "::error ::Pushed tag ${TAG} does not match pyproject version ${PJ}"
+            exit 1
+          fi

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+
 """Validate MCP manifest files against a minimal v1 schema.
 
 Usage:
     uv run python scripts/validate_manifest.py mcp/manifest.json
-    uv run python scripts/validate_manifest.py            # defaults to mcp/manifest.json if present
+    uv run python scripts/validate_manifest.py
+        # defaults to mcp/manifest.json if present
 """
 
 from __future__ import annotations

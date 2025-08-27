@@ -13,6 +13,14 @@ dependencies = [
     "typing-extensions>=4.15.0",
 ]
 
+[project.urls]
+"ADIF Spec" = "https://adif.org.uk/315/ADIF_315.htm"
+"Compatibility" = "https://adif-mcp.com/changelog/#adif-compatibility"
+
+[tool.adif]
+spec_version = "3.1.5"
+features = ["core QSO model", "band/mode/QSL_RCVD enums"]
+
 [project.scripts]
 adif-mcp = "adif_mcp.cli:cli"
 
@@ -30,12 +38,32 @@ dev-dependencies = [
 
 [tool.ruff]
 line-length = 88
+target-version = "py311"
+extend-exclude = [
+    ".venv",
+    ".smoke-venv",
+    "dist",
+    "build",
+    ".eggs",
+    ".pytest_cache",
+    "site",
+    "docs/_site",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = []
+fixable = ["I"]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["T201", "E402"]
+"samples/*.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.11"
 plugins = ["pydantic.mypy"]
 strict = true
-disable_error_code = ["annotation-unchecked", "call-arg"]  # keep yours
+disable_error_code = ["annotation-unchecked", "call-arg"] # keep yours
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_return_any = true
@@ -44,8 +72,9 @@ ignore_missing_imports = true
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.0"
+version_provider = "pep621"
 tag_format = "v$version"
+update_changelog_on_bump = true
 
 [[tool.mypy.overrides]]
 module = "adif_mcp.cli"
@@ -65,5 +94,41 @@ ignore-private = true
 ignore-nested-functions = true
 # Optional: don’t require docstrings for properties
 ignore-properties = true
-# Only measure your package (adjust if needed)
-paths = ["src/adif_mcp"]
+# Only measure our packages
+paths = ["src", "scripts", "test"]
+exclude = [".venv", ".smoke-venv", "dist", "build", "site", "docs/_site"]
+
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.hooks.custom]
+path = "scripts/build_hooks.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adif_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/**",
+    "pyproject.toml",
+    "README.md",
+    "LICENSE*",
+    "mcp/**",
+    "scripts/**",
+]
+exclude = [
+    ".venv/**",
+    ".smoke-venv/**",
+    "dist/**",
+    "build/**",
+    ".git/**",
+    ".github/**",
+    "docs/**",
+    "site/**",
+    ".ruff_cache/**",
+    ".mypy_cache/**",
+    ".pytest_cache/**",
+    "tests/**",
+    "test/**",
+]

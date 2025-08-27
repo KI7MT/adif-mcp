@@ -2,6 +2,15 @@
 # Opinionated but lean: hygiene, ruff, mypy (with pydantic plugin), docstrings, conventional commits.
 
 repos:
+  # ---------- Dont commit build artifacts ----------
+  - repo: local
+    hooks:
+      - id: block-pyc
+        name: Block Python bytecode
+        language: system
+        entry: bash -lc 'git diff --cached --name-only | grep -E "\.pyc$|__pycache__/" && { echo "Refusing to commit .pyc/__pycache__"; exit 1; } || true'
+        pass_filenames: false
+
   # ---------- Basic hygiene ----------
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

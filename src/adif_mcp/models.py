@@ -7,8 +7,9 @@ normalization of ADIF-style QSO data, plus small batch I/O envelopes.
 from __future__ import annotations
 
 from typing import Dict, List, Literal, Optional
-from typing_extensions import Annotated  # <-- add this
+
 from pydantic import BaseModel, Field
+from typing_extensions import Annotated  # <-- add this
 
 # ---- Atomic field types (constrained) ----
 Callsign = Annotated[str, Field(strip_whitespace=True, min_length=3, max_length=20)]

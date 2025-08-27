@@ -23,6 +23,7 @@ nav:
   - Integrations:
     - LoTW: integrations/lotw.md
     - eQSL: integrations/eqsl.md
+  - Program ID Policy: program-id-policy.md
 
 plugins:
   - search
