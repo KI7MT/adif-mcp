@@ -1,5 +1,0 @@
-Contact: mailto:security@adif-mcp.com
-Contact: https://github.com/KI7MT/adif-mcp/security/advisories/new
-Policy:  https://adif-mcp.com/#/security
-Preferred-Languages: en
-Expires: 2026-12-31T23:59:59Z
