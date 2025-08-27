@@ -1,6 +1,6 @@
 [project]
 name = "adif-mcp"
-version = "0.1.1"
+version = "0.1.3"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL)"
 authors = [{ name = "KI7MT" }]
 license = { text = "MIT" }
