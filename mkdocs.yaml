@@ -1,0 +1,53 @@
+site_name: ADIF MCP
+site_description: Model Context Protocol tools for Amateur Radio logging — ADIF core + LoTW/eQSL integrations
+site_url: https://adif-mcp.com/
+repo_url: https://github.com/KI7MT/adif-mcp
+edit_uri: edit/main/docs/
+site_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.tracking
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Concepts:
+      - Overview: concepts/overview.md
+      - ADIF Basics: concepts/adif-basics.md
+  - MCP:
+      - Manifest & Types: mcp/manifest.md
+      - Tools (API Surface): mcp/tools.md
+  - Plugins:
+      - LoTW:
+          - Overview: plugins/lotw/index.md
+          - API: plugins/lotw/api.md
+      - eQSL:
+          - Overview: plugins/eqsl/index.md
+          - API: plugins/eqsl/api.md
+  - Roadmap: roadmap.md
+  - Changelog: changelog.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+  - def_list
+  - attr_list
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/KI7MT/adif-mcp
