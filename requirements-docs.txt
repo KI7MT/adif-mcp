@@ -1,2 +1,5 @@
 mkdocs-material>=9.5
 mkdocs>=1.6
+mkdocs-material
+mkdocstrings[python]
+mike

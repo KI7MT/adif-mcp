@@ -23,3 +23,15 @@ nav:
   - Integrations:
     - LoTW: integrations/lotw.md
     - eQSL: integrations/eqsl.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: google   # or "numpy", both supported
+            show_source: true
+            show_root_toc_entry: false
+            heading_level: 2
