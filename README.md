@@ -1,7 +1,14 @@
 # adif-mcp
 
+Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service for **Amateur Radio Logging**, per [ADIF 3.1.5 specification](https://adif.org.uk/315/ADIF_315.htm)
+
+--
+
+## Resources
+
 [![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 
 ## Core Project Health
 [![GitHub release](https://img.shields.io/github/v/release/KI7MT/adif-mcp)](https://github.com/KI7MT/adif-mcp/releases)
@@ -12,6 +19,7 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![SSL Certificate Expiry Check](https://github.com/KI7MT/adif-mcp/actions/workflows/ssl-expiry.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/ssl-expiry.yml)
 
+
 ## MCP / API Readiness
 [![MCP](https://img.shields.io/badge/AI--Agent--Ready-MCP-green)](https://modelcontextprotocol.io/)
 [![API Docs](https://img.shields.io/badge/API-Schema-blue)](https://adif-mcp.com/mcp/manifest.html)
@@ -20,13 +28,19 @@
 
 ---
 
-This project implements the [ADIF 3.1.5 specification](https://adif.org.uk/315/ADIF_315.htm) as a **core library** for amateur radio logging systems.
-It provides:
+## Overview
 
+This package defines the ADIF MCP core engine, with plugins for:
+- LoTW (`adif-mcp-lotw`)
+- eQSL (`adif-mcp-eqsl`)
+
+Performs these tasks
 - Validation & normalization of ADIF records
 - Unified schema for consistent QSO storage and exchange
 - MCP-ready tools for safe AI-agent access
 - Foundation for service adapters (e.g., LoTW, eQSL)
+
+---
 
 ## Why?
 Every amateur radio logger supports ADIF, but implementations are fragmented.

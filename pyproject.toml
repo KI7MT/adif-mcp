@@ -1,0 +1,33 @@
+[project]
+name = "adif-mcp"
+version = "0.1.0"
+description = "ADIF MCP core engine with plugin support (LoTW, eQSL)"
+authors = [{ name = "KI7MT" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "click",
+]
+
+[project.scripts]
+adif-mcp = "adif_mcp.cli:cli"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+    "mypy",
+    "ruff",
+    "commitizen",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.mypy]
+strict = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"

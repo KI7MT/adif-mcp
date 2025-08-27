@@ -1,0 +1,16 @@
+name: sanity
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Say hello
+        run: echo "✅ Hello from GitHub Actions on $(date)"

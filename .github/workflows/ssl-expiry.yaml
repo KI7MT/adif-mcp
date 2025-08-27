@@ -1,15 +1,16 @@
-name: SSL Certificate Expiry Check
+# .github/workflows/ssl_expiry.yml
+name: ssl_expiry
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 9 * * 1" # Every Monday 09:00 UTC
-
-permissions:
-  contents: read
+    - cron: "17 2 * * *"   # nightly
+  workflow_dispatch:        # manual button
+  push:
+    branches: [ main ]      # only main pushes
 
 jobs:
   check:
+    if: github.ref == 'refs/heads/main' || github.event_name != 'push'
     runs-on: ubuntu-latest
     env:
       # Edit this list to match your domains/subdomains

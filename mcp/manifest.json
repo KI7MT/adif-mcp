@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "name": "adif-mcp",
+  "description": "ADIF MCP core service",
+  "tools": []
+}
