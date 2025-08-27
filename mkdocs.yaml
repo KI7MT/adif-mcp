@@ -19,7 +19,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Spec:
-    - Overview: spec/index.md
+    - Overview: spec/spec.md
   - Integrations:
     - LoTW: integrations/lotw.md
     - eQSL: integrations/eqsl.md
