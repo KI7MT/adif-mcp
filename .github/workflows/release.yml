@@ -13,6 +13,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # we need full history & tags for cz checks
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
@@ -24,6 +26,33 @@ jobs:
 
       - name: Sync deps (frozen)
         run: uv sync --frozen
+
+      # ---- Strict CC check on the commits being released ----
+      - name: Commitizen check (since previous tag)
+        run: |
+          git fetch --tags --force
+          # current tag (e.g., v0.1.4) provided by the ref
+          CUR_TAG="${GITHUB_REF_NAME}"
+          echo "Current tag: $CUR_TAG"
+
+          # previous tag by creation time (2nd newest)
+          PREV_TAG="$(git tag --sort=-creatordate | sed -n '2p' || true)"
+          if [ -n "$PREV_TAG" ]; then
+            echo "Checking commits in range: $PREV_TAG..$CUR_TAG"
+            uv run cz check --rev-range "$PREV_TAG..$CUR_TAG"
+          else
+            echo "No previous tag found; checking all commits"
+            uv run cz check
+          fi
+
+      # ---- Ensure tag matches pyproject version ----
+      - name: Verify tag == pyproject version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "Tag version: $TAG"
+          PY_VER=$(python -c "import tomllib,sys;print(tomllib.loads(open('pyproject.toml','rb').read())['project']['version'])")
+          echo "pyproject version: $PY_VER"
+          test "$TAG" = "$PY_VER" || { echo "::error::Tag ($TAG) != pyproject version ($PY_VER)"; exit 1; }
 
       - name: Build artifacts
         run: uv build
@@ -38,11 +67,11 @@ jobs:
     name: Publish to TestPyPI (pre-releases)
     if: >
       startsWith(github.ref_name, 'v') &&
-      contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc')
+      (contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc'))
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write   # required for Trusted Publishers
+      id-token: write
       contents: read
     steps:
       - uses: actions/download-artifact@v4
@@ -65,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write   # required for Trusted Publishers
+      id-token: write
       contents: read
     steps:
       - uses: actions/download-artifact@v4
