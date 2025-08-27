@@ -7,15 +7,14 @@ site_dir: docs
 
 theme:
   name: material
-  features:
-    - navigation.instant
-    - navigation.sections
-    - navigation.tracking
-    - content.code.copy
+  language: en
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
+    primary: indigo
+  features:
+    - navigation.tabs
+    - navigation.top
+    - search.highlight
+    - search.suggest
 
 nav:
   - Home: index.md
@@ -41,11 +40,25 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - abbr
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - attr_list
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.tabbed
+  - pymdownx.superfences
   - toc:
       permalink: true
-  - tables
-  - def_list
-  - attr_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 extra:
   social:
