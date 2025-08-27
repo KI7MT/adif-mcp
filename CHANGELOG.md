@@ -19,3 +19,13 @@
 ### Changed
 - CI/CD pipelines: renamed workflows to `.yml` for consistency
 - Adopted `uv` toolchain for dependency management
+
+## v0.1.5 (2025-08-27)
+
+## v0.1.4 (2025-08-27)
+
+## v0.1.3 (2025-08-27)
+
+## v0.1.2 (2025-08-27)
+
+## v0.1.1 (2025-08-27)
