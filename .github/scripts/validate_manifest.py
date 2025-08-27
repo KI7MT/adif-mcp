@@ -7,9 +7,11 @@ import sys
 
 MANIFEST = Path("mcp/manifest.json")
 
+
 def fail(msg: str) -> None:
     print(f"[manifest] ERROR: {msg}", file=sys.stderr)
     sys.exit(1)
+
 
 def main() -> None:
     if not MANIFEST.exists():
@@ -32,6 +34,7 @@ def main() -> None:
             fail(f"tool #{i} missing keys: {sorted(missing)}")
 
     print("[manifest] OK")
+
 
 if __name__ == "__main__":
     main()

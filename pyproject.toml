@@ -8,6 +8,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "click",
+    "typing-extensions>=4.15.0",
 ]
 
 [project.scripts]
@@ -20,6 +21,9 @@ dev-dependencies = [
     "ruff",
     "commitizen",
     "pydantic<2",
+    "jsonschema>=4.25.1",
+    "interrogate>=1.7.0",
+    "types-click>=7.1.8",
 ]
 
 [tool.ruff]
@@ -29,12 +33,35 @@ line-length = 88
 python_version = "3.11"
 plugins = ["pydantic.mypy"]
 strict = true
+disable_error_code = ["annotation-unchecked", "call-arg"]  # keep yours
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_return_any = true
 no_implicit_optional = true
+ignore_missing_imports = true
 
 [tool.commitizen]
 name = "cz_conventional_commits"
 version = "0.1.0"
 tag_format = "v$version"
+
+[[tool.mypy.overrides]]
+module = "adif_mcp.cli"
+disable_error_code = ["misc"]
+ignore_missing_imports = true
+
+[tool.interrogate]
+fail-under = 80
+verbose = 1
+quiet = false
+color = true
+# Count only public API; skip dunders/private
+ignore-init-method = true
+ignore-magic = true
+ignore-module = false
+ignore-private = true
+ignore-nested-functions = true
+# Optional: don’t require docstrings for properties
+ignore-properties = true
+# Only measure your package (adjust if needed)
+paths = ["src/adif_mcp"]

@@ -1,0 +1,87 @@
+name: Manifest Validate
+
+on:
+  push:
+    paths:
+      - "**/manifest.json"
+      - ".github/workflows/manifest-validate.yml"
+      - "scripts/validate_manifest.py"
+      - "mcp/schemas/manifest.v1.json"
+  pull_request:
+    paths:
+      - "**/manifest.json"
+      - ".github/workflows/manifest-validate.yml"
+      - "scripts/validate_manifest.py"
+      - "mcp/schemas/manifest.v1.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate MCP manifests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find manifests
+        id: find
+        shell: bash
+        run: |
+          mapfile -t FILES < <(git ls-files | grep -E '(^|/)manifest\.json$' || true)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "No manifest.json files found."
+            echo "count=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s\n' "${FILES[@]}"
+          printf 'files<<EOF\n%s\nEOF\n' "$(printf '%s\n' "${FILES[@]}")" >> "$GITHUB_OUTPUT"
+          echo "count=${#FILES[@]}" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure schema & script exist
+        if: steps.find.outputs.count != '0'
+        run: |
+          test -f mcp/schemas/manifest.v1.json
+          test -f scripts/validate_manifest.py
+
+      - name: Set up uv
+        if: steps.find.outputs.count != '0'
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        if: steps.find.outputs.count != '0'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Sync deps (frozen if lock present)
+        if: steps.find.outputs.count != '0'
+        run: |
+          if [ -f uv.lock ]; then uv sync --frozen; else uv sync; fi
+
+      - name: Validate JSON syntax (jq)
+        if: steps.find.outputs.count != '0'
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq
+          ok=1
+          while IFS= read -r f; do
+            echo "🔎 jq lint: $f"
+            if ! jq empty "$f"; then
+              echo "::error file=$f::Invalid JSON"
+              ok=0
+            fi
+          done <<< "${{ steps.find.outputs.files }}"
+          [ $ok -eq 1 ] || exit 1
+
+      - name: Validate against local MCP schema
+        if: steps.find.outputs.count != '0'
+        run: |
+          uv run python scripts/validate_manifest.py ${{ steps.find.outputs.files }}
+
+      - name: Summary
+        if: steps.find.outputs.count != '0'
+        run: |
+          echo "✅ Validated ${{ steps.find.outputs.count }} manifest file(s)."
