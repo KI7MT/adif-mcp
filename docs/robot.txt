@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Optional: uncomment once you add sitemaps
+# Sitemap: https://adif-mcp.com/sitemap.xml

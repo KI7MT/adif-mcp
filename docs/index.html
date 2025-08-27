@@ -1,55 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ADIF MCP</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 2rem;
-      line-height: 1.6;
-      max-width: 800px;
-    }
-    h1 { color: #2c3e50; }
-    h2 { color: #34495e; }
-    a { color: #0366d6; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .footer {
-      margin-top: 3rem;
-      font-size: 0.9rem;
-      color: #666;
-    }
-  </style>
+  <title>ADIF MCP — Core</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+  <div class="container">
+    <header class="card">
+      <div class="site-title">
+        <span class="badge">ADIF MCP</span> Core Service
+      </div>
+      <nav class="topnav">
+        <a href="https://adif-mcp.com">Core</a>
+        <a href="https://lotw.adif-mcp.com">LoTW Adapter</a>
+        <a href="https://eqsl.adif-mcp.com">eQSL Adapter</a>
+        <a href="https://github.com/KI7MT/adif-mcp">GitHub</a>
+      </nav>
+    </header>
 
-  <h1>ADIF MCP</h1>
-  <p>
-    <strong>ADIF MCP</strong> is an open-source project bringing
-    <a href="https://adif.org.uk/315/ADIF_315.htm" target="_blank">ADIF 3.1.5</a>
-    logging standards into the
-    <a href="https://modelcontextprotocol.io/" target="_blank">Model Context Protocol (MCP)</a> ecosystem.
-    It enables <em>AI agents</em> and logging applications to access, validate, and transform amateur
-    radio QSO records through a common, safe interface.
-  </p>
+    <main>
+      <section class="card">
+        <h1>ADIF MCP Core</h1>
+        <p>
+          <strong>adif-mcp</strong> provides a shared <em>Model Context Protocol</em> (MCP) toolkit for
+          <a href="https://adif.org.uk/315/ADIF_315.htm">ADIF 3.1.5</a>. It defines a safe schema,
+          typed tools, and validation helpers that all adapters (LoTW, eQSL, others) can use.
+        </p>
+      </section>
 
-  <h2>Repositories</h2>
-  <ul>
-    <li><a href="https://github.com/KI7MT/adif-mcp">adif-mcp</a> – Core MCP schema & tools</li>
-    <li><a href="https://github.com/KI7MT/adif-mcp-lotw">adif-mcp-lotw</a> – LoTW adapter</li>
-    <li><a href="https://github.com/KI7MT/adif-mcp-eqsl">adif-mcp-eqsl</a> – eQSL adapter</li>
-  </ul>
+      <section class="card">
+        <h2>Features</h2>
+        <ul>
+          <li>Canonical ADIF 3.1.5 schema mapped into MCP tools</li>
+          <li>Validation and normalization of QSO fields</li>
+          <li>Strict typing + contract-driven queries</li>
+          <li>Reusable by agents, loggers, or downstream services</li>
+        </ul>
+      </section>
 
-  <h2>Status</h2>
-  <p>
-    🚧 Early development. Follow the repositories above for updates, releases, and roadmap details.
-  </p>
+      <section class="card">
+        <h2>Roadmap</h2>
+        <ul>
+          <li>M1 — Core schema &amp; manifest</li>
+          <li>M2 — Integration with LoTW &amp; eQSL adapters</li>
+          <li>M3 — Awards + statistics helpers</li>
+        </ul>
+      </section>
+    </main>
 
-  <div class="footer">
-    &copy; 2025 KI7MT ·
-    <a href="https://github.com/KI7MT/adif-mcp">GitHub</a>
+    <footer class="footer">
+      © 2025 ADIF MCP Project · MIT License
+    </footer>
   </div>
-
 </body>
+
 </html>
