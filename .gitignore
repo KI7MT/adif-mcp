@@ -1,0 +1,83 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.cache/
+data/*.duckdb
+*.tar.gz
+.DS_Store
+.cache_history.json
+z-my-notes.md
+pre-release-checklist*
+rubric*
+todo*
+
+# ------------------------
+# MkDocs Local Site Build
+# ------------------------
+site/
+!mkdocs.yml
+!docs/
+!docs/**
+
+
+# ------------------------
+# OS cruft
+# ------------------------
+.DS_Store
+Thumbs.db
+
+# ------------------------
+# Python / venv / tooling
+# ------------------------
+.venv/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+.cache/                 # local caches (pytest, tools, etc.)
+
+# ------------------------
+# Streamlit & app secrets
+# ------------------------
+.streamlit/secrets.toml
+.env
+.env.*                  # .env.local, etc.
+
+# ------------------------
+# Data / artifacts
+# ------------------------
+data/*.duckdb           # local DB produced by ingest
+data/*.duckdb-wal
+*.tar.gz                # release/packaging artifacts
+*.zip
+
+# WSPR ingest cache tracking (local machine paths)
+.cache_history.json
+
+# Optional: any custom download cache dirs you use
+.cache/
+.cache_wspr/
+
+# ------------------------
+# Notebooks (if you add any later)
+# ------------------------
+.ipynb_checkpoints/
+
+# ------------------------
+# IDE/editor
+# ------------------------
+.vscode/
+.idea/
+*.code-workspace
+
+# ------------------------
+# Logs / temp
+# ------------------------
+*.log
+tmp/
+temp/
