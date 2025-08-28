@@ -33,6 +33,8 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 
 ---
 
+
+
 ## Overview
 
 This package defines the ADIF MCP core engine, with plugins for:
@@ -47,9 +49,17 @@ Performs these tasks
 
 ---
 
-## Why?
-Every amateur radio logger supports ADIF, but implementations are fragmented.
-`adif-mcp` offers a **single, standards-based interface** to make QSO data portable, auditable, and agent-friendly.
+## Why ADIF-MCP Matters
+
+Unlike existing ADIF editors and one-off utilities, ADIF-MCP is a shared protocol engine for the Amateur Radio community:
+- Spec-compliant & typed — ADIF fields are validated against the official standard.
+- Extensible — integrations (LoTW, eQSL, QRZ, logging apps) plug into a common base.
+- AI-ready — exposes safe, typed tools to AI agents via the Model Context Protocol.
+- Foundation, not silo — one engine many apps can trust, instead of everyone re-implementing ADIF parsing.
+
+👉 ADIF-MCP turns ADIF from a static file format into a living protocol interface.
+
+---
 
 ## Next Steps
 - Build `adif-mcp-lotw` and `adif-mcp-eqsl` adapters

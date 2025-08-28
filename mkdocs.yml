@@ -36,13 +36,23 @@ nav:
     - ADIF Basics: concepts/adif-basics.md
   - Roadmap: roadmap.md
 
+#
+# Sitemaps isn't working, but when it does, add this later to the root directory
+# User-agent: *
+# Allow: /
+# Sitemap: https://adif-mcp.com/sitemap.xml
+#
 plugins:
   - search
+  - mermaid2:
+      javascript: https://unpkg.com/mermaid@10/dist/mermaid.min.js
+      arguments:
+        theme: nutral
+#  - sitemap # remveod as UV can seem to install it. Leve commented out.
   - redirects:
       redirect_maps:
-        lotw: integrations/lotw/
-        eqsl: integrations/eqsl/
-
+        lotw.md: integrations/lotw/index.md
+        eqsl.md: integrations/eqsl/index.md
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -52,9 +62,6 @@ plugins:
             show_source: true
             show_root_toc_entry: false
             heading_level: 2
-  - sitemap:
-      changefreq: weekly
-      priority: 0.5
 
 markdown_extensions:
   - admonition
@@ -63,12 +70,16 @@ markdown_extensions:
   - def_list
   - footnotes
   - md_in_html
-  - attr_list
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.tabbed
-  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
   - toc:
       permalink: true
