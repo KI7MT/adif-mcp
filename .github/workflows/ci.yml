@@ -50,20 +50,20 @@ jobs:
         run: |
           git fetch --tags --force --prune
 
-    - name: Commitizen message check (PR commits)
-      if: github.event_name == 'pull_request'
-      run: |
-        set -e
-        BASE="${{ github.event.pull_request.base.sha }}"
-        HEAD="${{ github.event.pull_request.head.sha }}"
-        RANGE="${BASE}..${HEAD}"
-        COUNT="$(git rev-list --count "$RANGE" || echo 0)"
-        if [ "$COUNT" -eq 0 ]; then
-          echo "No commits to check in PR."
-          exit 0
-        fi
-        echo "Checking PR range: $RANGE ($COUNT commit(s))"
-        uv run cz check --rev-range "$RANGE"
+      - name: Commitizen message check (PR commits)
+        if: github.event_name == 'pull_request'
+        run: |
+          set -e
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          RANGE="${BASE}..${HEAD}"
+          COUNT="$(git rev-list --count "$RANGE" || echo 0)"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No commits to check in PR."
+            exit 0
+          fi
+          echo "Checking PR range: $RANGE ($COUNT commit(s))"
+          uv run cz check --rev-range "$RANGE"
 
       # Read version from pyproject.toml via Commitizen
       - name: Read project version (pyproject)
