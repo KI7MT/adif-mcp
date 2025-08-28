@@ -1,0 +1,13 @@
+{% extends "partials/footer.html" %}
+
+{% block content %}
+{{ super() }}
+{% if page and page.meta and page.meta.git_revision_date_localized %}
+{% set rev = page.meta.git_revision_date_localized %}
+<div class="md-footer-meta__inner" style="margin-top:.25rem">
+  <small>
+    Last updated: {{ rev.timeago }} at {{ rev.iso_datetime }}
+  </small>
+</div>
+{% endif %}
+{% endblock %}

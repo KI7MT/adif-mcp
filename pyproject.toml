@@ -108,6 +108,7 @@ dev = [
     "pymdown-extensions[extra]>=10.10",
     "mkdocs-redirects>=1.2.2",
     "mkdocs-mermaid2-plugin>=1.2.2",
+    "mkdocs-git-revision-date-localized-plugin>=1.4.7",
 ]
 
 [tool.hatch.build.hooks.custom]

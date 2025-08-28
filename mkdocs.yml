@@ -1,7 +1,8 @@
 site_name: ADIF MCP
+site_description: ADIF MCP Documentation
 site_url: https://adif-mcp.com/
 repo_url: https://github.com/KI7MT/adif-mcp
-site_description: ADIF MCP Documentation
+edit_uri: edit/main/docs/
 use_directory_urls: true
 
 theme:
@@ -42,6 +43,11 @@ plugins:
       javascript: https://unpkg.com/mermaid@10/dist/mermaid.min.js
       arguments:
         theme: default
+  - git-revision-date-localized:
+      type: timeago
+      fallback_to_build_date: true
+      enable_creation_date: false
+      timezone: UTC
   - redirects:
       redirect_maps:
         lotw.md: integrations/lotw/index.md
