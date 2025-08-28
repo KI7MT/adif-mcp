@@ -8,7 +8,11 @@ FROM    ?=
 TO      ?=
 DB      ?=
 PORT    ?=
-VERSION ?=
+
+# Colors (safe defaults if not defined in env)
+C_C  ?= \033[1;36m
+C_Y  ?= \033[1;33m
+C_NC ?= \033[0m
 
 # Default target
 .PHONY: help
@@ -25,22 +29,21 @@ help: ## Show this help
 	  awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-22s\033[0m %s\n", $$1, $$2}'
 	@printf "\n"
 
-
 # -------------------------------
 # Environment / deps
 # -------------------------------
 .PHONY: setup-dev sync add add-dev
-setup-dev: sync pre-commit-install ## Create venv, sync deps, install pre-commit hooks
+setup-dev: sync pre-commit-install pre-commit-run hooks-status ## Create venv, sync deps, install hooks, run once
 	@echo "Dev environment ready."
 
-sync:
+sync: ## uv sync (install dependencies)
 	uv sync
 
-add: ## make add DEP=requests
+add: ## Add a runtime dep (make add DEP=requests)
 	@test -n "$(DEP)" || (echo "Usage: make add DEP=<package>[==version]"; exit 1)
 	uv add "$(DEP)"
 
-add-dev: ## make add-dev DEP=pytest
+add-dev: ## Add a dev dep (make add-dev DEP=pytest)
 	@test -n "$(DEP)" || (echo "Usage: make add-dev DEP=<package>[==version]"; exit 1)
 	uv add --group dev "$(DEP)"
 
@@ -48,26 +51,26 @@ add-dev: ## make add-dev DEP=pytest
 # Quality gates
 # -------------------------------
 .PHONY: lint format type test smoke
-lint: ## run linter to improve code quality
+lint: ## Ruff lint
 	uv run ruff check .
 
-format: ## run ruff to check and format python files
+format: ## Ruff format (in-place)
 	uv run ruff format .
 
-type: ## run mypy to catch type-related errors
+type: ## mypy type-check (src only)
 	uv run mypy src
 
-test: ## run pytest suite for defined tests
+test: ## pytest (quiet)
 	uv run pytest -q
 
-smoke: lint type manifest ## run lint type and manifest checks
+smoke: lint type manifest ## Quick sanity (lint + type + manifest)
 	@echo "[smoke] OK"
 
 # -------------------------------
 # Manifest validation
 # -------------------------------
 .PHONY: manifest
-manifest: ## validate mcp manifest file
+manifest: ## Validate MCP manifest(s)
 	@set -e; \
 	files=$$(git ls-files | grep -E '(^|/)manifest\.json$$' || true); \
 	if [ -z "$$files" ]; then \
@@ -80,22 +83,38 @@ manifest: ## validate mcp manifest file
 	fi
 
 # -------------------------------
-# pre-commit
+# pre-commit helpers
 # -------------------------------
-.PHONY: pre-commit-install
-pre-commit-install: ## install pre-commit hooks
-	pre-commit install -t pre-commit -t commit-msg
+.PHONY: pre-commit-install pre-commit-run pre-commit-update pre-commit-uninstall hooks-status
+pre-commit-install: ## Install pre-commit + commit-msg hooks
+	uv run pre-commit install -t pre-commit -t commit-msg
 	@echo "Hooks installed."
 
+pre-commit-run: ## Run hooks on all files once
+	uv run pre-commit run --all-files
+
+pre-commit-update: ## Auto-update hook versions
+	uv run pre-commit autoupdate
+
+pre-commit-uninstall: ## Remove installed hooks
+	uv run pre-commit uninstall -t pre-commit -t commit-msg || true
+
+hooks-status: ## Show .git/hooks symlinks
+	@ls -l .git/hooks | grep -E 'pre-commit|commit-msg' || echo "No hooks found"
+
+.PHONY: gate
+gate: lint type manifest pre-commit-run ## All checks must pass
+	@echo "[gate] all checks passed"
+
 # -------------------------------
-# full smke test via bash script
+# Full smoke via script
 # -------------------------------
 .PHONY: smoke-all
-smoke-all: ## Run full smoke (lint, type, docstrings, tests, build, install-check)
+smoke-all: ## Full smoke (lint, type, docstrings, tests, build, install-check)
 	./scripts/smoke.sh
 
 # -------------------------------
-#  Clean everything
+# Clean
 # -------------------------------
 .PHONY: clean clean-pyc clean-all
 clean:  ## Remove build artifacts (dist/build/egg-info)
