@@ -1,3 +1,7 @@
+## [0.1.13] - 2025-08-27
+### Chore
+- Remove Commitizen from release.yml.
+
 ## [0.1.12] - 2025-08-27
 ### Chore
 - ci(pipline): Another attemt at fixing Commitizen message check 0..
