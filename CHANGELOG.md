@@ -1,3 +1,13 @@
+## [0.1.9] - 2025-08-27
+### Chore
+- ci(release): pipline testing release
+- Test passted, butil failed on mis-matched versions.
+- Pushing release v0.1.10
+
+## [0.1.9] - 2025-08-27
+### Chore
+- ci(docs): pipline testing release
+
 ## [0.1.8] - 2025-08-27
 ### Chore
 - ci(release): tighten CC check & tag/version guard
