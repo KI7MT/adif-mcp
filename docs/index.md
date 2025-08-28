@@ -10,10 +10,17 @@
 [![SSL Certificate Expiry Check](https://github.com/KI7MT/adif-mcp/actions/workflows/ssl-expiry.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/ssl-expiry.yml)
 
 
+## Why ADIF MCP?
+
+- Safe, schema-validated access to log data
+- Full ADIF 3.1.5 compatibility (upward-compatible with future ADIF)
+- Extensible plugin system (LoTW, eQSL, …)
+- Designed for AI agents and modern developer workflows
+
 ## What This Project Provides
 
 - **Core:** ADIF parsing, validation, canonical types, and tool contracts
 - **Plugins:** LoTW and eQSL integrations as separate MCPs
 - **Goals:** portability, safety, testability, and vendor-neutral interfaces
 
-👉 Start with [Getting Started](getting-started.md) or browse the [LoTW](plugins/lotw/index.md) and [eQSL](plugins/eqsl/index.md) plugins.
+👉 Start with the [User Guide](userguide/getting-started.md) or browse through the [LoTW](plugins/lotw/index.md) and [eQSL](plugins/eqsl/api.md) plugins.

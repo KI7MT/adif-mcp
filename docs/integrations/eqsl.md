@@ -1,3 +1,3 @@
-# eQSL Integrations
+# eQSL Integration
 
 > Holding file
