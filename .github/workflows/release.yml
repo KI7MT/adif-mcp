@@ -46,17 +46,16 @@ jobs:
           fi
 
       # ---- Ensure tag matches pyproject version ----
-      - name: Validate tag matches pyproject version
+      - name: Verify tag matches pyproject version
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           echo "Tag version: $TAG"
-          python -c "import sys, pathlib, os; \
-          import tomllib; \
-          data = tomllib.load(open('pyproject.toml','rb')); \
-          pv = data.get('project',{}).get('version'); \
-          print('pyproject version:', pv); \
-          tag=os.environ.get('TAG'); \
-          sys.exit(1) if pv!=tag else None"
+          python -c "import os, tomllib, sys;
+          f=open('pyproject.toml','rb');
+          data=tomllib.load(f); f.close();
+          pv=data.get('project',{}).get('version');
+          print('pyproject version:', pv);
+          sys.exit(0 if pv==os.environ.get('TAG') else 1)"
 
       - name: Build artifacts
         run: uv build
