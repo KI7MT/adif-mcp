@@ -2,6 +2,7 @@ site_name: ADIF MCP
 site_url: https://adif-mcp.com/
 repo_url: https://github.com/KI7MT/adif-mcp
 site_description: ADIF MCP Documentation
+use_directory_urls: true
 
 theme:
   name: material
@@ -51,6 +52,9 @@ plugins:
             show_source: true
             show_root_toc_entry: false
             heading_level: 2
+  - sitemap:
+      changefreq: weekly
+      priority: 0.5
 
 markdown_extensions:
   - admonition
