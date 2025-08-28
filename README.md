@@ -10,7 +10,7 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Core Project Health
-![ADIF](https://img.shields.io/badge/ADIF-3.1.5-blue)()
+![ADIF](https://img.shields.io/badge/ADIF-3.1.5-blue)
 [![GitHub release](https://img.shields.io/github/v/release/KI7MT/adif-mcp?display_name=tag)](https://github.com/KI7MT/adif-mcp/releases)
 [![GitHub tag](https://img.shields.io/github/v/tag/KI7MT/adif-mcp?sort=semver)](https://github.com/KI7MT/adif-mcp/tags)
 [![CI](https://github.com/KI7MT/adif-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/ci.yml)
