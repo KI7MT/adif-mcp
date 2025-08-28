@@ -1,4 +1,4 @@
-## [0.1.14] - 2025-08-27
+## [0.1.15] - 2025-08-27
 ### Added
   - Added target for publishing to github-release
 
