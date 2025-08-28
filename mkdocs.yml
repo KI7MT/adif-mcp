@@ -36,19 +36,12 @@ nav:
     - ADIF Basics: concepts/adif-basics.md
   - Roadmap: roadmap.md
 
-#
-# Sitemaps isn't working, but when it does, add this later to the root directory
-# User-agent: *
-# Allow: /
-# Sitemap: https://adif-mcp.com/sitemap.xml
-#
 plugins:
   - search
   - mermaid2:
       javascript: https://unpkg.com/mermaid@10/dist/mermaid.min.js
       arguments:
         theme: default
-#  - sitemap # remveod as UV can seem to install it. Leve commented out.
   - redirects:
       redirect_maps:
         lotw.md: integrations/lotw/index.md
