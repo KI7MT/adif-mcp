@@ -39,8 +39,9 @@ plugins:
   - search
   - redirects:
       redirect_maps:
-        eqsl/index.md: integrations/eqsl/index.md
-        lotw/index.md: integrations/lotw/index.md
+        lotw: integrations/lotw/
+        eqsl: integrations/eqsl/
+
   - mkdocstrings:
       default_handler: python
       handlers:
