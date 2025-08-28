@@ -110,3 +110,30 @@ jobs:
           path: dist
       - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create a Release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      # Create the release from the current tag and upload artifacts
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}          # e.g. v0.1.14
+          name: ${{ github.ref_name }}              # Release name
+          generate_release_notes: true              # auto notes
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
