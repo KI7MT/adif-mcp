@@ -25,18 +25,42 @@ jobs:
       - name: Sync deps (frozen)
         run: uv sync --frozen
 
-      # Ensure tag matches pyproject version
       - name: Verify tag matches pyproject version
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           echo "Tag version: $TAG"
-          python - <<'PY'
-          import os, tomllib, sys
-          with open("pyproject.toml","rb") as f:
-              pv = tomllib.load(f)["project"]["version"]
-          print("pyproject version:", pv)
-          sys.exit(0 if pv == os.environ["GITHUB_REF_NAME"][1:] else 1)
-          PY
+          PY_VER=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          echo "pyproject version: $PY_VER"
+          [ "$TAG" = "$PY_VER" ] || { echo "::error::Tag ($TAG) != pyproject version ($PY_VER)"; exit 1; }
+
+      - name: Commitizen message check (since previous tag)
+        run: |
+          set -e
+
+          # Ensure we have all tags (defense-in-depth)
+          git fetch --tags --force --prune
+
+          CUR_SHA="$(git rev-parse "$GITHUB_SHA")"
+
+          # Previous tag *before* the current tag; tolerates annotated/lightweight tags
+          PREV_TAG="$(git describe --tags --abbrev=0 --match 'v*' "${CUR_SHA}^" 2>/dev/null || true)"
+
+          if [ -z "$PREV_TAG" ]; then
+            # First release or no previous semver-like tag: check only the tagged commit
+            RANGE="${CUR_SHA}~1..${CUR_SHA}"
+          else
+            RANGE="${PREV_TAG}..${CUR_SHA}"
+          fi
+
+          echo "Commitizen checking rev-range: $RANGE"
+
+          COUNT="$(git rev-list --count "$RANGE" || echo 0)"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No commits to check in range (likely an annotated tag only). Skipping cz check."
+            exit 0
+          fi
+
+          uv run cz check --rev-range "$RANGE"
 
       - name: Build artifacts
         run: uv build
