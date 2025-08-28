@@ -31,13 +31,17 @@ jobs:
       - name: Commitizen message check (since previous tag)
         run: |
           set -e
+
+          # Ensure we have all tags (defense-in-depth)
+          git fetch --tags --force --prune
+
           CUR_SHA="$(git rev-parse "$GITHUB_SHA")"
 
-          # previous tag (2nd most recent by version sort)
-          PREV_TAG="$(git tag --sort=-version:refname | sed -n '2p' || true)"
+          # Previous tag *before* the current tag; tolerates annotated/lightweight tags
+          PREV_TAG="$(git describe --tags --abbrev=0 --match 'v*' "${CUR_SHA}^" 2>/dev/null || true)"
 
           if [ -z "$PREV_TAG" ]; then
-            # first release: check just the tagged commit
+            # First release or no previous semver-like tag: check only the tagged commit
             RANGE="${CUR_SHA}~1..${CUR_SHA}"
           else
             RANGE="${PREV_TAG}..${CUR_SHA}"

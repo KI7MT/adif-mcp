@@ -1,3 +1,7 @@
+## [0.1.12] - 2025-08-27
+### Chore
+- ci(pipline): Another attemt at fixing Commitizen message check 0..
+
 ## [0.1.11] - 2025-08-27
 ### Chore
 - ci(pipline): Fix Commitizen message check 0 history.
