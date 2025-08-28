@@ -1,3 +1,14 @@
+## [0.1.8] - 2025-08-27
+### Chore
+- ci(release): tighten CC check & tag/version guard
+- build(uv): smoke script & sdist exclusions
+
+### Docs
+- docs(site): initial program-id policy page
+
+### Fix
+- tooling: ruff/mypy/per-file-ignores and E402 cleanups
+
 ## [0.1.1] - 2025-08-27
 ### Added
 - Added pre-commit wowrkflows
