@@ -24,18 +24,6 @@ features = ["core QSO model", "band/mode/QSL_RCVD enums"]
 [project.scripts]
 adif-mcp = "adif_mcp.cli:cli"
 
-[tool.uv]
-dev-dependencies = [
-    "pytest",
-    "mypy",
-    "ruff",
-    "commitizen",
-    "pydantic<2",
-    "jsonschema>=4.25.1",
-    "interrogate>=1.7.0",
-    "types-click>=7.1.8",
-]
-
 [tool.ruff]
 line-length = 88
 target-version = "py311"
@@ -101,6 +89,22 @@ exclude = [".venv", ".smoke-venv", "dist", "build", "site", "docs/_site"]
 [build-system]
 requires = ["hatchling>=1.21"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "mypy",
+    "ruff",
+    "commitizen",
+    "pydantic<2",
+    "jsonschema>=4.25.1",
+    "interrogate>=1.7.0",
+    "types-click>=7.1.8",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.18",
+    "mkdocstrings[python]>=0.30.0",
+    "pymdown-extensions>=10.16.1",
+]
 
 [tool.hatch.build.hooks.custom]
 path = "scripts/build_hooks.py"

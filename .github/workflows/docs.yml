@@ -25,24 +25,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install MkDocs + plugins
-        run: |
-          python -m pip install --upgrade pip
-          pip install mkdocs-material mkdocstrings[python] mike
+      - name: Sync dev deps (frozen)
+        run: uv sync --group dev --frozen
 
       - name: Build site with MkDocs
-        run: mkdocs build --strict
-        # Output goes to ./site by default
+        run: uv run mkdocs build --strict
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./site
+          path: site
 
   deploy:
     needs: build

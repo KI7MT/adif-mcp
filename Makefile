@@ -33,11 +33,10 @@ C_NC='\033[0m'		  # no color
 # -------------------------------
 # Environment / deps
 # -------------------------------
-.PHONY: setup-dev sync add add-dev init
-setup-dev: sync pre-commit-install ## Create venv, sync deps, install pre-commit hooks
-	@echo
-	@echo $(C_G)"Dev environment is ready."$(C_NC)
-	@echo
+setup-dev: ## Create venv, sync deps (incl. dev), install pre-commit hooks
+	uv sync --group dev
+	pre-commit install -t pre-commit -t commit-msg
+	@echo "Dev environment ready."
 
 sync: ## uv sync dependencies
 	uv sync
@@ -149,11 +148,11 @@ release: check-version ## Tag & push release [usage: make release VERSION=x.y.z 
 # -------------------------------
 # Docs (MkDocs)
 # -------------------------------
-.PHONY: docs docs-serve
-docs: ## Build MkDocs site (if mkdocs.yml exists)
+.PHONY: docs-build docs-serve
+docs-build: ## Build docs to ./site
 	@test -f mkdocs.yml || { echo "mkdocs.yml not found; skipping"; exit 0; }
-	uv run mkdocs build -q
-	@echo "📚 site/ built"
+	uv run mkdocs build --strict
+	@echo "site/ built"
 
 docs-serve: ## Serve MkDocs locally on http://127.0.0.1:8000/
 	@test -f mkdocs.yml || { echo "mkdocs.yml not found"; exit 1; }

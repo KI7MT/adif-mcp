@@ -24,8 +24,8 @@ jobs:
           python-version: "3.11"
 
       # Save all package versoins in uv.lock
-      - name: Sync deps (frozen)
-        run: uv sync --frozen
+      - name: Sync deps (frozen, incl. dev tools)
+        run: uv sync --group dev --frozen
 
       # Lint all python files
       - name: Lint (ruff)
