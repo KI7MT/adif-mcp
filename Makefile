@@ -2,6 +2,13 @@
 # Project meta
 # -------------------------------
 PROJECT ?= adif-mcp
+PYTHON	?= python3
+
+# Pull versions from pyproject.toml (Python 3.11+ for tomllib)
+PY_PROJ_VERSION := $(shell $(PYTHON) -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])" 2>/dev/null)
+ADIF_SPEC_VERSION := $(shell $(PYTHON) -c "import tomllib;d=tomllib.load(open('pyproject.toml','rb'));print(d.get('tool',{}).get('adif',{}).get('spec_version','unknown'))" 2>/dev/null)
+
+
 
 # Optional defaults printed in the help header (leave blank if N/A)
 FROM    ?=
@@ -9,62 +16,72 @@ TO      ?=
 DB      ?=
 PORT    ?=
 
-# Colors (safe defaults if not defined in env)
-C_C  ?= \033[1;36m
-C_Y  ?= \033[1;33m
-C_NC ?= \033[0m
+# -------------------------------
+# Color Helpers
+# -------------------------------
+# C_C  ?= \033[1;36m
+# C_Y  ?= \033[1;33m
+# C_NC ?= \033[0m
 
-# Default target
-.PHONY: help
-help: ## Show this help
-	@printf "\n$(C_C)%s$(C_NC)\n" "$(PROJECT)  — Developer Commands"
-	@printf "%s\n" "-------------------------------------------------------------------------------"
-	@printf "$(C_Y)Defaults:$(C_NC) "; \
-	printf "FROM=%s " "$(FROM)"; \
-	printf "TO=%s " "$(TO)"; \
-	printf "DB=%s " "$(DB)"; \
-	printf "PORT=%s " "$(PORT)"; \
-	printf "VERSION=%s\n\n" "$(VERSION)";
-	@grep -E '^[a-zA-Z0-9_.-]+:.*?##' $(MAKEFILE_LIST) | sort | \
-	  awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-22s\033[0m %s\n", $$1, $$2}'
-	@printf "\n"
+# Foreground colors
+C_R='\033[01;31m'		# red
+C_G='\033[01;32m'		# green
+C_Y='\033[01;33m'		# yellow
+C_C='\033[01;36m'		# cyan
+C_NC='\033[0m'		  # no color
 
 # -------------------------------
 # Environment / deps
 # -------------------------------
-.PHONY: setup-dev sync add add-dev
-setup-dev: sync pre-commit-install pre-commit-run hooks-status ## Create venv, sync deps, install hooks, run once
-	@echo "Dev environment ready."
+.PHONY: setup-dev sync add add-dev init
+setup-dev: sync pre-commit-install ## Create venv, sync deps, install pre-commit hooks
+	@echo
+	@echo $(C_G)"Dev environment is ready."$(C_NC)
+	@echo
 
-sync: ## uv sync (install dependencies)
+sync: ## uv sync dependencies
 	uv sync
 
-add: ## Add a runtime dep (make add DEP=requests)
+add: ## Add a runtime dep (usage: make add DEP=requests)
 	@test -n "$(DEP)" || (echo "Usage: make add DEP=<package>[==version]"; exit 1)
 	uv add "$(DEP)"
 
-add-dev: ## Add a dev dep (make add-dev DEP=pytest)
+add-dev: ## Add a dev dep (usage: make add-dev DEP=pytest)
 	@test -n "$(DEP)" || (echo "Usage: make add-dev DEP=<package>[==version]"; exit 1)
 	uv add --group dev "$(DEP)"
+
+init: ## One-time bootstrap: sync deps, install hooks, run smoke-all
+	$(MAKE) setup-dev
+	$(MAKE) smoke-all
+	@echo
+	@echo $(C_G)"init complete"$(C_NC)
+	@echo
 
 # -------------------------------
 # Quality gates
 # -------------------------------
-.PHONY: lint format type test smoke
+.PHONY: lint format type test smoke gate
 lint: ## Ruff lint
 	uv run ruff check .
 
 format: ## Ruff format (in-place)
 	uv run ruff format .
 
-type: ## mypy type-check (src only)
+type: ## mypy (src only)
 	uv run mypy src
 
-test: ## pytest (quiet)
+test: ## pytest
 	uv run pytest -q
 
-smoke: lint type manifest ## Quick sanity (lint + type + manifest)
+smoke: lint type manifest ## quick local gate (lint+type+manifest)
 	@echo "[smoke] OK"
+
+gate: ## CI parity gate: lint + type + tests + manifest + docstrings
+	$(MAKE) lint
+	$(MAKE) type
+	$(MAKE) test
+	$(MAKE) manifest
+	uv run interrogate -c pyproject.toml
 
 # -------------------------------
 # Manifest validation
@@ -83,35 +100,101 @@ manifest: ## Validate MCP manifest(s)
 	fi
 
 # -------------------------------
-# pre-commit helpers
+# Docs: export dev commands page
 # -------------------------------
-.PHONY: pre-commit-install pre-commit-run pre-commit-update pre-commit-uninstall hooks-status
-pre-commit-install: ## Install pre-commit + commit-msg hooks
-	uv run pre-commit install -t pre-commit -t commit-msg
+.PHONY: docs-dev
+docs-dev: ## Generate docs/dev.md from make help
+	@mkdir -p docs
+	@echo "# Developer Commands" > docs/dev.md
+	@echo >> docs/dev.md
+	@echo "This page is generated from \`make help\` for quick reference." >> docs/dev.md
+	@echo >> docs/dev.md
+	@echo '```' >> docs/dev.md
+	@$(MAKE) -s help >> docs/dev.md
+	@echo '```' >> docs/dev.md
+	@echo "Wrote docs/dev.md"
+
+# -------------------------------
+# pre-commit
+# -------------------------------
+.PHONY: pre-commit-install pre-commit-run
+pre-commit-install: ## Install pre-commit hooks (pre-commit & commit-msg)
+	pre-commit install -t pre-commit -t commit-msg
 	@echo "Hooks installed."
 
-pre-commit-run: ## Run hooks on all files once
-	uv run pre-commit run --all-files
-
-pre-commit-update: ## Auto-update hook versions
-	uv run pre-commit autoupdate
-
-pre-commit-uninstall: ## Remove installed hooks
-	uv run pre-commit uninstall -t pre-commit -t commit-msg || true
-
-hooks-status: ## Show .git/hooks symlinks
-	@ls -l .git/hooks | grep -E 'pre-commit|commit-msg' || echo "No hooks found"
-
-.PHONY: gate
-gate: lint type manifest pre-commit-run ## All checks must pass
-	@echo "[gate] all checks passed"
+pre-commit-run: ## Run hooks on all files
+	pre-commit run --all-files
 
 # -------------------------------
-# Full smoke via script
+# Full smoke test via script
 # -------------------------------
 .PHONY: smoke-all
 smoke-all: ## Full smoke (lint, type, docstrings, tests, build, install-check)
 	./scripts/smoke.sh
+
+# -------------------------------
+# Release helper (tags & push)
+# -------------------------------
+.PHONY: release
+release: check-version ## Tag & push release [usage: make release VERSION=x.y.z SPEC=3.1.5]
+	@git fetch --tags --quiet
+	@if [ -z "$(VERSION)" ]; then echo "ERROR: set VERSION=x.y.z"; exit 1; fi
+	@if git rev-parse "v$(VERSION)" >/dev/null 2>&1; then \
+	  echo "Tag v$(VERSION) already exists"; exit 1; \
+	fi
+	git tag -a "v$(VERSION)" -m "chore(release): v$(VERSION)"
+	git push origin "v$(VERSION)"
+	@echo "🚀 Pushed tag v$(VERSION). GitHub Actions will build & publish."
+
+# -------------------------------
+# Docs (MkDocs)
+# -------------------------------
+.PHONY: docs docs-serve
+docs: ## Build MkDocs site (if mkdocs.yml exists)
+	@test -f mkdocs.yml || { echo "mkdocs.yml not found; skipping"; exit 0; }
+	uv run mkdocs build -q
+	@echo "📚 site/ built"
+
+docs-serve: ## Serve MkDocs locally on http://127.0.0.1:8000/
+	@test -f mkdocs.yml || { echo "mkdocs.yml not found"; exit 1; }
+	uv run mkdocs serve -a 127.0.0.1:8000
+
+# -------------------------------
+# Version checks
+# -------------------------------
+.PHONY: print-versions check-version
+print-versions: ## Show versions from pyproject.toml
+	@clear
+	@echo $(C_C)"Project Information"$(C_NC)
+	@echo "--------------------------------------------"
+	@echo "  Project Name .......: $(PROJECT) "
+	@echo "  Project Version ....: $(PY_PROJ_VERSION)"
+	@echo "  ADIF Spec Version ..: $(ADIF_SPEC_VERSION)"
+	@echo
+
+# Usage:
+#   make check-version
+#   make check-version VERSION=0.1.23
+#   make check-version SPEC=3.1.5
+#   make check-version VERSION=0.1.23 SPEC=3.1.5
+check-version: ## Ensure VERSION and/or SPEC match pyproject.toml (use VERSION=... SPEC=...)
+	@clear
+	@echo $(C_C)"Project Information"$(C_NC)
+	@echo "--------------------------------------------"
+	@echo "  Project Name .......: $(PROJECT) "
+	@echo "  Project Version ....: $(PY_PROJ_VERSION)"
+	@echo "  ADIF Spec Version ..: $(ADIF_SPEC_VERSION)"
+
+	@if [ -n "$(VERSION)" ] && [ "$(PY_PROJ_VERSION)" != "$(VERSION)" ]; then \
+	  echo ; echo $(C_Y)"ERROR: pyproject version ($(PY_PROJ_VERSION)) != VERSION ($(VERSION))"; echo $(C_NC) ;echo ; exit 1; \
+	fi
+	@if [ -n "$(VERSION)" ]; then echo "✔ version matches ($(VERSION))"; fi
+
+	@if [ -n "$(SPEC)" ] && [ "$(ADIF_SPEC_VERSION)" != "$(SPEC)" ]; then \
+	  echo ; echo $(C_Y)"ERROR: ADIF spec version ($(ADIF_SPEC_VERSION)) != SPEC ($(SPEC))";  echo $(C_NC) ;echo ; echo ; exit 1; \
+	fi
+	@if [ -n "$(SPEC)" ]; then echo $(C_G)"✔ ADIF spec matches ($(SPEC))" ; echo $(N_CN) echo ; fi
+	@echo
 
 # -------------------------------
 # Clean
@@ -123,7 +206,19 @@ clean:  ## Remove build artifacts (dist/build/egg-info)
 clean-pyc:  ## Remove Python bytecode (__pycache__, *.pyc)
 	@find . -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
 	@find . -name '*.py[co]' -delete 2>/dev/null || true
-	@find . -name '*$py.class' -delete 2>/dev/null || true
+	@find . -name '*$$py.class' -delete 2>/dev/null || true
 
 clean-all: clean clean-pyc  ## Deep clean (incl. smoke venv)
 	rm -rf .smoke-venv
+
+# -------------------------------
+# Help
+# -------------------------------
+.PHONY: help
+help: ## Show this help
+	@clear
+	@echo "Developer Commands"
+	@echo "--------------------------------------------------------------------------------------------------------"
+	@grep -E '^[a-zA-Z0-9_.-]+:.*?##' $(MAKEFILE_LIST) | sort | \
+	  awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-22s\033[0m %s\n", $$1, $$2}'
+	@printf "\n"
