@@ -28,22 +28,30 @@ jobs:
         run: uv sync --frozen
 
       # ---- Strict CC check on the commits being released ----
-      - name: Commitizen check (since previous tag)
+      - name: Commitizen message check (since previous tag)
         run: |
-          git fetch --tags --force
-          # current tag (e.g., v0.1.4) provided by the ref
-          CUR_TAG="${GITHUB_REF_NAME}"
-          echo "Current tag: $CUR_TAG"
+          set -e
+          CUR_SHA="$(git rev-parse "$GITHUB_SHA")"
 
-          # previous tag by creation time (2nd newest)
-          PREV_TAG="$(git tag --sort=-creatordate | sed -n '2p' || true)"
-          if [ -n "$PREV_TAG" ]; then
-            echo "Checking commits in range: $PREV_TAG..$CUR_TAG"
-            uv run cz check --rev-range "$PREV_TAG..$CUR_TAG"
+          # previous tag (2nd most recent by version sort)
+          PREV_TAG="$(git tag --sort=-version:refname | sed -n '2p' || true)"
+
+          if [ -z "$PREV_TAG" ]; then
+            # first release: check just the tagged commit
+            RANGE="${CUR_SHA}~1..${CUR_SHA}"
           else
-            echo "No previous tag found; checking all commits"
-            uv run cz check
+            RANGE="${PREV_TAG}..${CUR_SHA}"
           fi
+
+          echo "Commitizen checking rev-range: $RANGE"
+
+          COUNT="$(git rev-list --count "$RANGE" || echo 0)"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No commits to check in range (likely an annotated tag only). Skipping cz check."
+            exit 0
+          fi
+
+          uv run cz check --rev-range "$RANGE"
 
       # ---- Ensure tag matches pyproject version ----
       - name: Verify tag matches pyproject version

@@ -1,4 +1,8 @@
-## [0.1.9] - 2025-08-27
+## [0.1.11] - 2025-08-27
+### Chore
+- ci(pipline): Fix Commitizen message check 0 history.
+
+## [0.1.10] - 2025-08-27
 ### Chore
 - ci(release): pipline testing release
 - Test passted, butil failed on mis-matched versions.
