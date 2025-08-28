@@ -21,7 +21,7 @@ nav:
   - Integrations:
     - Overview: integrations/overview.md
     - LoTW: integrations/lotw/index.md
-    - eqsl: integrations/eqsl/index.md
+    - eQSL: integrations/eqsl/index.md
   - User Guide:
     - userguide/getting-started.md
   - Dev Guide:
