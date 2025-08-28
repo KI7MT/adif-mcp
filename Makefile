@@ -201,6 +201,7 @@ check-version: ## Ensure VERSION and/or SPEC match pyproject.toml (use VERSION=.
 .PHONY: clean clean-pyc clean-all
 clean:  ## Remove build artifacts (dist/build/egg-info)
 	rm -rf dist build *.egg-info
+	rm -rf site/
 
 clean-pyc:  ## Remove Python bytecode (__pycache__, *.pyc)
 	@find . -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true

@@ -40,7 +40,6 @@ nav:
 plugins:
   - search
   - mermaid2:
-      javascript: https://unpkg.com/mermaid@10/dist/mermaid.min.js
       arguments:
         theme: default
   - git-revision-date-localized:

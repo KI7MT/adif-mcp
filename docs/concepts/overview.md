@@ -38,9 +38,7 @@ This is where ADIF-MCP changes the game:
 In short: ADIF-MCP handles the plumbing; agents handle the conversation.
 Together, they unlock an operator-friendly way to query and use logbooks without needing to code.
 
-
 ---
-
 
 ```mermaid
 flowchart LR
