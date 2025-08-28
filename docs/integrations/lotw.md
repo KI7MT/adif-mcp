@@ -1,3 +1,0 @@
-# LoTw Integration
-
-> Holding file

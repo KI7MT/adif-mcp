@@ -3,11 +3,11 @@
 **ADIF MCP** is a set of Model Context Protocol tools that give AI agents safe, typed access to Amateur Radio logging data using the ADIF standard.
 
 ## Core Project Health
-[![ADIF 3.1.5](https://img.shields.io/badge/ADIF-3.1.5-blue?label=Spec)](#-compliance--provenance)
+[![ADIF 3.1.5](https://img.shields.io/badge/ADIF-3.1.5-blue?label=Spec)](https://github.com/KI7MT/adif-mcp/spec)
 [![GitHub release](https://img.shields.io/github/v/release/KI7MT/adif-mcp)](https://github.com/KI7MT/adif-mcp/releases)
 [![GitHub tag](https://img.shields.io/github/v/tag/KI7MT/adif-mcp?sort=semver)](https://github.com/KI7MT/adif-mcp/tags)
 [![Docs](https://img.shields.io/badge/docs-github_pages-blue)](https://adif-mcp.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/KI7MT/adif-mcp/tags/LICENSE)
 
 
 ## Why ADIF MCP?
@@ -23,4 +23,4 @@
 - **Plugins:** LoTW and eQSL integrations as separate MCPs
 - **Goals:** portability, safety, testability, and vendor-neutral interfaces
 
-👉 Start with the [User Guide](userguide/getting-started.md) or browse through the [LoTW](plugins/lotw/api.md) and [eQSL](plugins/eqsl/api.md) plugins.
+👉 Start with the [User Guide](userguide/getting-started.md) or browse through the [LoTW](integrations/lotw/index.md) and [eQSL](integrations/eqsl/index.md) integrations.

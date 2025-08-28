@@ -6,6 +6,7 @@ authors = [{ name = "KI7MT" }]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.10"
+
 dependencies = [
     "click",
     "pytest>=8.4.1",
@@ -104,6 +105,7 @@ dev = [
     "mkdocs-material>=9.6.18",
     "mkdocstrings[python]>=0.30.0",
     "pymdown-extensions>=10.16.1",
+    "mkdocs-redirects>=1.2.2",
 ]
 
 [tool.hatch.build.hooks.custom]

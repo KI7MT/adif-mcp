@@ -14,34 +14,33 @@ theme:
     - content.code.copy
 nav:
   - Home: index.md
-  - Concepts:
-    - Overview: concepts/overview.md
-    - ADIF Basics: concepts/adif-basics.md
   - MCP:
     - Overview: mcp/overview.md
     - Manifest: mcp/manifest.md
     - Tools: mcp/tools.md
   - Integrations:
     - Overview: integrations/overview.md
-    - LoTW: integrations/lotw.md
-    - eQSL: integrations/eqsl.md
-  - Plugins:
-    - eQSL API: plugins/eqsl/api.md
-    - LoTW API: plugins/lotw/api.md
+    - LoTW: integrations/lotw/index.md
+    - eqsl: integrations/eqsl/index.md
   - User Guide:
     - userguide/getting-started.md
   - Dev Guide:
-    - devguide/overview.md
+    - Overview: devguide/overview.md
+    - Make Commands: devguide/make-commands.md
   - Program ID Policy: program-id-policy.md
   - Spec:
     - Overview: spec/spec.md
+  - Concepts:
+    - Overview: concepts/overview.md
+    - ADIF Basics: concepts/adif-basics.md
   - Roadmap: roadmap.md
-
-
-
 
 plugins:
   - search
+  - redirects:
+      redirect_maps:
+        eqsl/index.md: integrations/eqsl/index.md
+        lotw/index.md: integrations/lotw/index.md
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -51,6 +50,7 @@ plugins:
             show_source: true
             show_root_toc_entry: false
             heading_level: 2
+
 markdown_extensions:
   - admonition
   - abbr
