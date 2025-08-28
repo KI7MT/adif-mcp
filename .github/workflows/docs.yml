@@ -36,6 +36,9 @@ jobs:
       - name: Sync dev deps (frozen)
         run: uv sync --group dev --frozen
 
+      - name: Assert mermaid plugin present
+        run: uv run python -c "import mermaid2; print('mermaid2 OK')"
+
       - name: Build site with MkDocs
         run: uv run mkdocs build --strict
 

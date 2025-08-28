@@ -47,7 +47,7 @@ plugins:
   - mermaid2:
       javascript: https://unpkg.com/mermaid@10/dist/mermaid.min.js
       arguments:
-        theme: nutral
+        theme: default
 #  - sitemap # remveod as UV can seem to install it. Leve commented out.
   - redirects:
       redirect_maps:
