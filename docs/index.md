@@ -23,4 +23,4 @@
 - **Plugins:** LoTW and eQSL integrations as separate MCPs
 - **Goals:** portability, safety, testability, and vendor-neutral interfaces
 
-👉 Start with the [User Guide](userguide/getting-started.md) or browse through the [LoTW](plugins/lotw/index.md) and [eQSL](plugins/eqsl/api.md) plugins.
+👉 Start with the [User Guide](userguide/getting-started.md) or browse through the [LoTW](plugins/lotw/api.md) and [eQSL](plugins/eqsl/api.md) plugins.
