@@ -50,12 +50,9 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           echo "Tag version: $TAG"
-          python -c "import os, tomllib, sys;
-          f=open('pyproject.toml','rb');
-          data=tomllib.load(f); f.close();
-          pv=data.get('project',{}).get('version');
-          print('pyproject version:', pv);
-          sys.exit(0 if pv==os.environ.get('TAG') else 1)"
+          PY_VER=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          echo "pyproject version: $PY_VER"
+          [ "$TAG" = "$PY_VER" ] || { echo "::error::Tag ($TAG) != pyproject version ($PY_VER)"; exit 1; }
 
       - name: Build artifacts
         run: uv build
