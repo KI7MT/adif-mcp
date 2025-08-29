@@ -8,8 +8,6 @@ PYTHON	?= python3
 PY_PROJ_VERSION := $(shell $(PYTHON) -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])" 2>/dev/null)
 ADIF_SPEC_VERSION := $(shell $(PYTHON) -c "import tomllib;d=tomllib.load(open('pyproject.toml','rb'));print(d.get('tool',{}).get('adif',{}).get('spec_version','unknown'))" 2>/dev/null)
 
-
-
 # Optional defaults printed in the help header (leave blank if N/A)
 FROM    ?=
 TO      ?=
@@ -208,6 +206,24 @@ check-version: ## Ensure VERSION and/or SPEC match pyproject.toml (use VERSION=.
 	fi
 	@if [ -n "$(SPEC)" ]; then echo $(C_G)"✔ ADIF spec matches ($(SPEC))" ; echo $(N_CN) echo ; fi
 	@echo
+
+
+# -------------------------------
+# Docstring coverage (verbose)
+# -------------------------------
+.PHONY: docstrings
+docstrings: ## Show per-object docstring coverage with file/function lines
+	uv run interrogate -vv -c pyproject.toml --fail-under=100 src scripts test
+
+# -------------------------------
+# Full local gate
+# -------------------------------
+.PHONY: check-all
+check-all: ## Ruff + mypy + verbose docstrings + manifest validation
+	uv run ruff check src scripts test
+	uv run mypy src scripts test
+	uv run interrogate -vv -c pyproject.toml --fail-under=100 src scripts test
+	$(MAKE) manifest
 
 # -------------------------------
 # Clean

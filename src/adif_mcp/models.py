@@ -6,10 +6,13 @@ normalization of ADIF-style QSO data, plus small batch I/O envelopes.
 
 from __future__ import annotations
 
+import re
 from typing import Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field
-from typing_extensions import Annotated  # <-- add this
+from pydantic import BaseModel, Field, constr, validator
+from typing_extensions import Annotated
+
+_RST_RE = re.compile(r"^[1-5][1-9](?:[1-9])?$")  # R 1–5, S 1–9, optional T 1–9
 
 # ---- Atomic field types (constrained) ----
 Callsign = Annotated[str, Field(strip_whitespace=True, min_length=3, max_length=20)]
@@ -45,7 +48,7 @@ Mode = Literal[
     "OLIVIA",
     "OTHER",
 ]
-RST = Annotated[str, Field(regex=r"^\d{2,3}[A-Z]?$")]
+RST = constr(regex=r"^[1-5][1-9](?:[1-9])?$")
 BoolFlag = Literal["Y", "N"]
 QSLRcvd = Literal["Y", "N", "R", "I", "V", "Q", "E"]
 
@@ -72,12 +75,21 @@ class QsoCore(BaseModel):
     band: Band
     mode: Mode
     freq: Optional[Annotated[float, Field(gt=0)]] = None  # MHz
-    rst_sent: Optional[RST] = None
-    rst_rcvd: Optional[RST] = None
+    rst_sent: Optional[str] = None
+    rst_rcvd: Optional[str] = None
     my_gridsquare: Optional[Annotated[str, Field(max_length=8)]] = None
     gridsquare: Optional[Annotated[str, Field(max_length=8)]] = None
     tx_pwr: Optional[Annotated[float, Field(ge=0)]] = None  # watts
     comment: Optional[Annotated[str, Field(max_length=200)]] = None
+
+    @validator("rst_sent", "rst_rcvd")
+    def _validate_rst(cls, v: Optional[str]) -> Optional[str]:
+        """Validation of sent and recieved RSTs"""
+        if v is None:
+            return v
+        if not _RST_RE.match(v):
+            raise ValueError(f"Invalid RST: {v!r}")
+        return v
 
 
 class QslStatus(BaseModel):

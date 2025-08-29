@@ -87,10 +87,6 @@ ignore-properties = true
 paths = ["src", "scripts", "test"]
 exclude = [".venv", ".smoke-venv", "dist", "build", "site", "docs/_site"]
 
-[build-system]
-requires = ["hatchling>=1.21"]
-build-backend = "hatchling.build"
-
 [dependency-groups]
 dev = [
     "pytest",
@@ -110,6 +106,15 @@ dev = [
     "mkdocs-mermaid2-plugin>=1.2.2",
     "mkdocs-git-revision-date-localized-plugin>=1.4.7",
 ]
+
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+# If we get tired of type erroes in test/* uncomment the block
+[[tool.mypy.overrides]]
+module = "test.*"
+disable_error_code = ["annotation-unchecked"]
 
 [tool.hatch.build.hooks.custom]
 path = "scripts/build_hooks.py"

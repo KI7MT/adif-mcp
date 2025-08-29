@@ -17,6 +17,7 @@ build/
 __pycache__/
 *.py[cod]
 *$py.class
+ki7mt.adi
 
 # ------------------------
 # MkDocs Local Site Build

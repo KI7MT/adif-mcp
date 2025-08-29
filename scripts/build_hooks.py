@@ -1,66 +1,75 @@
+#!/usr/bin/env python3
 """
-Custom Hatchling build hook for adif-mcp.
+Hatch build hook: writes ADIF metadata from pyproject.toml into the package.
 
-This hook runs at build time and copies the `[tool.adif]` table from
-`pyproject.toml` into a generated JSON file at
-`src/adif_mcp/adif_meta.json`.
+During `uv build` / `hatchling` builds, this hook reads:
 
-Why:
-- Ensures the ADIF spec version and supported features are baked into
-  built wheels and sdists (so the runtime does not need to parse
-  `pyproject.toml`).
-- Keeps `pyproject.toml` as the single source of truth for metadata.
-- Provides a consistent fallback mechanism: editable installs read
-  directly from `pyproject.toml`, while published artifacts use the
-  generated JSON.
+  [tool.adif]
+  spec_version = "3.1.5"
+  features = ["core QSO model", "band/mode/QSL_RCVD enums"]
 
-The generated file is ignored by version control (`.gitignore`) and
-is safe to regenerate on every build.
+…and emits `src/adif_mcp/adif_meta.json` so the wheel/sdist contains a
+machine-readable copy of the ADIF compatibility information.
 """
 
 from __future__ import annotations
 
 import json
-import pathlib
-import sys
+import tomllib
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict
 
-from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+# ---- Typed base for static checkers; real base only at build time ----
+if TYPE_CHECKING:
 
-try:
-    import tomllib  # Python 3.11+
-except Exception:  # pragma: no cover
-    tomllib = None  # type: ignore[assignment]
+    class _Base:
+        """Typed stand-in for Hatch's BuildHookInterface (type checking only)."""
+
+        PLUGIN_NAME: str
+
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            """Initialize the hook (stub only, no runtime logic)."""
+
+        def initialize(self, version: str, build_data: Dict[str, Any]) -> None:
+            """Stub initializer; overridden by the real Hatch interface at runtime."""
+
+else:
+    # Imported only when the build backend runs (hatchling present then).
+    from hatchling.builders.hooks.plugin.interface import BuildHookInterface as _Base
 
 
-class BuildHook(BuildHookInterface):
+def _load_adif_meta(pyproject_path: Path) -> Dict[str, Any]:
+    """Load ADIF metadata from *pyproject_path*.
+
+    Returns:
+        A dict with keys:
+          - "spec_version": str
+          - "features": list[str]
     """
-    Copy [tool.adif] from pyproject.toml into src/adif_mcp/adif_meta.json
-    during build, so wheels contain the ADIF spec metadata.
-    """
+    data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+    tool = data.get("tool", {})
+    adif = tool.get("adif", {})
+    spec = adif.get("spec_version", "unknown")
+    features = adif.get("features", [])
+    return {"spec_version": spec, "features": features}
 
-    def initialize(self, version: str, build_data: dict) -> None:  # noqa: D401
-        """Run at build start; write `adif_meta.json` into the package directory."""
-        root = pathlib.Path(self.root)
-        pyproject = root / "pyproject.toml"
 
-        meta = {"spec_version": "0", "features": []}
+def _write_meta_json(path: Path, payload: Dict[str, Any]) -> None:
+    """Write *payload* as pretty JSON to *path*, creating parent dirs if needed."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
-        if tomllib and pyproject.is_file():
-            try:
-                data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
-                adif = (data.get("tool") or {}).get("adif") or {}
-                spec = adif.get("spec_version")
-                feats = adif.get("features")
-                if isinstance(spec, str):
-                    meta["spec_version"] = spec
-                if isinstance(feats, list):
-                    meta["features"] = [str(x) for x in feats]
-            except Exception as e:  # pragma: no cover
-                print(
-                    f"[build-hook] Warning: failed reading [tool.adif]: {e}",
-                    file=sys.stderr,
-                )
 
-        out = root / "src" / "adif_mcp" / "adif_meta.json"
-        out.write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
-        print(f"[build-hook] wrote {out}")
+class BuildHook(_Base):
+    """Hatch build hook that generates `adif_mcp/adif_meta.json`."""
+
+    PLUGIN_NAME = "adif-meta"
+
+    def initialize(self, version: str, build_data: Dict[str, Any]) -> None:
+        """Create `adif_meta.json` before wheel/sdist are built."""
+        pyproject = Path("pyproject.toml")
+        payload = _load_adif_meta(pyproject)
+        payload["build_flavor"] = version  # e.g., "standard"
+        _write_meta_json(Path("src/adif_mcp/adif_meta.json"), payload)

@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
-
-"""Validate MCP manifest files against a minimal v1 schema.
+"""
+Validate MCP manifest files against the local v1 schema.
 
 Usage:
     uv run python scripts/validate_manifest.py mcp/manifest.json
-    uv run python scripts/validate_manifest.py
-        # defaults to mcp/manifest.json if present
+    # or multiple:
+    uv run python scripts/validate_manifest.py mcp/manifest.json other/manifest.json
 """
 
 from __future__ import annotations
@@ -13,50 +12,71 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Dict, Sequence, cast
 
-from jsonschema import validate  # type: ignore[import-untyped]
+from jsonschema import validate
 
 SCHEMA_PATH = Path("mcp/schemas/manifest.v1.json")
 
 
-def load_json(path: Path) -> dict:
-    """Read and parse a JSON file into a Python dict."""
-    return json.loads(path.read_text(encoding="utf-8"))
+def _load_json(p: Path) -> Dict[str, Any]:
+    """Load a JSON file from *p* and return it as a typed dict.
+
+    Notes:
+        `json.load` returns `Any`, so we cast to `Dict[str, Any]` to keep mypy happy.
+    """
+    with p.open("r", encoding="utf-8") as fh:
+        return cast(Dict[str, Any], json.load(fh))
 
 
-def validate_one(path: Path, schema_path: Path = SCHEMA_PATH) -> bool:
-    """Validate a single manifest file against the schema and print a short OK line."""
-    manifest = load_json(path)
-    schema = load_json(schema_path)
-    validate(instance=manifest, schema=schema)
-    print(f"{path}: OK (jsonschema)")
+def validate_one(p: Path) -> bool:
+    """Validate a single manifest file at *p* against the local MCP v1 schema.
+
+    Returns:
+        True if validation succeeds, False otherwise.
+    """
+    schema = _load_json(SCHEMA_PATH)
+    manifest = _load_json(p)
+
+    # quick structural sanity check before full schema validation
+    tools = manifest.get("tools")
+    if not isinstance(tools, list):
+        print(f"{p}: ERROR: manifest.tools missing or not a list", file=sys.stderr)
+        return False
+
+    try:
+        validate(instance=manifest, schema=schema)  # jsonschema handles deep checks
+    except Exception as exc:  # jsonschema.ValidationError or others
+        print(f"{p}: INVALID: {exc}", file=sys.stderr)
+        return False
+
+    print(f"{p}: OK (jsonschema)")
     return True
 
 
 def main(argv: Sequence[str]) -> int:
-    """CLI entrypoint. Validate one or more manifest paths.
+    """CLI entry-point. Validates one or more manifest paths from *argv*.
 
-    If no paths are provided, defaults to `mcp/manifest.json` if present.
+    Returns:
+        0 on success for all files; 1 if any validation fails or no files provided.
     """
-    files = (
-        [Path(a) for a in argv]
-        if argv
-        else ([Path("mcp/manifest.json")] if Path("mcp/manifest.json").exists() else [])
-    )
-    if not files:
-        print("No manifest paths provided and default not found.", file=sys.stderr)
-        return 2
+    if not argv:
+        print(
+            "Usage: python scripts/validate_manifest.py <manifest.json> [...]",
+            file=sys.stderr,
+        )
+        return 1
 
-    failures = 0
-    for p in files:
-        try:
-            validate_one(p)
-        except Exception as e:
-            print(f"{p}: INVALID: {e}", file=sys.stderr)
-            failures += 1
+    ok = True
+    for arg in argv:
+        path = Path(arg)
+        if not path.exists():
+            print(f"{path}: ERROR: file not found", file=sys.stderr)
+            ok = False
+            continue
+        ok = validate_one(path) and ok
 
-    return 0 if failures == 0 else 1
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
