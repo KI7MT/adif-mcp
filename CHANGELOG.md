@@ -1,28 +1,42 @@
 # Changelog
 
-## [0.1.17] - 2025-08-29
+All notable changes to this project will be documented in this file.
+
+## [0.1.18] - 2025-08-29
+
 ### Added
-- **ADIF parser (`adif_reader`)**: minimal implementation to parse `.adi` text into typed QSO records.
-- **eQSL stub (`eqsl_stub`)**: synthetic inbox + band/mode summaries for testing integration concepts.
-- **CLI commands**:
-  - `adif-mcp version` → shows MCP + ADIF spec version.
-  - `adif-mcp manifest-validate` → validates MCP manifest against schema.
-  - `adif-mcp eqsl inbox` and `adif-mcp eqsl summary` → exercise the stub integration.
-- **Build hook (`build_hooks.py`)**: automatically injects `adif_meta.json` into the wheel with version + spec metadata.
-- **Full test suite** with 100% coverage across parsers, stub tools, CLI, and manifest validation.
-- **CI/CD docs workflow**: MkDocs + Material + Mermaid v10, GitHub Pages with custom domain.
+- New script: `scripts/provider_coverage.py`
+  - Computes per-provider ADIF field coverage against the canonical catalog.
+  - Pretty-printed report with coverage %, missing fields, and status column.
+  - Consistent header/title conventions (`DEFAULT_TITLE`, `DEFAULT_DESCRIPTION`).
+- Added `TODO.md` for developer notes and future improvements.
+- Added `utils.clear()` helper idea for terminal readability (tracked in TODO).
 
 ### Changed
-- Normalized ADIF keys (snake_case).
-- Callsigns automatically uppercased in parser.
-- Strict type checking: `mypy`, `ruff`, `interrogate` integrated and enforced at 100% docstring coverage.
+- Updated `CONTRIBUTING.md` to require smoke tests before PRs:
+  - `ruff`, `mypy`, `interrogate`, `pytest`, and manifest validation.
+- Centralized JSON spec & provider files under `mcp/` directory for clarity.
+- Improved test coverage to 100% across `src/`, `scripts/`, and `test/`.
 
 ### Fixed
-- CI/CD issues with `commitizen` hooks removed, replaced with manual version bump + tagging.
-- Mermaid diagram rendering on GitHub Pages (switch to `mkdocs-mermaid2-plugin`).
+- Build hook script (`scripts/build_hooks.py`) cleaned up for Python ≥3.11 only.
+- Normalization in ADIF parser (`record_as_qso`) now uppercases callsigns.
+- eQSL stub `filter_summary` properly raises `ValueError` for invalid selectors.
+- RST validation rejects invalid values (`rst_sent`, `rst_rcvd`).
 
 ---
 
+## [0.1.17] - 2025-08-28
+### Added
+- First pass at `eqsl_stub.py` demo tool.
+- ADIF parser and models with validation.
+- CLI entrypoints (`adif-mcp version`, `manifest-validate`, `eqsl`).
+- Docs: Concepts overview with working Mermaid diagram.
+- CI pipeline integration for linting, typing, and manifest validation.
+
+---
+
+[0.1.18]: https://github.com/KI7MT/adif-mcp/releases/tag/v0.1.18
 [0.1.17]: https://github.com/KI7MT/adif-mcp/releases/tag/v0.1.17
 
 ## [0.1.16] - 2025-08-28
