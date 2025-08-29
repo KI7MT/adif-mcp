@@ -69,5 +69,7 @@
 ## Removed
 - All previous development tags
 
+## v0.1.18 (2025-08-29)
+
 ## [v0.1.1] to [0.1.13] - 2025-08-27
 - No formal package release was made during pipline development.
