@@ -125,10 +125,10 @@ pre-commit-run: ## Run hooks on all files
 	pre-commit run --all-files
 
 # -------------------------------
-# Full smoke test via script
+# full smoke test via bash script
 # -------------------------------
 .PHONY: smoke-all
-smoke-all: ## Full smoke (lint, type, docstrings, tests, build, install-check)
+smoke-all: lint type manifest docs-check ## Run full smoke (lint, type, docstrings, tests, build, install-check, docs)
 	./scripts/smoke.sh
 
 # -------------------------------
@@ -157,6 +157,20 @@ docs-build: ## Build docs to ./site
 docs-serve: ## Serve MkDocs locally on http://127.0.0.1:8000/
 	@test -f mkdocs.yml || { echo "mkdocs.yml not found"; exit 1; }
 	uv run mkdocs serve -a 127.0.0.1:8000
+
+.PHONY: docs-check
+docs-check: docs-build ## Verify Mermaid rendered (div.mermaid present; no code.language-mermaid left)
+	@set -e; \
+	ok_div=$$(grep -R '<div class="mermaid"' -c site/ || true); \
+	bad_code=$$(grep -R '<code class="language-mermaid"' -c site/ || true); \
+	echo "mermaid divs: $$ok_div; leftover code blocks: $$bad_code"; \
+	if [ "$$ok_div" -eq 0 ]; then \
+	  echo "❌ No rendered <div class=\"mermaid\"> found in site/"; exit 1; \
+	fi; \
+	if [ "$$bad_code" -gt 0 ]; then \
+	  echo "❌ Found unrendered <code class=\"language-mermaid\"> blocks in site/"; exit 1; \
+	fi; \
+	echo "✅ Mermaid diagrams look good."
 
 # -------------------------------
 # Version checks

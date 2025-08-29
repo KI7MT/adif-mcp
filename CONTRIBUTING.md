@@ -97,6 +97,25 @@ This makes it easier to understand project history and automatically generate ch
 
 ---
 
+### Mermaid Diagrams — Gotcha
+
+Mermaid diagrams will fail silently and render as plain text if labels use <br/>, : or other special characters without quotes.
+
+✅ Always wrap labels in double quotes:
+
+```bash
+flowchart LR
+  A["Operator<br/>(Ask in plain English)"] --> B["Agent / LLM<br/>(Chat or Voice)"]
+```
+
+❌ Will not render:
+```bash
+flowchart LR
+  A[Operator<br/>(Ask in plain English)] --> B[Agent / LLM (Chat or Voice)]
+  ```
+
+---
+
 💡 **Tip:** Keep summaries short (≤72 chars). Add details in a commit body if needed.
 
 This ensures the package builds, installs, ingests, and launches the UI end-to-end.

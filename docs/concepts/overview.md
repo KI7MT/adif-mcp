@@ -42,8 +42,8 @@ Together, they unlock an operator-friendly way to query and use logbooks without
 
 ```mermaid
 flowchart LR
-  A["Operator<br/>(Ask in plain English)"] --> B["Agent / LLM<br/>(Chat or Voice)"]
-  B --> C["ADIF-MCP<br/>Spec-compliant Backbone"]
+  A["Operator<br/>(Ask in Plain English)"] --> B["Agent / LLM<br/>(Chat or Voice)"]
+  B --> C["ADIF-MCP<br/>Spec-Compliant Backbone"]
   C --> D[LoTW]
   C --> E[eQSL]
   C --> F[QRZ]
