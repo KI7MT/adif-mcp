@@ -1,3 +1,30 @@
+# Changelog
+
+## [0.1.17] - 2025-08-29
+### Added
+- **ADIF parser (`adif_reader`)**: minimal implementation to parse `.adi` text into typed QSO records.
+- **eQSL stub (`eqsl_stub`)**: synthetic inbox + band/mode summaries for testing integration concepts.
+- **CLI commands**:
+  - `adif-mcp version` → shows MCP + ADIF spec version.
+  - `adif-mcp manifest-validate` → validates MCP manifest against schema.
+  - `adif-mcp eqsl inbox` and `adif-mcp eqsl summary` → exercise the stub integration.
+- **Build hook (`build_hooks.py`)**: automatically injects `adif_meta.json` into the wheel with version + spec metadata.
+- **Full test suite** with 100% coverage across parsers, stub tools, CLI, and manifest validation.
+- **CI/CD docs workflow**: MkDocs + Material + Mermaid v10, GitHub Pages with custom domain.
+
+### Changed
+- Normalized ADIF keys (snake_case).
+- Callsigns automatically uppercased in parser.
+- Strict type checking: `mypy`, `ruff`, `interrogate` integrated and enforced at 100% docstring coverage.
+
+### Fixed
+- CI/CD issues with `commitizen` hooks removed, replaced with manual version bump + tagging.
+- Mermaid diagram rendering on GitHub Pages (switch to `mkdocs-mermaid2-plugin`).
+
+---
+
+[0.1.17]: https://github.com/KI7MT/adif-mcp/releases/tag/v0.1.17
+
 ## [0.1.16] - 2025-08-28
 
 ### Added
