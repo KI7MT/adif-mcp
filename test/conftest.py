@@ -26,6 +26,14 @@ def inbox_for_callsign() -> Callable[[str], List[QSORecord]]:
     using the eqsl_stub."""
 
     def _get(cs: str) -> List[QSORecord]:
+        """Returns a list of QSRecords
+
+        Args:
+            cs (list): Get list of QSORecord
+
+        Returns:
+            List[QSORecord]: Return a list of QQSORecord
+        """
         out = fetch_inbox(cs)  # {"records": List[QSORecord]}
         return out["records"]
 

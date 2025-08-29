@@ -211,6 +211,13 @@ check-version: ## Ensure VERSION and/or SPEC match pyproject.toml (use VERSION=.
 # -------------------------------
 # Docstring coverage (verbose)
 # -------------------------------
+.PHONY: providers-coverage
+providers-coverage: # Prodiver property converage against out ADIF catalog
+	uv run python scripts/provider_coverage.py
+
+# -------------------------------
+# Docstring coverage (verbose)
+# -------------------------------
 .PHONY: docstrings
 docstrings: ## Show per-object docstring coverage with file/function lines
 	uv run interrogate -vv -c pyproject.toml --fail-under=100 src scripts test

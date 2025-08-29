@@ -5,14 +5,9 @@ description = "ADIF MCP core engine with plugin support (LoTW, eQSL)"
 authors = [{ name = "KI7MT" }]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
-dependencies = [
-    "click",
-    "pytest>=8.4.1",
-    "requests>=2.32.5",
-    "typing-extensions>=4.15.0",
-]
+dependencies = ["click", "requests>=2.32.5", "typing-extensions>=4.15.0"]
 
 [project.urls]
 "ADIF Spec" = "https://adif.org.uk/315/ADIF_315.htm"
@@ -21,6 +16,11 @@ dependencies = [
 [tool.adif]
 spec_version = "3.1.5"
 features = ["core QSO model", "band/mode/QSL_RCVD enums"]
+manifest = "mcp/manifest.json"
+schemas = { manifest = "mcp/schemas/manifest.v1.json" }
+spec = { adif_catalog = "mcp/spec/adif_catalog.json" }
+providers_dir = "mcp/providers"
+meta_output = "src/adif_mcp/adif_meta.json"
 
 [project.scripts]
 adif-mcp = "adif_mcp.cli:cli"

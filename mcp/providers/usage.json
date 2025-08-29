@@ -1,0 +1,7 @@
+{
+  "tools": {
+    "eqsl.fetch_inbox":   ["call","qso_date","time_on","band","mode"],
+    "eqsl.filter_summary":["band","mode"],
+    "cli.manifest-validate": []
+  }
+}

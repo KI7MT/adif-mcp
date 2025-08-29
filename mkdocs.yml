@@ -15,15 +15,21 @@ theme:
     - search.highlight
     - content.code.copy
 nav:
+nav:
   - Home: index.md
-  - MCP:
-    - Overview: mcp/overview.md
-    - Manifest: mcp/manifest.md
-    - Tools: mcp/tools.md
+  - Concepts:
+      - Overview: concepts/overview.md
+      - Why ADIF-MCP Matters: concepts/why-matters.md
+      - Choice of LLMs: concepts/choice-of-llms.md
   - Integrations:
     - Overview: integrations/overview.md
     - LoTW: integrations/lotw/index.md
     - eQSL: integrations/eqsl/index.md
+  - Award Queries: awards.md
+  - MCP:
+    - Overview: mcp/overview.md
+    - Manifest: mcp/manifest.md
+    - Tools: mcp/tools.md
   - User Guide:
     - userguide/getting-started.md
   - Dev Guide:
@@ -32,9 +38,6 @@ nav:
   - Program ID Policy: program-id-policy.md
   - Spec:
     - Overview: spec/spec.md
-  - Concepts:
-    - Overview: concepts/overview.md
-    - ADIF Basics: concepts/adif-basics.md
   - Roadmap: roadmap.md
 
 plugins:

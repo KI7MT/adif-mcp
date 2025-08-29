@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # ADIF Basics
 
 - Records: QSO fields (CALL, BAND, MODE, QSO_DATE, TIME_ON, etc.)

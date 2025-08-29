@@ -2,6 +2,9 @@
 
 Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service for **Amateur Radio Logging**, per [ADIF 3.1.5 specification](https://adif.org.uk/315/ADIF_315.htm)
 
+> **Pretty Code • Pretty Output • Iterative Docs**
+> A simple mantra: keep the code clean, the output clear, and the docs evolving.
+
 ---
 
 ## Resources
@@ -46,6 +49,8 @@ Performs these tasks
 - Unified schema for consistent QSO storage and exchange
 - MCP-ready tools for safe AI-agent access
 - Foundation for service adapters (e.g., LoTW, eQSL)
+
+🔑 Takeaway: MCP doesn’t replace LoTW, eQSL, or award programs. Instead, it gives operators visibility and accessibility into their award progress, across sponsors, without them needing to export, filter, or code.
 
 ---
 

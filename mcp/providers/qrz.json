@@ -1,0 +1,14 @@
+{
+  "name": "QRZ",
+  "fields": [
+    "station_call",
+    "call",
+    "qso_date",
+    "time_on",
+    "band",
+    "mode",
+    "gridsquare",
+    "my_gridsquare",
+    "freq"
+  ]
+}

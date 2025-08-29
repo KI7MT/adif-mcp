@@ -1,0 +1,12 @@
+{
+  "name": "Club Log",
+  "fields": [
+    "station_call",
+    "call",
+    "qso_date",
+    "band",
+    "mode",
+    "gridsquare",
+    "freq"
+  ]
+}

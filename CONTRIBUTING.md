@@ -1,47 +1,79 @@
-# Contributing to wspr-ai-lite
+# Contributing to ADIF-MCP
 
-Thank you for your interest in contributing!
-This project is open to contributions from the ham radio and open source community.
+Thank you for your interest in contributing! This project is open to contributions from the ham radio and open source community.
+
+## Contributing Philosophy
+
+>"Pretty Code, Pretty Output, Iterative Docs"
+>
+>An wise old friend and mentor once told me: “We need pretty code and pretty output — and good documentation takes *lots* of iterations.”
+
+It’s a simple rule of thumb:
+- **Pretty code** keeps contributors sane.
+- **Pretty output** gives users confidence.
+- **Pretty docs** bridge the two, but take more work and refinement than once would think.
+
+Following this mindset helps keep the project consistent, approachable, and operator-friendly.
+
+>Contributing Tip: “See [TODO.md]()TODO.md) for backlog ideas. Concrete items should be filed as Issues when ready.”
+
+## Prerequisits
+
+To contribute to ADIF-MCP, you will need a working Python ≥3.11 environment with [UV by Astral](https://docs.astral.sh/uv/) installed.
 
 ## Development Setup
 
-1. Clone the repo:
-   ```bash
-   git clone git@github.com:KI7MT/adif-mcp.git
-   cd adif-mcpe
-   ```
+The following is a quick start in getting the required environment setup. Details workflows will be outlined in the [Dev Guide](./docs/devguide/).
 
-2. Create a virtual environment:
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
+### Clone the Repo and Install Development Dependencies
 
-3. Install development dependencies:
-   ```bash
-   make setup-dev
-   ```
+~~~bash
+git clone git@github.com:KI7MT/adif-mcp.git
+cd adif-mcpe
+~~~
+
+This will create a local .venv with all tools needed for linting, typing, docs, and tests.
+
+### Pre-Commit & PR Checklist
+Before submitting a PR, you must ensure all validations and smoke tests pass locally, if not thebuild hook
+automation will faill after merging the PR.
+
+Minimal Validations
+~~~bash
+# Linting (PEP8, unused imports, formatting, etc.)
+uv run ruff check src scripts test
+
+# Type checking (strict mode)
+uv run mypy src scripts test
+
+# Docstring coverage (must be 100%)
+uv run interrogate -v -c pyproject.toml --fail-under=100 --verbose
+
+# MCP manifest validation
+make manifest
+
+# Unit tests
+uv run pytest -q
+~~~
+
+### CLI Smoke Test
+Ensure the CLI entry points work as expected.
+~~~bash
+uv run adif-mcp version
+uv run adif-mcp --help
+uv run adif-mcp manifest-validate
+~~~
 
 4. Run tests:
-   ```bash
+   ~~~bash
    make test
    ```
 
-## Contribution Workflow
+### Optional but Recommended
 
-1. **Fork** the repository.
-2. **Create a feature branch**:
-   ```bash
-   git checkout -b feature/my-new-feature
-   ```
-3. **Commit your changes**:
-   - Follow conventional commits when possible (`fix:`, `feat:`, `docs:`, etc.).
-   - Ensure pre-commit hooks and tests pass:
-     ```bash
-     pre-commit run --all-files
-     make test
-     ```
-4. **Push your branch** and open a **Pull Request**.
+~~~bash
+uv build
+~~~
 
 ## Code Style & Checks
 
@@ -54,71 +86,46 @@ This project is open to contributions from the ham radio and open source communi
   - Docstring coverage
   - Artifact blocking (no `site/`, DuckDB, etc. in commits)
 
-## Smoke Tests
+## Documentation Style Tips
 
-Before tagging a release, please run:
+When contributing to the docs (/docs):
+	•	Always use ~~~ fences for code/diagram blocks
 
-```bash
-make smoke-test
-```
+Example:
 
-## Commit Message Guidelines
+~~~mermaid
+graph LR
+  A --> B
+~~~
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) standard for commit messages.
-This makes it easier to understand project history and automatically generate changelogs.
+This avoids issues where triple backticks (```) can be consumed by some editors, automated parsers, or the chat interfaces.
 
-### Format
-- **type** → what kind of change this is.
-- **scope** (optional) → area of the codebase (e.g., `ui`, `ingest`, `tools`, `docs`).
-- **summary** → concise description (imperative, no period).
+	•	Mermaid Diagrams
+	•	Use ~~~mermaid fences.
+	•	Remember: labels containing spaces or HTML (e.g., <br/>) must be wrapped in quotes:
 
-### Common Types
-- **feat** → new feature
-  _example_: `feat(ui): add reciprocal heard analysis panel`
-- **fix** → bug fix
-  _example_: `fix(ingest): correct band_code mapping for MF range`
-- **docs** → documentation only
-  _example_: `docs(schema): add canonical WSPR spots schema doc`
-- **style** → formatting, whitespace, linter (no logic change)
-- **refactor** → code restructuring without behavior change
-- **perf** → performance improvement
-- **test** → add or update tests
-- **build** → build system or dependency changes
-- **ci** → CI/CD workflows or pipelines
-- **chore** → maintenance tasks, version bumps, release prep
-  _example_: `chore(release): cut v0.3.6 tag`
-- **revert** → undo a previous commit
-
-### Examples
-- `feat(tools): add verify --strict and --explain options`
-- `fix(ui): handle missing rx_version gracefully`
-- `docs: update roadmap for v0.4.0 planning`
-- `chore(release): prepare v0.3.6`
-
----
+~~~
+flowchart LR
+  A["Operator<br/>(Ask in plain English)"] --> B["Agent / LLM<br/>(Chat or Voice)"]
+~~~
 
 ### Mermaid Diagrams — Gotcha
 
-Mermaid diagrams will fail silently and render as plain text if labels use <br/>, : or other special characters without quotes.
+Mermaid diagrams will fail silently and render as plain text if labels use `<br/>`, `:`, `{}`, `[]` or other special characters without quotes.
 
-✅ Always wrap labels in double quotes:
+✅ Always wrap labels in double quotes ` "what you want to say""`. The following will render correctly:
 
-```bash
+~~~bash
 flowchart LR
   A["Operator<br/>(Ask in plain English)"] --> B["Agent / LLM<br/>(Chat or Voice)"]
-```
+~~~
 
-❌ Will not render:
-```bash
+❌ This Will not render:
+
+~~~bash
 flowchart LR
   A[Operator<br/>(Ask in plain English)] --> B[Agent / LLM (Chat or Voice)]
-  ```
-
----
-
-💡 **Tip:** Keep summaries short (≤72 chars). Add details in a commit body if needed.
-
-This ensures the package builds, installs, ingests, and launches the UI end-to-end.
+~~~
 
 ## 👥 Contributors
 
