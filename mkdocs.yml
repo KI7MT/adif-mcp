@@ -32,6 +32,7 @@ nav:
     - Tools: mcp/tools.md
   - User Guide:
     - userguide/getting-started.md
+    - userguide/persona-management.md
   - Dev Guide:
     - Overview: devguide/overview.md
     - Make Commands: devguide/make-commands.md

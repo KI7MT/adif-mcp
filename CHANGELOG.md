@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.19] - 2025-08-30
+
+### Added
+- Persona management (CLI): `persona add|list|show|remove|set-credential`.
+- Date-bounded personas to model vanity/contest/event calls (start/end).
+- Secure secret storage via system keyring; non-secrets stored in JSON index.
+- `PersonaStore` for CRUD over `~/.config/adif-mcp/personas.json` (overrideable via `pyproject.toml`).
+- Docs: brief guidance on personas & keyring (operator-facing).
+
+### Changed
+- CLI polish and consistent output for persona flows.
+- `_personas_index_path()` resolves path from `tool.adif.personas_index` if provided.
+
+### Fixed
+- Type-check issues across `personas.py` and CLI; strict mypy now clean.
+- Ruff E501 and assorted nitpicks; interrogate coverage at 100%.
+
+### Internal
+- `make gate` and `smoke-all` are green (ruff, mypy, interrogate, pytest, manifest).
+
+---
+
 ## [0.1.18] - 2025-08-29
 
 ### Added

@@ -207,6 +207,12 @@ check-version: ## Ensure VERSION and/or SPEC match pyproject.toml (use VERSION=.
 	@if [ -n "$(SPEC)" ]; then echo $(C_G)"✔ ADIF spec matches ($(SPEC))" ; echo $(N_CN) echo ; fi
 	@echo
 
+# -------------------------------
+# Test Persona
+# -------------------------------
+.PHONY: test-persona
+test-persona:
+	uv run pytest -q test/test_personas_cli.py
 
 # -------------------------------
 # Docstring coverage (verbose)

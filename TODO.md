@@ -54,3 +54,23 @@ Not all items will be implemented — it’s a scratchpad for future work.
 - [ ] Smoke tests: validate manifest, run coverage script, confirm CLI basics.
 
 ---
+
+## Callsign Variants (Prefixes & Suffixes)
+
+- **Context:** Many operators use portable or regional variants of their callsigns, such as `KI7MT/4`, `KI7MT/QRP`, or international prefixes like `ZL/KI7MT`.
+- **Current State:** ADIF spec allows `/` in callsigns, and our parser already handles them as plain strings. No breakage today.
+- **Need:** Users may want to associate these variants with their main persona for log matching and provider queries.
+- **Proposed Approach:**
+  - Extend `Persona` schema with an optional `aliases` list.
+  - Example:
+    ```json
+    {
+      "name": "Primary",
+      "callsign": "KI7MT",
+      "aliases": ["KI7MT/4", "KI7MT/QRP", "ZL/KI7MT"],
+      ...
+    }
+    ```
+  - Update lookup logic to check both `callsign` and any `aliases`.
+- **Priority:** Low (not blocking).
+- **Future Benefit:** Simplifies multi-environment ops (portable, contest, DXpeditions) without duplicating personas.
