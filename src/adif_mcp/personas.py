@@ -1,4 +1,3 @@
-# src/adif_mcp/personas.py
 """
 Persona models and local storage.
 
@@ -36,10 +35,33 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict, cast
 
+# -----------------------------
+# Persona Helper functions
+# -----------------------------
+
 
 def _to_date(s: Optional[str]) -> Optional[date]:
     """None-safe ISO date parser."""
     return date.fromisoformat(s) if s else None
+
+
+def _mask_username(u: str) -> str:
+    """Return a lightly-masked username for display."""
+    if len(u) <= 2:
+        return "*" * len(u)
+    return f"{u[0]}***{u[-1]}"
+
+
+def _keyring_backend_name() -> str:
+    """Return active keyring backend name, or 'unavailable'."""
+    try:
+        import keyring
+
+        kr = keyring.get_keyring()
+        cls = kr.__class__
+        return f"{cls.__module__}.{cls.__name__}"
+    except Exception:
+        return "unavailable"
 
 
 # -----------------------------
@@ -73,8 +95,6 @@ class Persona:
 # -----------------------------
 # Storage (JSON index)
 # -----------------------------
-
-
 class _PersonaJSON(TypedDict, total=False):
     """Defines the properties in the persona ffile
 
@@ -170,6 +190,8 @@ class PersonaStore:
 
     # -------- Mutations --------
 
+    # --- inside PersonaStore.upsert(...) ---
+
     def upsert(
         self,
         *,
@@ -181,15 +203,30 @@ class PersonaStore:
         """
         Create or update a persona (non-secret fields only).
         Returns the saved Persona.
+
+        Rules:
+        - Callsign is stored uppercase.
+        - If both dates are provided, end must be >= start.
         """
+        if start and end and end < start:
+            raise ValueError("end date cannot be earlier than start date")
+
+        callsign_norm = callsign.upper()
+
         existing = self._personas.get(name)
         if existing:
-            existing.callsign = callsign
+            existing.callsign = callsign_norm
             existing.start = start
             existing.end = end
             self._save()
             return existing
-        p = Persona(name=name, callsign=callsign, start=start, end=end)
+
+        p = Persona(
+            name=name,
+            callsign=callsign_norm,
+            start=start,
+            end=end,
+        )
         self._personas[name] = p
         self._save()
         return p

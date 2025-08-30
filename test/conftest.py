@@ -34,7 +34,8 @@ def inbox_for_callsign() -> Callable[[str], List[QSORecord]]:
         Returns:
             List[QSORecord]: Return a list of QQSORecord
         """
-        out = fetch_inbox(cs)  # {"records": List[QSORecord]}
+        out = fetch_inbox(cs)  # returns {"records": List[QSORecord]}
+        # return cast(List[QSORecord], out["records"])
         return out["records"]
 
     return _get
@@ -44,4 +45,5 @@ def inbox_for_callsign() -> Callable[[str], List[QSORecord]]:
 def sample_adi_records() -> List[QSORecord]:
     """Minimal ADIF snippet parsed into QSO records for smoke tests."""
     txt = "<CALL:5>KI7MT<QSO_DATE:8>20240812<TIME_ON:4>0315<EOR>"
+    # return cast(List[QSORecord], parse_adi_text(txt))
     return parse_adi_text(txt)

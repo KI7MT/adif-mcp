@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.20] - 2025-08-30
+### Added
+- Persona CLI enhancements:
+  - `persona add`, `persona list`, `persona show`, `persona remove`, and `persona remove-all`.
+  - Support for managing provider credentials via system keyring.
+  - Validation: reject end date earlier than start date.
+  - Automatic normalization of callsigns to uppercase.
+  - Improved `persona list` output with optional `--verbose` mode (masks usernames).
+  - Keyring backend is echoed when saving credentials.
+- New `make keychain-test` target to manually validate persona/credential round-trips (safe for local testing).
+
+### Fixed
+- Consistent error handling in CLI commands (`remove`, `remove-all`, etc.).
+- Mypy and Ruff compliance across `adif-mcp/{src,scripts,test} `.
+- Gate and smoke tests now pass cleanly with real macOS Keychain integration.
+
+### Notes
+- This release marks the first complete integration of **Personas** with secure credential storage.
+- CI tests avoid touching the real keychain; use `make keychain-test` locally if you want to validate secrets end-to-end.
+
 ## [0.1.19] - 2025-08-30
 
 ### Added

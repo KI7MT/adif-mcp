@@ -8,15 +8,4 @@
 
 ---
 
-~~~mermaid
-flowchart LR
-  A["Operator<br/>(Ask in plain English)"] --> B["Agent / LLM<br/>(Chat or Voice)"]
-  B --> C["ADIF-MCP<br/>Spec-compliant Backbone"]
-  C --> D[LoTW]
-  C --> E[eQSL]
-  C --> F[QRZ]
-  C --> G[Club Log]
-
-  classDef service fill:#eef,stroke:#36c,stroke-width:1px;
-  class D,E,F,G service;
-~~~
+![MCP WOrkflow](../images/mcp-flow-diagram.png)

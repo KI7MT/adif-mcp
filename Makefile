@@ -73,12 +73,14 @@ test: ## pytest
 smoke: lint type manifest ## quick local gate (lint+type+manifest)
 	@echo "[smoke] OK"
 
-gate: ## CI parity gate: lint + type + tests + manifest + docstrings
+.PHONY: gate lint type test manifest keychain-test
+gate: ## CI parity gate: lint + type + tests + manifest + docstrings, keychain test
 	$(MAKE) lint
 	$(MAKE) type
 	$(MAKE) test
 	$(MAKE) manifest
 	uv run interrogate -c pyproject.toml
+	$(MAKE) keychain-test
 
 # -------------------------------
 # Manifest validation
@@ -211,8 +213,33 @@ check-version: ## Ensure VERSION and/or SPEC match pyproject.toml (use VERSION=.
 # Test Persona
 # -------------------------------
 .PHONY: test-persona
-test-persona:
+test-persona: # Run test using for persona
 	uv run pytest -q test/test_personas_cli.py
+
+keychain-test:
+ifneq ($(shell uname),Darwin)
+  @echo "[keychain-test] skipping Keychain check (not macOS)"
+else
+	@set -euo pipefail; \
+	echo "[keychain-test] starting..."; \
+	uv run adif-mcp persona remove-all --yes; \
+	uv run adif-mcp persona add --name Primary --callsign W7X; \
+	uv run adif-mcp persona set-credential --persona Primary --provider lotw --username W7X --password testpw; \
+	uv run adif-mcp persona list --verbose; \
+	# This should fail and print our OK message while returning 0 to make
+	if uv run adif-mcp persona add --name BadSpan --callsign TEST --start 2025-04-01 --end 2025-03-01; then \
+	  echo "ERROR: Bad span accepted"; exit 1; \
+	else \
+	  echo "OK: rejected (bad date span)"; \
+	fi; \
+	# Clean everything and verify no stragglers in Keychain (macOS only)
+	uv run adif-mcp persona remove-all --yes; \
+	if command -v security >/dev/null 2>&1; then \
+	  cnt=$$(security find-generic-password -s adif-mcp 2>/dev/null | wc -l | tr -d ' '); \
+	  echo "[keychain-test] remaining keychain rows: $$cnt"; \
+	fi; \
+	echo "[keychain-test] done."
+endif
 
 # -------------------------------
 # Docstring coverage (verbose)

@@ -9,6 +9,7 @@ Commands:
 from __future__ import annotations
 
 import getpass
+import importlib
 import json
 import pathlib
 from datetime import date
@@ -22,6 +23,29 @@ from adif_mcp.parsers.adif_reader import QSORecord
 from adif_mcp.personas import Persona, PersonaStore
 from adif_mcp.tools.eqsl_stub import fetch_inbox as _eqsl_fetch_inbox
 from adif_mcp.tools.eqsl_stub import filter_summary as _eqsl_filter_summary
+
+# ---------------------------
+# Helper functions
+# ----------------------------
+
+
+def _mask_username(u: str) -> str:
+    """Return a lightly-masked username for display."""
+    if len(u) <= 2:
+        return "*" * len(u)
+    return f"{u[0]}***{u[-1]}"
+
+
+def _keyring_backend_name() -> str:
+    """Return active keyring backend name, or 'unavailable'."""
+    try:
+        import keyring
+
+        kr = keyring.get_keyring()
+        cls = kr.__class__
+        return f"{cls.__module__}.{cls.__name__}"
+    except Exception:
+        return "unavailable"
 
 
 @click.group()
@@ -187,18 +211,34 @@ def persona() -> None:
     pass
 
 
+@persona.command("version")
+def persona_version() -> None:
+    """Show package version and ADIF spec compatibility."""
+    click.echo(f"adif-mcp persona {__version__} (ADIF {__adif_spec__} compatible)")
+
+
 @persona.command("list", help="List configured personas.")
-def persona_list() -> None:
-    """List configured personas with optional active date span and providers."""
+@click.option(
+    "--verbose",
+    is_flag=True,
+    help="Show provider usernames (masked).",
+)
+def persona_list(verbose: bool) -> None:
+    """List configured personas."""
     store = PersonaStore(_personas_index_path())
     items = store.list()
     if not items:
         click.echo("No personas configured.")
         return
     for p in items:
-        span = p.active_span()  # e.g., "2024-01-01–…" or "…–2024-12-31" or "—"
+        span = p.active_span()
         providers = ", ".join(sorted(p.providers)) or "—"
-        click.echo(f"- {p.name}: {p.callsign}  [{span}]  providers: {providers}")
+        line = f"- {p.name}: {p.callsign}  [{span}]  providers: {providers}"
+        click.echo(line)
+        if verbose and p.providers:
+            for prov, ref in sorted(p.providers.items()):
+                user = ref.get("username", "")
+                click.echo(f"    • {prov}: {_mask_username(user)}")
 
 
 def _personas_index_path() -> Path:
@@ -246,12 +286,17 @@ def persona_add(
         end (Optional[str]): end date of the persona
     """
     store = PersonaStore(_personas_index_path())
-    p = store.upsert(
-        name=name,
-        callsign=callsign.upper(),
-        start=_parse_date(start),
-        end=_parse_date(end),
-    )
+    try:
+        p = store.upsert(
+            name=name,
+            callsign=callsign.upper().strip(),
+            start=_parse_date(start),
+            end=_parse_date(end),
+        )
+    except ValueError as e:
+        click.echo(f"[error] {e}", err=True)
+        raise SystemExit(1)
+
     click.echo(f"Saved persona: {p.name}  ({p.callsign})  span={p.active_span()}")
 
 
@@ -275,105 +320,93 @@ def persona_remove(name: str) -> None:
         raise SystemExit(1)
 
 
-@persona.command("remove-all", help="Remove all personas.")
-@click.confirmation_option(prompt="Are you sure you want to delete ALL personas?")
-def persona_remove_all() -> None:
-    """Delete all personas from the index."""
+# in src/adif_mcp/cli.py
+
+
+@persona.command("remove-all", help="Delete ALL personas and purge saved secrets.")
+@click.option("--yes", is_flag=True, help="Confirm deletion without prompt.")
+def persona_remove_all(yes: bool) -> None:
+    """Remove every persona and delete any saved keyring secrets for them."""
+    if not yes:
+        click.echo("Refusing to remove without --yes.", err=True)
+        raise SystemExit(1)
+
     store = PersonaStore(_personas_index_path())
     items = store.list()
     if not items:
-        click.echo("No personas to remove.")
+        click.echo("No personas configured.")
         return
-    for p in list(items):
+
+    kr: Optional[Any]
+    try:
+        # Runtime import; returns Any, so mypy is fine and no ignore is needed.
+        kr = importlib.import_module("keyring")
+    except Exception:
+        kr = None
+
+    deleted_pw = 0
+    for p in items:
+        if kr is not None:
+            for prov, ref in p.providers.items():
+                username = ref.get("username")
+                if not username:
+                    continue
+                try:
+                    kr.delete_password("adif-mcp", f"{p.name}:{prov}:{username}")
+                    deleted_pw += 1
+                except Exception:
+                    pass  # ignore per-entry delete failures
+
+        # Remove persona from the JSON index
         store.remove(p.name)
+
     click.echo(f"Removed {len(items)} persona(s).")
+    if kr:
+        click.echo(f"Removed {deleted_pw} keyring entrie(s).")
+    else:
+        click.echo("Keyring not available; secrets unchanged.", err=True)
 
 
 @persona.command("show", help="Show details for one persona.")
-@click.argument("ident", required=False)
-@click.option(
-    "--name",
-    "name_opt",
-    help="Show by exact persona NAME (bypasses callsign matching).",
-)
 @click.option(
     "--by",
-    type=click.Choice(["auto", "callsign", "name"], case_sensitive=False),
-    default="auto",
+    type=click.Choice(["name", "callsign"], case_sensitive=False),
+    default="name",
     show_default=True,
-    help="Lookup mode: auto tries callsign first, then name.",
+    help="Lookup by persona name or callsign.",
 )
-def persona_show(ident: str | None, name_opt: str | None, by: str) -> None:
-    """
-    Show a persona by callsign (default) or by name.
-
-    Examples:
-        adif-mcp persona show KI7MT             # callsign first
-        adif-mcp persona show --by name Primary # force name lookup
-        adif-mcp persona show --name Primary    # direct by name
-    """
+@click.argument("ident")
+def persona_show(by: str, ident: str) -> None:
+    """Show persona details (credentials masked)."""
     store = PersonaStore(_personas_index_path())
 
-    # Direct by-name short-circuit
-    if name_opt:
-        p = store.get(name_opt)
-        if not p:
-            click.echo(f"No such persona (name): {name_opt}", err=True)
-            raise SystemExit(1)
-        click.echo(_format_persona_line(p))
-        return
+    def _by_name() -> Optional[Persona]:
+        return store.get(ident)
 
-    if not ident:
-        # No ident and no --name; show help-ish guidance.
-        click.echo(
-            "Usage: adif-mcp persona show [IDENT] "
-            "or --name <persona-name>. Try 'persona list' or 'persona find'.",
-            err=True,
-        )
-        raise SystemExit(2)
+    def _by_callsign() -> Optional[Persona]:
+        ident_u = ident.upper()
+        for p in store.list():
+            if p.callsign.upper() == ident_u:
+                return p
+        return None
 
-    ident_l = ident.lower()
-
-    def _by_callsign() -> list[Persona]:
-        """Enaby by callsign searching"""
-        return [p for p in store.list() if p.callsign.lower() == ident_l]
-
-    def _by_name_exact() -> Persona | None:
-        """Enable exact name matching"""
-        return store.get(ident)  # exact name match only
-
-    if by.lower() == "name":
-        p = _by_name_exact()
-        if not p:
-            click.echo(f"No such persona (name): {ident}", err=True)
-            raise SystemExit(1)
-        click.echo(_format_persona_line(p))
-        return
-
-    # callsign first (auto/callsign)
-    cs_hits = _by_callsign()
-    if len(cs_hits) == 1:
-        click.echo(_format_persona_line(cs_hits[0]))
-        return
-    if len(cs_hits) > 1:
-        click.echo(f"Multiple personas use callsign {ident}:")
-        for p in cs_hits:
-            click.echo(_format_persona_line(p))
-        click.echo(
-            "Re-run with '--name <persona>' to select the one you want.",
-            err=True,
-        )
+    p = _by_name() if by == "name" else _by_callsign()
+    if not p:
+        click.echo(f"No such persona by {by}: {ident}", err=True)
         raise SystemExit(1)
 
-    if by.lower() == "auto":
-        # Fall back to exact name match if callsign didn’t hit
-        p = _by_name_exact()
-        if p:
-            click.echo(_format_persona_line(p))
-            return
+    click.echo(f"Persona: {p.name}")
+    click.echo(f"Callsign: {p.callsign}")
+    click.echo(f"Active:   {p.active_span()}")
 
-    click.echo(f"No persona found for '{ident}'.", err=True)
-    raise SystemExit(1)
+    if not p.providers:
+        click.echo("Providers: —")
+        return
+
+    click.echo("Providers:")
+    for prov, ref in sorted(p.providers.items()):
+        user = ref.get("username", "")
+        click.echo(f"  - {prov}: {_mask_username(user)}")
 
 
 @persona.command(
@@ -422,7 +455,6 @@ def persona_set_credential(
     # Secret handling via keyring (optional)
     secret = password or getpass.getpass(f"{provider} password for {username}: ")
 
-    saved = False
     try:
         import keyring  # optional dep
 
@@ -431,7 +463,14 @@ def persona_set_credential(
             f"{persona_name}:{provider}:{username}",
             secret,
         )
-        saved = True
+
+        backend = _keyring_backend_name()
+
+        click.echo(
+            "Credential ref saved for "
+            f"{persona_name}/{provider} (username={username}). "
+            f"Secret stored in keyring [{backend}]."
+        )
     except Exception as e:  # nosec - surfaced as UX note
         click.echo(
             f"[warn] keyring unavailable or failed: {e}\n"
@@ -439,12 +478,6 @@ def persona_set_credential(
             f"later when keyring works.",
             err=True,
         )
-
-    click.echo(
-        f"Credential ref saved for {persona_name}/{provider} "
-        f"(username={username})."
-        f"{' Secret stored in keyring.' if saved else ''}"
-    )
 
 
 @persona.command("find", help="List personas matching name or callsign.")
