@@ -272,6 +272,8 @@ check-all: ## Ruff + mypy + verbose docstrings + manifest validation
 clean:  ## Remove build artifacts (dist/build/egg-info)
 	rm -rf dist build *.egg-info
 	rm -rf site/
+	rm -rf .venv
+
 
 clean-pyc:  ## Remove Python bytecode (__pycache__, *.pyc)
 	@find . -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
