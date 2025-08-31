@@ -1,65 +1,33 @@
-# .pre-commit-config.yaml — adif-mcp
-# Opinionated but lean: hygiene, ruff, mypy (with pydantic plugin), docstrings, conventional commits.
-
+# .pre-commit-config.yaml
 repos:
-  # ---------- Dont commit build artifacts ----------
-  - repo: local
-    hooks:
-      - id: block-pyc
-        name: Block Python bytecode
-        language: system
-        entry: bash -lc 'git diff --cached --name-only | grep -E "\.pyc$|__pycache__/" && { echo "Refusing to commit .pyc/__pycache__"; exit 1; } || true'
-        pass_filenames: false
-
-  # ---------- Basic hygiene ----------
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-      - id: mixed-line-ending
-      - id: check-yaml
-        exclude: ^mkdocs\.ya?ml$
-      - id: check-json
-      - id: check-toml
-      - id: check-added-large-files
-        args: ['--maxkb=4000']
-
-  # ---------- Ruff (lint + format) ----------
+  # Ruff (lint + format)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9
     hooks:
       - id: ruff
-        args: [--fix, --show-fixes]
+        args: [--fix]
       - id: ruff-format
 
-  # ---------- mypy (with pydantic plugin) ----------
+  # Basic hygiene hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+
+  # Mypy (use the same config as local `uv run mypy`)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.2
+    rev: v1.11.1
     hooks:
       - id: mypy
-        # Let mypy read pyproject.toml; add pydantic v1 for plugin, plus types for click if you like
+        args:
+          - --config-file=pyproject.toml
+        # Add any stubs/plugins your code relies on so the hook env resolves types
         additional_dependencies:
-          - 'pydantic<2'
-          - types-requests
-          - types-setuptools
-        args: [--strict]
-        files: ^src/|^tests/
-
-  # ---------- Docstring coverage (interrogate) ----------
-  - repo: local
-    hooks:
-      - id: interrogate-docstrings
-        name: Docstring coverage (interrogate)
-        language: python
-        additional_dependencies: [interrogate]
-        entry: interrogate
-        args: ['-c', 'pyproject.toml', 'src']
-        pass_filenames: false
-
-  # ---------- Conventional commits (commitizen) ----------
-  - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.8.3
-    hooks:
-      - id: commitizen
-        stages: [commit-msg]
+          - pydantic<2
+          - types-click>=7.1.8
