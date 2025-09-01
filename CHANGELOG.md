@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.21] - 2025-08-31
+### Added
+- Introduced **PersonaManager** as the single point of truth for personas, providers, and secrets.
+- New script: `provider_index_probe.py` consolidates the old `eqsl_inbox_probe.py` and `provider_inbox_probe.py`.
+- `make keychain-test` target now exercises persona add/set/remove flows against macOS Keychain safely.
+- Extended pyproject.toml:
+  - Defined `[project.optional-dependencies]` groups for dev tooling (ruff, mypy, pytest, interrogate, mkdocs, etc.).
+  - Added provider URLs (LoTW, eQSL, Club Log, QRZ) under `[project.urls]`.
+  - Config section `[tool.adif]` now OS-agnostic (`config_dir_name`, `personas_index`).
+- Makefile:
+  - Added consistent `gate` and `smoke-all` targets with `uv run` for lint, type, test, interrogate.
+  - Added `docs-check` and `docs-dev` helpers for MkDocs/Mermaid workflows.
+
+### Changed
+- All persona/provider/secret resolution now routed through **PersonaManager**.
+- Refactored smoke and probe scripts to depend on PersonaManager (no direct PersonaStore lookups).
+- Type safety improvements:
+  - Removed redundant `cast()` calls, eliminated `Any` return paths.
+  - Added full docstrings and typing to PersonaManager and helpers.
+- Consolidated/de-duplicated Makefile `smoke-all` target (removed `scripts/smoke.sh`).
+- UI (`persona_ui.py`) removed from repo and stashed for later revisit.
+
+### Fixed
+- `make gate` and `make smoke-all` now fully green (ruff, mypy strict, interrogate, pytest).
+- MacOS keychain test: fixed handling of `security(1)` return codes when no items remain.
+- Pre-commit and CI config aligned with strict typing and lint rules.
+
+### Notes
+- This version is **tagged only** (v0.1.21) and not intended for release packaging.
+- Breaking change: the following scripts were removed in favor of consolidation:
+  - `eqsl_inbox_probe.py`
+  - `provider_inbox_probe.py`
+
 ## [0.1.20] - 2025-08-30
 ### Added
 - Persona CLI enhancements:
