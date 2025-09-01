@@ -381,9 +381,11 @@ def persona_show(by: str, ident: str) -> None:
     store = PersonaStore(_personas_index_path())
 
     def _by_name() -> Optional[Persona]:
+        """Show persona details by name"""
         return store.get(ident)
 
     def _by_callsign() -> Optional[Persona]:
+        """Show persona details by callsign"""
         ident_u = ident.upper()
         for p in store.list():
             if p.callsign.upper() == ident_u:

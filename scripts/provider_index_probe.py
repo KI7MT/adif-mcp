@@ -1,142 +1,95 @@
 #!/usr/bin/env python3
 """
-Provider inbox probe (stub) for adif-mcp.
+Provider index probe (no network).
 
 Purpose
 -------
-Verify that a persona has usable credentials for a given provider using the
-centralized PersonaManager (no direct file/keyring access here):
-- Persona + provider mapping yields a username.
-- Secret/password is available from the OS keyring via PersonaManager.
-
-No network calls by default. This is CI-safe and useful as a quick gate.
-You can extend the `--real` branch per provider to call actual APIs later.
+Sanity-check that a persona has a configured provider and a secret present in
+the OS keyring (via PersonaManager). This is CI-safe and avoids direct keyring
+imports in the script.
 
 Usage
 -----
-From repo root:
-
-    uv run python scripts/provider_inbox_probe.py --persona MyEQSL --provider eqsl
-    uv run python scripts/provider_inbox_probe.py --persona MyLoTW --provider lotw
-    uv run python scripts/provider_inbox_probe.py --persona MyQRZ  --provider qrz
-    uv run python scripts/provider_inbox_probe.py --persona MyClub --provider clublog
-
-Optional flags:
-
-    --real            # reserved; when implemented, will perform a real provider call
-    --verbose         # prints extra information (e.g., masked username, backend)
+    uv run python scripts/provider_index_probe.py --persona MyEQSL --provider eqsl
+    uv run python scripts/provider_index_probe.py --persona MyLoTW --provider lotw
+    uv run python scripts/provider_index_probe.py --persona MyQRZ  --provider qrz
+    uv run python scripts/provider_index_probe.py --persona MyClub --provider clublog
 
 Exit codes
 ----------
-0  success
-2  persona/provider not configured (username resolution failed)
-5  secret not found or keyring unavailable
-10 --real requested but not implemented
-
-Notes
------
-- Reads the personas index and secrets only via PersonaManager.
-- Keyring backend is displayed in --verbose (if importable).
+0  OK
+2  persona not found
+3  provider not configured for persona
+4  username missing/empty
+5  secret missing or keyring unavailable
 """
 
 from __future__ import annotations
 
 import argparse
-from typing import Final, Optional
+from typing import NoReturn
 
-from adif_mcp import PersonaManager
+from adif_mcp.persona_manager import PersonaManager
 
-# Optional keyring import only for backend name in --verbose (not required to run)
-try:
-    import keyring as _keyring
-except Exception:  # pragma: no cover
-    _keyring = None
+SUPPORTED = {"eqsl", "lotw", "qrz", "clublog"}
 
 
-SUPPORTED: Final[set[str]] = {"eqsl", "lotw", "qrz", "clublog"}
-
-
-def _mask(u: str) -> str:
-    """Return a lightly masked username for display."""
-    if not u:
-        return "—"
-    if len(u) <= 2:
-        return "*" * len(u)
-    return f"{u[0]}***{u[-1]}"
-
-
-def _backend_label() -> str:
-    """Return a friendly keyring backend label (or 'unavailable')."""
-    if _keyring is None:
-        return "unavailable"
-    try:
-        bk = _keyring.get_keyring()
-        return f"{bk.__class__.__module__}.{bk.__class__.__name__}"
-    except Exception:
-        return "available (unknown backend)"
+def _die(code: int, msg: str) -> NoReturn:
+    """Common mesage print statment and raise error"""
+    print(f"[error] {msg}")
+    raise SystemExit(code)
 
 
 def main() -> int:
+    """
+    Main entry point for verifying the presence of credentials for aspecified
+    persona and provider.
+
+    This function sets up an argument parser to accept command-line arguments for
+    the persona and provider. It checks if the specified persona exists, retrieves
+    the associated username, and verifies the presence of the secret in the keyring.
+    If any checks fail, the function will terminate the program with an appropriate
+    exit code and error message.
+
+    Command-line Arguments:
+        --persona (str): The name of the persona to verify (required).
+        --provider (str): The provider to check against the persona (required).
+                          Must be one of the supported providers.
+
+    Returns:
+        int: Exit code indicating the result of the operation.
+             Returns 0 on success, or a non-zero exit code on failure.
+    """
     ap = argparse.ArgumentParser(
-        description="Verify persona/provider credentials (no network by default)."
+        description="Verify persona/provider credential presence (no network)."
     )
-    ap.add_argument(
-        "--persona",
-        required=True,
-        help="Persona name (e.g., MyEQSL, MyLoTW)",
-    )
+    ap.add_argument("--persona", required=True, help="Persona name, e.g. MyEQSL")
     ap.add_argument(
         "--provider",
         required=True,
         choices=sorted(SUPPORTED),
-        help="Provider to probe: eqsl | lotw | qrz | clublog",
-    )
-    ap.add_argument(
-        "--real",
-        action="store_true",
-        help="Reserved: perform a real provider call (not implemented; stub).",
-    )
-    ap.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Show additional details (masked username, keyring backend).",
+        help="Provider to check",
     )
     args = ap.parse_args()
 
-    persona_name: str = args.persona
-    provider: str = args.provider.lower()
-
     pm = PersonaManager()
 
-    # Resolve username via the manager (single source of truth)
-    username: Optional[str] = pm.get_provider_username(persona_name, provider)
-    if not username:
-        # We don’t rely on implementation details to distinguish persona vs provider
-        # in this probe; both are “not configured” failures here.
-        print(
-            f"[error] persona/provider not configured "
-            f"(persona='{persona_name}', provider='{provider}')."
-        )
-        return 2
+    persona = pm.get_persona(args.persona)
+    if persona is None:
+        _die(2, f"No such persona: {args.persona}")
 
-    # Resolve secret via the manager (keyring abstraction)
-    secret: Optional[str] = pm.get_secret(persona_name, provider)
-    if not secret:
-        print(
-            "[error] secret not found in keyring (or keyring unavailable) for "
-            f"persona='{persona_name}', provider='{provider}', username='{username}'."
-        )
-        return 5
+    username = pm.get_provider_username(args.persona, args.provider)
+    if username is None or username.strip() == "":
+        _die(3, f"No provider '{args.provider}' configured for '{args.persona}'")
 
-    if args.verbose:
-        print(f"[info] backend={_backend_label()} user={_mask(username)}")
+    # secret present?
+    secret = pm.get_secret(args.persona, args.provider)
+    if secret is None or secret == "":
+        _die(5, "Secret not found in keyring (or keyring unavailable).")
 
-    if args.real:
-        # Future: add a tiny authenticated call per provider
-        print(f"[warn] --real not implemented for provider '{provider}'.")
-        return 10
+    f"[OK] creds present for {args.persona}/{args.provider} "
+    f"(username={username})"
 
-    print(f"[OK] creds present for {persona_name}/{provider} (username={username})")
     return 0
 
 

@@ -5,7 +5,6 @@ description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Club L
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "KI7MT" }]
-
 # Support modern CPython, develop on 3.13, run on 3.11+
 requires-python = ">=3.11"
 
@@ -16,11 +15,6 @@ dependencies = [
     "requests>=2.32.5",
     "typing-extensions>=4.15.0",
 ]
-
-# Optional extras (reserved for future use)
-[project.optional-dependencies]
-# ui = []   # e.g., if we ever add non-stdlib GUI widgets
-# providers = []  # e.g., OAuth libs if a provider needs it
 
 # Classifiers help downstream tooling/users
 classifiers = [
@@ -33,6 +27,31 @@ classifiers = [
     "Environment :: Console",
     "Topic :: Utilities",
 ]
+
+[dependency-groups]
+dev = [
+  "pytest",
+  "mypy",
+  "ruff",
+  "commitizen",
+  "pydantic<2",
+  "jsonschema>=4.25.1",
+  "interrogate>=1.7.0",
+  "types-click>=7.1.8",
+  "mkdocs>=1.6.1",
+  "mkdocs-material>=9.6.18",
+  "mkdocstrings[python]>=0.30.0",
+  "pymdown-extensions>=10.10",
+  "pymdown-extensions[extra]>=10.10",
+  "mkdocs-redirects>=1.2.2",
+  "mkdocs-mermaid2-plugin>=1.2.2",
+  "mkdocs-git-revision-date-localized-plugin>=1.4.7",
+]
+
+# Optional extras (reserved for future use)
+[project.optional-dependencies]
+# ui = []   # e.g., if we ever add non-stdlib GUI widgets
+# providers = []  # e.g., OAuth libs if a provider needs it
 
 [project.urls]
 "Homepage" = "https://adif-mcp.com"
@@ -99,7 +118,6 @@ fixable = ["I"]
 
 [tool.mypy]
 python_version = "3.11"
-plugins = ["pydantic.mypy"]
 strict = true
 disable_error_code = ["annotation-unchecked", "call-arg"]
 warn_unused_ignores = true

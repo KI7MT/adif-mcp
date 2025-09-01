@@ -154,6 +154,7 @@ class PersonaManager:
     """
 
     def __init__(self, index_path: Optional[Path] = None) -> None:
+        """Initialize the Prosona Manager Object"""
         self._index_path: Path = index_path or personas_index_path()
         self._store = PersonaStore(self._index_path)
 

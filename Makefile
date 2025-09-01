@@ -1,7 +1,7 @@
 # -------------------------------
 # Project meta
 # -------------------------------
-PROJECT ?= adif-mcp
+PROJECT	?= "adif-mcp"
 PYTHON	?= python3
 
 # Pull versions from pyproject.toml (Python 3.11+ for tomllib)
@@ -17,10 +17,6 @@ PORT    ?=
 # -------------------------------
 # Color Helpers
 # -------------------------------
-# C_C  ?= \033[1;36m
-# C_Y  ?= \033[1;33m
-# C_NC ?= \033[0m
-
 # Foreground colors
 C_R='\033[01;31m'		# red
 C_G='\033[01;32m'		# green
@@ -31,8 +27,12 @@ C_NC='\033[0m'		  # no color
 # -------------------------------
 # Environment / deps
 # -------------------------------
+.PHONY: bootstrap setup-dev sync add add-dev init
+bootstrap: ## Ensure dev tools (ruff/mypy/pytest/interrogate) are installed
+	uv sync --group dev || uv sync
+
 setup-dev: ## Create venv, sync deps (incl. dev), install pre-commit hooks
-	uv sync --group dev
+	uv sync --group dev || uv sync
 	pre-commit install -t pre-commit -t commit-msg
 	@echo "Dev environment ready."
 
@@ -58,16 +58,16 @@ init: ## One-time bootstrap: sync deps, install hooks, run smoke-all
 # Quality gates
 # -------------------------------
 .PHONY: lint format type test smoke gate
-lint: ## Ruff lint
+lint: bootstrap ## Ruff lint
 	uv run ruff check .
 
-format: ## Ruff format (in-place)
+format: bootstrap ## Ruff format (in-place)
 	uv run ruff format .
 
-type: ## mypy (src only)
+type: bootstrap ## mypy (src only)
 	uv run mypy src
 
-test: ## pytest
+test: bootstrap ## pytest
 	uv run pytest -q
 
 smoke: lint type manifest ## quick local gate (lint+type+manifest)
@@ -125,11 +125,23 @@ pre-commit-run: ## Run hooks on all files
 	pre-commit run --all-files
 
 # -------------------------------
-# full smoke test via bash script
+# Full smoke (inline; single definition)
 # -------------------------------
 .PHONY: smoke-all
-smoke-all: lint type manifest docs-check ## Run full smoke (lint, type, docstrings, tests, build, install-check, docs)
-	./scripts/smoke.sh
+smoke-all: ## Run smoke checks in a fresh, reproducible env
+	@echo "[smoke] lint (ruff)"
+	uv run ruff check .
+	@echo "[smoke] format check (ruff)"
+	uv run ruff format --check .
+	@echo "[smoke] type check (mypy)"
+	uv run mypy src scripts
+	@echo "[smoke] docstrings (interrogate)"
+	uv run interrogate -c pyproject.toml
+	@echo "[smoke] tests (pytest)"
+	uv run pytest -q
+	@echo "[smoke] manifest validation]"
+	$(MAKE) manifest
+	@echo "[smoke-all] OK"
 
 # -------------------------------
 # Release helper (tags & push)
@@ -206,7 +218,7 @@ check-version: ## Ensure VERSION and/or SPEC match pyproject.toml (use VERSION=.
 	@if [ -n "$(SPEC)" ] && [ "$(ADIF_SPEC_VERSION)" != "$(SPEC)" ]; then \
 	  echo ; echo $(C_Y)"ERROR: ADIF spec version ($(ADIF_SPEC_VERSION)) != SPEC ($(SPEC))";  echo $(C_NC) ;echo ; echo ; exit 1; \
 	fi
-	@if [ -n "$(SPEC)" ]; then echo $(C_G)"✔ ADIF spec matches ($(SPEC))" ; echo $(N_CN) echo ; fi
+	@if [ -n "$(SPEC)" ]; then echo $(C_G)"✔ ADIF spec matches ($(SPEC))"$(C_NC); fi
 	@echo
 
 # -------------------------------
@@ -216,9 +228,13 @@ check-version: ## Ensure VERSION and/or SPEC match pyproject.toml (use VERSION=.
 test-persona: # Run test using for persona
 	uv run pytest -q test/test_personas_cli.py
 
-keychain-test:
+# -------------------------------
+# Keychain test (macOS only)
+# -------------------------------
+.PHONY: keychain-test
+keychain-test: # Test kkeychain for accepting credentials
 ifneq ($(shell uname),Darwin)
-  @echo "[keychain-test] skipping Keychain check (not macOS)"
+	@echo "[keychain-test] skipping Keychain check (not macOS)"
 else
 	@set -euo pipefail; \
 	echo "[keychain-test] starting..."; \
@@ -226,26 +242,25 @@ else
 	uv run adif-mcp persona add --name Primary --callsign W7X; \
 	uv run adif-mcp persona set-credential --persona Primary --provider lotw --username W7X --password testpw; \
 	uv run adif-mcp persona list --verbose; \
-	# This should fail and print our OK message while returning 0 to make
 	if uv run adif-mcp persona add --name BadSpan --callsign TEST --start 2025-04-01 --end 2025-03-01; then \
 	  echo "ERROR: Bad span accepted"; exit 1; \
 	else \
 	  echo "OK: rejected (bad date span)"; \
 	fi; \
-	# Clean everything and verify no stragglers in Keychain (macOS only)
 	uv run adif-mcp persona remove-all --yes; \
+	# 'security' returns 44 when no items; neutralize it so pipefail doesn't trip
 	if command -v security >/dev/null 2>&1; then \
-	  cnt=$$(security find-generic-password -s adif-mcp 2>/dev/null | wc -l | tr -d ' '); \
+	  cnt=$$( (security find-generic-password -s adif-mcp 2>/dev/null || true) | wc -l | tr -d ' ' ); \
 	  echo "[keychain-test] remaining keychain rows: $$cnt"; \
 	fi; \
 	echo "[keychain-test] done."
 endif
 
 # -------------------------------
-# Docstring coverage (verbose)
+# Provider coverage
 # -------------------------------
 .PHONY: providers-coverage
-providers-coverage: # Prodiver property converage against out ADIF catalog
+providers-coverage: # Provider property coverage against our ADIF catalog
 	uv run python scripts/provider_coverage.py
 
 # -------------------------------
@@ -273,7 +288,6 @@ clean:  ## Remove build artifacts (dist/build/egg-info)
 	rm -rf dist build *.egg-info
 	rm -rf site/
 	rm -rf .venv
-
 
 clean-pyc:  ## Remove Python bytecode (__pycache__, *.pyc)
 	@find . -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
