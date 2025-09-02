@@ -1,12 +1,12 @@
 [project]
 name = "adif-mcp"
-version = "0.3.0"
+version = "0.3.1"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Club Log)"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "KI7MT" }]
 # Support modern CPython, develop on 3.13, run on 3.11+
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 
 # Runtime deps only (keep UI optional; Tkinter is stdlib)
 dependencies = [
@@ -59,17 +59,13 @@ dev = [
 "Repository" = "https://github.com/your-org/adif-mcp"
 "Issues" = "https://github.com/your-org/adif-mcp/issues"
 "ADIF Spec" = "https://adif.org.uk/315/ADIF_315.htm"
-"Compatibility" = "https://adif-mcp.com/changelog/#adif-compatibility"
 "LoTW" = "https://lotw.arrl.org/"
 "eQSL" = "https://www.eqsl.cc/"
 "Club Log" = "https://clublog.org/"
 "QRZ" = "https://www.qrz.com/"
 
 [project.scripts]
-# Main CLI
 adif-mcp = "adif_mcp.cli:cli"
-# Persona Manager CLI (ensure adif_mcp/persona_manager.py exposes `cli`)
-adif-mcp-persona = "adif_mcp.persona_manager:cli"
 
 # --------------------------------------------------------------------
 # ADIF tool config (OS-agnostic & SSOT-ish; your helpers interpret it)
@@ -95,8 +91,9 @@ personas_index = "{config_dir}/personas.json"  # util resolves {config_dir}
 # Dev / QA tooling
 # ----------------
 [tool.ruff]
-line-length = 90
 target-version = "py311"
+src = ["src", "test"]
+line-length = 90
 extend-exclude = [
     ".venv",
     ".smoke-venv",
@@ -113,13 +110,10 @@ select = ["E", "F", "I"]
 ignore = []
 fixable = ["I"]
 
-[tool.ruff.lint.per-file-ignores]
-"scripts/*.py" = ["T201", "E402"]
-"samples/*.py" = ["E402"]
-
 [tool.mypy]
 python_version = "3.11"
 strict = true
+packages = ["adif-mcp"]
 disable_error_code = ["annotation-unchecked", "call-arg"]
 warn_unused_ignores = true
 warn_redundant_casts = true
@@ -138,18 +132,21 @@ module = "test.*"
 disable_error_code = ["annotation-unchecked"]
 
 [tool.interrogate]
-fail-under = 80
+fail-under = 100
 verbose = 1
 quiet = false
 color = true
 ignore-init-method = true
-ignore-magic = true
 ignore-module = false
+ignore-magic = true
 ignore-private = true
 ignore-nested-functions = true
 ignore-properties = true
-paths = ["src", "scripts", "test"]
+paths = ["src", "test"]
 exclude = [".venv", ".smoke-venv", "dist", "build", "site", "docs/_site"]
+whitelist-regex = [
+    "^test_*"
+]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
@@ -167,19 +164,21 @@ build-backend = "hatchling.build"
 [tool.hatch.build.hooks.custom]
 path = "src/adif_mcp/dev/build_hooks.py"
 
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/adif_mcp"]
 include = [
-    "src/adif_mcp/resources/**",
+  "src/adif_mcp/resources/**",
 ]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "src/adif_mcp/**",
-    "src/adif_mcp/resources/**",
-    "pyproject.toml",
-    "README.md",
-    "LICENSE*",
+  "src/adif_mcp/**",
+  "src/adif_mcp/resources/**",
+  "README.md",
+  "LICENSE",
+  "pyproject.toml",
+  "test/**",                      # optional but nice for source dists
 ]
 exclude = [
     "scripts/**",
@@ -195,6 +194,4 @@ exclude = [
     ".ruff_cache/**",
     ".mypy_cache/**",
     ".pytest_cache/**",
-    "tests/**",
-    "test/**",
 ]

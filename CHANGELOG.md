@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2025-09-03
+### Fixed
+- Restored and migrated `PersonaManager` into the new `adif_mcp.identity` namespace.
+- Resolved missing import errors caused by the removal of `persona_manager.py`.
+- Cleaned up packaging to ensure identity components ship correctly in wheel and sdist.
+
+---
+
 ## [0.3.0] - 2025-09-03
 
 ### Added
