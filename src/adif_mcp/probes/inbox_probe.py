@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import cast
 
-from adif_mcp.persona_manager import PersonaManager
+from adif_mcp.identity import PersonaManager
 from adif_mcp.probes import http_probe
 from adif_mcp.providers import ProviderKey, adapters
 

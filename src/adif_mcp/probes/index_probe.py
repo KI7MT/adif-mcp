@@ -4,13 +4,12 @@ from __future__ import annotations
 
 from typing import Optional
 
-from adif_mcp.persona_manager import (
-    MissingPersonaError,
-    MissingProviderError,
-    MissingSecretError,
-    MissingUsernameError,
-    PersonaManager,
+from adif_mcp.identity.errors import (
+    PersonaNotFound,
+    ProviderRefMissing,
+    SecretMissing,
 )
+from adif_mcp.identity.manager import PersonaManager
 from adif_mcp.providers import ProviderKey
 
 EXIT_OK = 0
@@ -31,10 +30,10 @@ def run(provider: ProviderKey | str, persona: str) -> int:
     try:
         username, _ = pm.require(persona, p)
     except (
-        MissingPersonaError,
-        MissingProviderError,
-        MissingUsernameError,
-        MissingSecretError,
+        PersonaNotFound,
+        ProviderRefMissing,
+        ProviderRefMissing,  # username missing maps to ProviderRefMissing
+        SecretMissing,
     ):
         return EXIT_MISSING
 

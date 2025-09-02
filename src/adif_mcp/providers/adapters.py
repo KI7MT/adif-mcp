@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import Any, Dict, Tuple
 
-from adif_mcp.persona_manager import PersonaManager
+from adif_mcp.identity import PersonaManager
 from adif_mcp.providers import ProviderKey
 
 

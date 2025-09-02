@@ -1,138 +1,68 @@
-"""
-Persona models and local storage.
+# src/adif_mcp/identity/store.py
 
-A *persona* groups one callsign identity (optionally bounded by dates) and
-contains references to provider credentials (stored externally via a keyring).
+"""Persistence layer for personas (JSON index via util_paths).
 
-Storage layout (index JSON):
-{
-  "personas": {
-    "<name>": {
-      "name": "...",
-      "callsign": "...",
-      "start": "YYYY-MM-DD" | null,
-      "end":   "YYYY-MM-DD" | null,
-      "providers": {
-        "lotw": {"username": "..."},
-        "eqsl": {"username": "..."}
-      }
-    }
-  }
-}
-
-Secrets:
-- Password/API tokens are *not* stored here. They are written to the system
-  keyring under a deterministic key:
-  service = "adif-mcp"
-  username = f"{persona}:{provider}:{account_name}"
+This module is intentionally ignorant of secrets. It only manages the persona
+index (non-secret fields) and leaves credential storage to the secrets backend.
 """
 
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict, cast
 
-# -----------------------------
-# Persona Helper functions
-# -----------------------------
+from adif_mcp.util_paths import personas_index_path
+
+from .models import Persona, ProviderRef
+
+# ---------- JSON helpers ----------
+
+
+class _PersonaJSON(TypedDict, total=False):
+    """TODO: Add valid docstring for  store.py _PersonaJSON
+
+    Args:
+        TypedDict (_type_): _description_
+        total (bool, optional): _description_. Defaults to False.
+    """
+
+    name: str
+    callsign: str
+    start: Optional[str]  # ISO date
+    end: Optional[str]  # ISO date
+    providers: Dict[str, ProviderRef]
 
 
 def _to_date(s: Optional[str]) -> Optional[date]:
-    """None-safe ISO date parser."""
-    return date.fromisoformat(s) if s else None
-
-
-def _mask_username(u: str) -> str:
-    """Return a lightly-masked username for display."""
-    if len(u) <= 2:
-        return "*" * len(u)
-    return f"{u[0]}***{u[-1]}"
-
-
-def _keyring_backend_name() -> str:
-    """Return active keyring backend name, or 'unavailable'."""
-    try:
-        import keyring
-
-        kr = keyring.get_keyring()
-        cls = kr.__class__
-        return f"{cls.__module__}.{cls.__name__}"
-    except Exception:
-        return "unavailable"
-
-
-# -----------------------------
-# Public datamodel
-# -----------------------------
-
-
-class CredentialRef(TypedDict):
-    """Non-secret reference to a provider credential."""
-
-    username: str
-
-
-@dataclass(slots=True)
-class Persona:
-    """One operator identity (callsign + optional active date range)."""
-
-    name: str
-    callsign: str
-    start: Optional[date] = None
-    end: Optional[date] = None
-    providers: Dict[str, CredentialRef] = field(default_factory=dict)  # provider -> ref
-
-    def active_span(self) -> str:
-        """Human-friendly date span."""
-        s = self.start.isoformat() if self.start else "—"
-        e = self.end.isoformat() if self.end else "—"
-        return f"{s} → {e}"
-
-
-# -----------------------------
-# Storage (JSON index)
-# -----------------------------
-class _PersonaJSON(TypedDict, total=False):
-    """Defines the properties in the persona ffile
-
-    Args:
-        TypedDict (_type_): a dictionary of values representing a persona
-        total (bool, optional): default to false if empty not found Defaults to False.
-    """
-
-    name: str
-    callsign: str
-    start: Optional[str]
-    end: Optional[str]
-    providers: Dict[str, CredentialRef]
+    """Parse YYYY-MM-DD or return None."""
+    if not s:
+        return None
+    # Let ValueError bubble up if malformed (keeps failures obvious in dev)
+    return date.fromisoformat(s)
 
 
 def _dumps(obj: Any) -> str:
-    """Dumps the JSON object
+    """Stable JSON for on-disk file (pretty + sorted)."""
+    return json.dumps(obj, indent=2, sort_keys=True)
 
-    Args:
-        obj (Any): object containt JSON personanas
 
-    Returns:
-        str: retuens the dumpped object
-    """
-    return json.dumps(obj, indent=2, sort_keys=True) + "\n"
+# ---------- Store ----------
 
 
 class PersonaStore:
     """
-    Loads/saves persona index JSON and provides CRUD helpers.
+    Loads/saves the persona index JSON and provides CRUD helpers.
 
-    This class is *intentionally* ignorant of secrets—use keyring helpers at
-    the CLI layer to write passwords/tokens.
+    Notes:
+      - No secret handling here. Only non-secret references (e.g., usernames).
+      - Path is determined by util_paths.personas_index_path() in most callers.
     """
 
-    def __init__(self, index_path: Path) -> None:
-        """Initialized the path location to the persona"""
-        self.index_path = index_path
+    def __init__(self, index_path: Optional[Path] = None) -> None:
+        """Initialize the store with a JSON index path."""
+        self.index_path = index_path or personas_index_path()
         self._personas: Dict[str, Persona] = {}
         self._load()
 
@@ -154,7 +84,7 @@ class PersonaStore:
             start = _to_date(rec.get("start"))
             end = _to_date(rec.get("end"))
             providers_raw = rec.get("providers")
-            providers_map: Dict[str, CredentialRef] = (
+            providers_map: Dict[str, ProviderRef] = (
                 dict(providers_raw) if providers_raw else {}
             )
             self._personas[name] = Persona(
@@ -166,7 +96,7 @@ class PersonaStore:
             )
 
     def _save(self) -> None:
-        """Save the personna"""
+        """Persist the current in-memory map to disk."""
         out: Dict[str, _PersonaJSON] = {}
         for name, p in self._personas.items():
             out[name] = {
@@ -190,8 +120,6 @@ class PersonaStore:
 
     # -------- Mutations --------
 
-    # --- inside PersonaStore.upsert(...) ---
-
     def upsert(
         self,
         *,
@@ -201,12 +129,11 @@ class PersonaStore:
         end: Optional[date],
     ) -> Persona:
         """
-        Create or update a persona (non-secret fields only).
-        Returns the saved Persona.
+        Create or update a persona (non-secret fields only) and return it.
 
         Rules:
-        - Callsign is stored uppercase.
-        - If both dates are provided, end must be >= start.
+          - Callsign is stored uppercase.
+          - If both dates are provided, end must be >= start.
         """
         if start and end and end < start:
             raise ValueError("end date cannot be earlier than start date")
@@ -226,6 +153,7 @@ class PersonaStore:
             callsign=callsign_norm,
             start=start,
             end=end,
+            providers={},  # ensure map exists for new personas
         )
         self._personas[name] = p
         self._save()
@@ -246,15 +174,12 @@ class PersonaStore:
         provider: str,
         username: str,
     ) -> Persona:
-        """
-        Set/replace a provider reference (non-secret) for a persona.
-        """
+        """Set/replace a provider reference (non-secret) for a persona."""
         p = self._personas.get(persona)
         if not p:
             raise KeyError(f"Persona not found: {persona}")
-        p.providers[provider] = {"username": username}
+        key = provider.lower()
+        # ProviderRef is a TypedDict; store only non-secret username here
+        p.providers[key] = {"username": username}
         self._save()
         return p
-
-
-__all__ = ["Persona", "CredentialRef", "PersonaStore"]

@@ -19,8 +19,8 @@ from typing import Any, Dict, Iterable, List, Literal, Optional, cast
 import click
 
 from adif_mcp import __adif_spec__, __version__
+from adif_mcp.identity import Persona, PersonaStore
 from adif_mcp.parsers.adif_reader import QSORecord
-from adif_mcp.personas import Persona, PersonaStore
 from adif_mcp.probes import inbox_probe, index_probe
 from adif_mcp.providers import ProviderKey
 from adif_mcp.tools.eqsl_stub import fetch_inbox as _eqsl_fetch_inbox
