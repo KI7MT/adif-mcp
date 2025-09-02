@@ -10,7 +10,7 @@ import pytest
 
 # Prefer the in-package validator; if unavailable, we still do shape checks.
 try:
-    from adif_mcp.tools.validate_manifest import validate_one  # type: ignore
+    from adif_mcp.tools.validate_manifest import validate_one
 except Exception:  # pragma: no cover - optional path
     validate_one = None  # type: ignore[assignment]
 
