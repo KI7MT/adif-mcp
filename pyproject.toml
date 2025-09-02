@@ -169,17 +169,21 @@ path = "src/adif_mcp/dev/build_hooks.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/adif_mcp"]
+include = [
+    "src/adif_mcp/resources/**",
+]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "src/**",
+    "src/adif_mcp/**",
+    "src/adif_mcp/resources/**",
     "pyproject.toml",
     "README.md",
     "LICENSE*",
-    "mcp/**",
-    "scripts/**",
 ]
 exclude = [
+    "scripts/**",
+    "mcp",
     ".venv/**",
     ".smoke-venv/**",
     "dist/**",

@@ -9,7 +9,6 @@ data/*.duckdb
 z-my-notes.md
 pre-release-checklist*
 rubric*
-src/adif_mcp/adif_meta.json
 .smoke-venv/
 dist/
 build/
