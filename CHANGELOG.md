@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2025-09-03
+
+### Added
+- New `adif_mcp.identity` namespace with clear separation of:
+  - `models` (Persona, ProviderRef types)
+  - `store` (JSON persistence)
+  - `secrets` (keyring integration)
+  - `manager` (high-level PersonaManager with typed errors)
+  - `errors` (granular exception classes for credential handling)
+
+- `src/adif_mcp/resources/` module introduced:
+  - `providers/*.json` for per-provider field definitions
+  - `schemas/manifest.v1.json` for manifest validation
+  - `spec/adif_catalog.json` and `spec/adif_meta.json` for ADIF catalog/spec metadata
+
+### Changed
+- Migrated old `personas.py` and `persona_manager.py` into `identity/` namespace.
+- Moved provider manifests, schemas, and ADIF spec data into `resources/`.
+- Updated all probes and adapters to import from `identity` instead of legacy modules.
+- CI and pre-commit updated to enforce `ruff`, `mypy --strict`, and `interrogate` across the new layout.
+
+### Removed
+- Legacy `scripts/` helpers (`http_probe.py`, `provider_index_probe.py`, etc.) now fully replaced by `adif_mcp.probes.*`.
+- Old `mcp/` provider/spec folders replaced by `resources/`.
+- Deprecated direct imports from `adif_mcp.personas` / `persona_manager`.
+
+### Notes
+- This release introduces **breaking changes** for anyone importing directly from `adif_mcp.personas` or `persona_manager`.
+- Downstream users should migrate to the `adif_mcp.identity` namespace.
+
+---
 
 ## [0.2.1] - 2025-09-03
 
