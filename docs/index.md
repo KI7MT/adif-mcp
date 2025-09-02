@@ -35,4 +35,4 @@ Our goal is simple: support and enhance the Amateur Radio logging ecosystem whil
 - **Plugins:** LoTW and eQSL integrations as separate MCPs
 - **Goals:** portability, safety, testability, and vendor-neutral interfaces
 
-👉 Start with the [User Guide](userguide/getting-started.md) or browse through the [LoTW](integrations/lotw/index.md) and [eQSL](integrations/eqsl/index.md) integrations.
+👉 Start with the [User Guide](userguide/persona-management.md) or setup to setup and contrubite code, see the [Dev Guide](dev/dev-env-setup.md).
