@@ -6,7 +6,7 @@ Many operators just want quick answers regarding their logs:
 - *“Which QSOs are still unconfirmed on LoTW?”*
 - *"Am I in the Log for X.Y.Z Dxepdition"*
 
-Traditionally, getting those answers means exporting ADIF, writing scripts, logging into one or more sites. That is a barrier — especially if you don’t code, or you're not sitting in fron ot your shack computer.
+Traditionally, getting those answers means exporting ADIF, writing scripts, logging into one or more sites. That is a barrier — especially if you don’t code, or you're not sitting in front of your shack computer.
 
 ![MCP WOrkflow](../images/mcp-flow-diagram.png)
 
