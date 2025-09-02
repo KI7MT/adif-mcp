@@ -5,14 +5,14 @@ on:
     paths:
       - "**/manifest.json"
       - ".github/workflows/manifest-validate.yml"
-      - "scripts/validate_manifest.py"
-      - "mcp/schemas/manifest.v1.json"
+      - "src/adif_mcp/tools/validate_manifest.py"
+      - "src/adif_mcp/resources/schemas/manifest.v1.json"
   pull_request:
     paths:
       - "**/manifest.json"
       - ".github/workflows/manifest-validate.yml"
-      - "scripts/validate_manifest.py"
-      - "mcp/schemas/manifest.v1.json"
+      - "src/adif_mcp/tools/validate_manifest.py"
+      - "src/adif_mcp/resources/schemas/manifest.v1.json"
   workflow_dispatch:
 
 permissions:
@@ -41,15 +41,10 @@ jobs:
           printf 'files<<EOF\n%s\nEOF\n' "$(printf '%s\n' "${FILES[@]}")" >> "$GITHUB_OUTPUT"
           echo "count=${#FILES[@]}" >> "$GITHUB_OUTPUT"
 
-      - name: Ensure schema & script exist
-        if: steps.find.outputs.count != '0'
-        run: |
-          test -f mcp/schemas/manifest.v1.json
-          test -f scripts/validate_manifest.py
-
+      # Install uv before any uv run calls
       - name: Set up uv
         if: steps.find.outputs.count != '0'
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v1
 
       - name: Set up Python
         if: steps.find.outputs.count != '0'
@@ -61,6 +56,12 @@ jobs:
         if: steps.find.outputs.count != '0'
         run: |
           if [ -f uv.lock ]; then uv sync --frozen; else uv sync; fi
+
+      # Ensure the *new* schema location exists
+      - name: Ensure schema exists
+        if: steps.find.outputs.count != '0'
+        run: |
+          test -f src/adif_mcp/resources/schemas/manifest.v1.json
 
       - name: Validate JSON syntax (jq)
         if: steps.find.outputs.count != '0'
@@ -76,12 +77,12 @@ jobs:
           done <<< "${{ steps.find.outputs.files }}"
           [ $ok -eq 1 ] || exit 1
 
-      - name: Validate against local MCP schema
+      # Use the in-package validator module (new location)
+      - name: Validate against MCP schema
         if: steps.find.outputs.count != '0'
         run: |
-          uv run python scripts/validate_manifest.py ${{ steps.find.outputs.files }}
+          uv run python -m adif_mcp.tools.validate_manifest ${{ steps.find.outputs.files }}
 
       - name: Summary
         if: steps.find.outputs.count != '0'
-        run: |
-          echo "✅ Validated ${{ steps.find.outputs.count }} manifest file(s)."
+        run: echo "✅ Validated ${{ steps.find.outputs.count }} manifest file(s)."
