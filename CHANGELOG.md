@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [0.2.1] - 2025-09-03
+
+### Fixed
+- Updated and refactored all test files under `test/` to match the new package layout.
+- Restored full test coverage (17/17 passing).
+- Fixed CLI `manifest-validate` command to use the in-package validator and packaged/repo manifests.
+- Corrected workflow issues in CI:
+  - Ensured `uv` is installed and available in pre-commit hooks.
+  - Synced dev dependencies for `uv run` hooks in CI.
+- Resolved pre-commit “uv not found” failures by updating GitHub Actions workflow.
+
+### Changed
+- CI/CD pipelines (lint, type-check, test, manifest validation, pre-commit) now green across all jobs.
+- Pre-commit configuration aligned with `uv run` workflows.
+
+### Notes
+- This is primarily a **stability/maintenance release** to lock in a clean baseline after the v0.2.0 refactor.
+
+---
+
 ## [0.2.0] - 2025-09-03
 
 ### Added
