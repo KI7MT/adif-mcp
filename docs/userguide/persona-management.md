@@ -15,14 +15,14 @@ Personas JSON files store `non-secret` metadata on disk; secrets (passwords/toke
 ## Where Data Lives
 Index JSON (non-secret):
 
-~~~
+```
 ~/.config/adif-mcp/personas.json (default)
 
 # This psth is configrable via the project’s pyproject.toml
 
 [tool.adif]
 personas_index = "path/to/personas.json"
-~~~
+```
 
 Provider Access Credentials ( secrets ) for LoTW, eQSL, Clublog, etc
 
@@ -37,7 +37,7 @@ If keyring isn’t available, the CLI will still save the non-secret reference a
 
 Create a primary persona and a date-bounded special-event persona, then attach credentials:
 
-~~~
+```
 # 1) Fresh list (may show "No personas configured." on first run)
 uv run adif-mcp persona list
 
@@ -66,57 +66,57 @@ uv run adif-mcp persona set-credential \
 uv run adif-mcp persona list
 uv run adif-mcp persona show Primary
 uv run adif-mcp persona show --by callsign W7A
-~~~
+```
 
 ## Commands
 
 List - Shows each persona, callsign, date span, and which providers have credentials references.
-~~~
+```
 uv run adif-mcp persona list
-~~~
+```
 
 Add / Update - Re-using the same --name updates the persona (callsign/dates).
-~~~
+```
 uv run adif-mcp persona add \
   --name <PersonaName> \
  --callsign <CALL> \
  [--start YYYY-MM-DD] \
  [--end   YYYY-MM-DD]
-~~~
+```
 
 Show
-~~~
+```
 # By persona name (default)
 uv run adif-mcp persona show <PersonaName>
 
 # By callsign (disambiguates multiple personas that share a call)
 uv run adif-mcp persona show --by callsign <CALL>
-~~~
+```
 
 Set credential (non-secret ref + secret in keyring)
-~~~
+```
 uv run adif-mcp persona set-credential \
   --persona <PersonaName> \
   --provider {lotw|eqsl|qrz|clublog} \
   --username <account_username>
 # Prompts for password/token securely
-~~~
+```
 
 Remove
-~~~
+```
 # Remove a single persona
 uv run adif-mcp persona remove <PersonaName>
 
 # Remove ALL personas (destructive; index only—does not purge keyring)
 uv run adif-mcp persona remove-all
-~~~
+```
 
 JSON on disk (reference)
 
 Your personas.json
 - Passwords/tokens **are not** stored here—only usernames/refs.
 
-~~~json
+```json
 {
   "personas": {
     "Primary": {
@@ -139,7 +139,7 @@ Your personas.json
     }
   }
 }
-~~~
+```
 
 ## How MCP will pick a persona (design intent)
 
@@ -156,9 +156,9 @@ Troubleshooting
 
 Create one:
 
-~~~bash
+```bash
 uv run adif-mcp persona add --name Primary --callsign <CALL>
-~~~
+```
 
 - “Secret was NOT stored.”
 Your environment likely lacks a keyring backend. Install one (e.g., keyring + OS backend) and re-run persona set-credential. Non-secrets were saved; only the secret failed.

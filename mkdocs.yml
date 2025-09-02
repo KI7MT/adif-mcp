@@ -18,30 +18,30 @@ nav:
 nav:
   - Home: index.md
   - Concepts:
-      - Overview: concepts/overview.md
       - Why ADIF-MCP Matters: concepts/why-matters.md
       - Choice of LLMs: concepts/choice-of-llms.md
-  - Integrations:
+  - 'User Guide':
+    - User Credentials: userguide/persona-management.md
+    - Award Queries: userguide/awards.md
+  - Dev Guide:
+    - Dev Env Setup: dev/dev-env-setup.md
+    - Dev Plan: dev/dev-plan.md
+    - Git Commits: dev/git-commits.md
+    - Cheatsheet: dev/make-commands.md
+    - Probes: dev/probes.md
+  - Program-ID: program-id-policy.md
+  - Roadmap: roadmap.md
+  - '':
+    - Specs: spec/spec.md
+  - '':
     - Overview: integrations/overview.md
     - LoTW: integrations/lotw/index.md
     - eQSL: integrations/eqsl/index.md
-  - Award Queries: awards.md
-  - MCP:
+  - '':
     - Overview: mcp/overview.md
     - Manifest: mcp/manifest.md
     - Tools: mcp/tools.md
-  - User Guide:
-    - userguide/getting-started.md
-    - userguide/persona-management.md
-  - Dev Guide:
-    - Overview: devguide/overview.md
-    - Dev Plan: devguide/dev-plan.md
-    - Make Commands: devguide/make-commands.md
-    - Probes: devguide/probes.md
-  - Program ID Policy: program-id-policy.md
-  - Spec:
-    - Overview: spec/spec.md
-  - Roadmap: roadmap.md
+
 
 plugins:
   - search

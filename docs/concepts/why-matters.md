@@ -1,10 +1,14 @@
 # Why ADIF-MCP Matters
 
-Most operators just want answers from their logs:
-*“Did I work that station on 30m last month?”*
-*“Which QSOs are still unconfirmed on LoTW?”*
+Many operators just want quick answers regarding their logs:
 
-Traditionally, getting those answers means exporting ADIF, writing scripts, or juggling multiple sites. That’s a barrier — especially if you don’t code.
+- *“Did I work that station on 30m last month?”*
+- *“Which QSOs are still unconfirmed on LoTW?”*
+- *"Am I in the Log for X.Y.Z Dxepdition"*
+
+Traditionally, getting those answers means exporting ADIF, writing scripts, logging into one or more sites. That is a barrier — especially if you don’t code, or you're not sitting in fron ot your shack computer.
+
+![MCP WOrkflow](../images/mcp-flow-diagram.png)
 
 ---
 

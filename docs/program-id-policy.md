@@ -2,7 +2,7 @@
 
 The ADIF-MCP project uses **registered ADIF Program IDs** to clearly identify log exports and transformations. This ensures transparency, auditability, and compatibility with other ADIF-compliant applications.
 
-## Registered Program IDs
+## 1. Registered Program IDs
 
 - `ADIF-MCP` — the core engine (https://github.com/KI7MT/adif-mcp)
 - `ADIF-MCP-LOTW` — plugin for ARRL Logbook of The World (LoTW) (https://github.com/KI7MT/adif-mcp-lotw)
@@ -10,7 +10,7 @@ The ADIF-MCP project uses **registered ADIF Program IDs** to clearly identify lo
 
 Each plugin or engine component reports `PROGRAMVERSION` equal to its package release version.
 
-## APP_ Vendor Extensions
+## 2. APP_ Vendor Extensions
 
 To avoid overwriting a user’s original `PROGRAMID`, ADIF-MCP components may add **APP_ fields** with namespaced provenance. Examples:
 
@@ -22,7 +22,7 @@ To avoid overwriting a user’s original `PROGRAMID`, ADIF-MCP components may ad
 
 These fields are optional but recommended when the engine or plugins modify or confirm records.
 
-## Policy Summary
+## 3. Policy Summary
 
 - **Exports from core**: set `PROGRAMID=ADIF-MCP`
 - **Exports from plugins**: set `PROGRAMID=ADIF-MCP-LOTW` or `ADIF-MCP-EQSL`

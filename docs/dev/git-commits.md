@@ -1,6 +1,4 @@
-# Deeveloper Guide
-
-## Commit Message Guidelines
+# Commit Message Guidelines
 
 We follow the [Conventional Commits](https://www.conventionalcommits.org/) standard for commit messages.
 This makes it easier to understand project history and automatically generate changelogs.

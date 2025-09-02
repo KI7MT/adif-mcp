@@ -1,5 +1,5 @@
 
-# Award Queries
+# Award Query Workflow Examples
 
 Amateur Radio operators don’t just make QSOs — they track and confirm them to
 pursue awards, challenges, and special programs. These awards provide goals,

@@ -2,7 +2,6 @@
 
 This page is generated from `make help` for quick reference.
 
-```
 | Target                 | Purpose                                                      | Core Commands / Flow |
 |------------------------|--------------------------------------------------------------|----------------------|
 | **bootstrap**          | Ensure dev deps are installed                                | `uv sync --group dev \|\| uv sync` |

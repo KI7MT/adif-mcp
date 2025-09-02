@@ -2,8 +2,7 @@
 
 Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service for **Amateur Radio Logging**, per [ADIF 3.1.5 specification](https://adif.org.uk/315/ADIF_315.htm)
 
-> **Pretty Code • Pretty Output • Iterative Docs**
-> A simple mantra: keep the code clean, the output clear, and the docs evolving.
+> **Pretty Code • Pretty Output • Iterative Docs** - A simple mantra: keep the code clean, the output clear, and the docs evolving.
 
 ---
 
@@ -22,13 +21,11 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![SSL Certificate Expiry Check](https://github.com/KI7MT/adif-mcp/actions/workflows/ssl-expiry.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/ssl-expiry.yml)
 
-
 ## MCP / API Readiness
 [![MCP](https://img.shields.io/badge/AI--Agent--Ready-MCP-green)](https://modelcontextprotocol.io/)
 [![API Docs](https://img.shields.io/badge/API-Schema-blue)](https://adif-mcp.com/mcp/manifest.html)
 [![JSON Schema](https://img.shields.io/badge/Schema-JSON--Schema-lightgrey)](#)
 [![Manifest Validate](https://github.com/KI7MT/adif-mcp/actions/workflows/manifest-validate.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/manifest-validate.yml)
-
 
 ## Compliance and Program Registry
 [![ADIF 3.1.5](https://img.shields.io/badge/ADIF-3.1.5-blue?label=Spec)](#-compliance--provenance)
@@ -36,21 +33,35 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 
 ---
 
+## Project Ethos
 
+ADIF-MCP is a community-driven effort.
+It is not intended to replace or compete with existing ADIF libraries, utilities, or logging applications. Instead, it provides a common foundation that others can build upon.
 
-## Overview
+- Interoperability — a schema-driven, spec-compliant core that makes it easier for tools, logs, and services to talk to each other.
+- Extensibility — a plugin and integration framework for services like LoTW, eQSL, QRZ, and future platforms.
+- Collaboration — designed to complement, not fragment, the ecosystem of ADIF tools already enjoyed by the ham community.
+- Future-facing — introduces safe, typed access to ADIF data in contexts such as AI agents and MCP integrations, opening doors for innovation while preserving compatibility.
+
+Our goal is simple: support and enhance the Amateur Radio logging ecosystem while keeping the project open, transparent, and aligned with the spirit of the hobby.
+
+---
+
+## ADIF-MCP Engines
 
 This package defines the ADIF MCP core engine, with plugins for:
 - LoTW (`adif-mcp-lotw`)
 - eQSL (`adif-mcp-eqsl`)
+- qrz  (`adif-mcp-qrz`)
+- clublog (`adif-mcp-clublog`)
 
 Performs these tasks
 - Validation & normalization of ADIF records
 - Unified schema for consistent QSO storage and exchange
 - MCP-ready tools for safe AI-agent access
-- Foundation for service adapters (e.g., LoTW, eQSL)
+- Foundation for service adapters (e.g., LoTW, eQSL, Qrx, Clublog)
 
-🔑 Takeaway: MCP doesn’t replace LoTW, eQSL, or award programs. Instead, it gives operators visibility and accessibility into their award progress, across sponsors, without them needing to export, filter, or code.
+🔑 Takeaway: MCP doesn’t replace LoTW, eQSL, Clublog, Qrz, or award / logging program(s). Instead, it gives operators visibility and accessibility into their award progress, across sponsors, without them needing to export, filter, or code.
 
 ---
 
@@ -58,7 +69,7 @@ Performs these tasks
 
 Unlike existing ADIF editors and one-off utilities, ADIF-MCP is a shared protocol engine for the Amateur Radio community:
 - Spec-compliant & typed — ADIF fields are validated against the official standard.
-- Extensible — integrations (LoTW, eQSL, QRZ, logging apps) plug into a common base.
+- Extensible — integrations (LoTW, eQSL, QRZ, Clublog, and other logging apps) plug into a common base.
 - AI-ready — exposes safe, typed tools to AI agents via the Model Context Protocol.
 - Foundation, not silo — one engine many apps can trust, instead of everyone re-implementing ADIF parsing.
 
@@ -78,6 +89,9 @@ ADIF-MCP and its plugins follow the [ADIF Specification](https://adif.org.uk) (c
 - `ADIF-MCP` — Core engine
 - `ADIF-MCP-LOTW` — Plugin for ARRL Logbook of The World
 - `ADIF-MCP-EQSL` — Plugin for eQSL.cc
+- `ADIF-MCP-QRZ` — Plugin for Qrz.com
+- `ADIF-MCP-CLUBLOG` — Plugin for Clublog.com
+- `ADIF-MCP-NEXT` — Whatever else operators want integrated
 
 To ensure transparency and auditability, the project also uses **APP_ fields** for provenance when augmenting records.
 Examples include:

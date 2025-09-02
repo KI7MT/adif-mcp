@@ -4,7 +4,7 @@ This document consolidates the **demo scope** with the **production-grade baseli
 
 ---
 
-## TL;DR (decisions)
+## 1. TL;DR (decisions)
 - **Manifests live inside the package** so they ship with the server:
   - Canonical: `src/adif_mcp/mcp/manifest.json`
   - Provider manifests (optional, only if exposing provider-scoped tools):
@@ -14,7 +14,7 @@ This document consolidates the **demo scope** with the **production-grade baseli
 
 ---
 
-## Current Surface (working today)
+## 2. Current Surface (working today)
 - **Probes**: GET-only and safe. `lotw`/`eqsl`/`qrz` ⇒ HTTP 200; `clublog` ⇒ expected 403 with redaction.
 - **CLI**:
   - `adif-mcp provider index-check …` (no network)
@@ -26,7 +26,7 @@ This document consolidates the **demo scope** with the **production-grade baseli
 
 ---
 
-## Manifests: Placement & Rules
+## 3. Manifests: Placement & Rules
 
 ### Canonical Placement
 - **Server manifest** (single contract for the MCP server):
@@ -39,7 +39,7 @@ This document consolidates the **demo scope** with the **production-grade baseli
   src/adif_mcp/providers/lotw/mcp/manifest.json
   ```
 
-### Validation
+## 4. Validation
 The `make manifest` target scans all tracked `manifest.json` files and validates them. No changes needed when you move manifests under `src/…`.
 
 ### One Source of Truth
@@ -47,7 +47,7 @@ Keep **exactly one** manifest per server or plugin. After moving the root manife
 
 ---
 
-## Demo Scope (kept as plan; not all implemented yet)
+## 5. Demo Scope (kept as plan; not all implemented yet)
 
 ### What the demo *will* do
 - Fetch new **eQSL** entries since a date.
@@ -69,21 +69,21 @@ Keep **exactly one** manifest per server or plugin. After moving the root manife
 - **`eqsl.filter_summary`**
   - Input: `{ band?, mode?, date_from?, date_to?, confirmed_only? }`
   - Output:
-    ```json
-    {
-      "total": 42,
-      "confirmed": 19,
-      "by_band": [{"band":"20m","count":...}],
-      "by_mode": [{"mode":"FT8","count":...}],
-      "sample": [ /* first 10 QSOs */ ]
-    }
-    ```
+```json
+{
+  "total": 42,
+  "confirmed": 19,
+  "by_band": [{"band":"20m","count":...}],
+  "by_mode": [{"mode":"FT8","count":...}],
+  "sample": [ /* first 10 QSOs */ ]
+}
+```
 
 **Why two tools?** `fetch_inbox` centralizes I/O + normalization; `filter_summary` gives the agent fast analytics without repeated downloads.
 
 ---
 
-## Production Baseline (condensed)
+## 6. Production Baseline (condensed)
 
 ### Structure
 ```
@@ -125,26 +125,26 @@ adif-mcp/
 
 ---
 
-## Immediate Actions (manifests + doc consolidation)
+## 7. Immediate Actions (manifests + doc consolidation)
 
-1) **Move the server manifest** into the package:
-   ```bash
-   mkdir -p src/adif_mcp/mcp
-   git mv mcp/manifest.json src/adif_mcp/mcp/manifest.json
-   ```
+**Move the server manifest** into the package:
+```bash
+mkdir -p src/adif_mcp/mcp
+git mv mcp/manifest.json src/adif_mcp/mcp/manifest.json
+```
 
-2) **Docs**: Add a pointer in `docs/mcp/manifest.md` that the canonical manifest now lives under `src/adif_mcp/mcp/manifest.json`. The existing `make manifest` target validates all tracked manifests.
+**Docs**: Add a pointer in `docs/mcp/manifest.md` that the canonical manifest now lives under `src/adif_mcp/mcp/manifest.json`. The existing `make manifest` target validates all tracked manifests.
 
-3) **Keep this plan** checked in as `docs/dev/plan.md` so there’s one planning page.
+**Keep this plan** checked in as `docs/dev/plan.md` so there’s one planning page.
 
 ---
 
-## Roadmap (near-term)
-1) **CI smoke**: run `make probe-index` (no network) in CI; skip network probes by default.
-2) **Version & tag**: bump to `0.2.0`, update `CHANGELOG.md`, tag `v0.2.0`.
-3) **Demo tools**: implement `eqsl.fetch_inbox` + `eqsl.filter_summary` with mock fallback; add examples in manifest.
-4) **Docs**: `docs/integrations/eqsl/index.md` quickstart (mock + real creds).
-5) **Models**: expand ADIF models/enums + normalization helpers.
+## 8. Roadmap (near-term)
+**CI smoke**: run `make probe-index` (no network) in CI; skip network probes by default.
+**Version & tag**: bump to `0.2.0`, update `CHANGELOG.md`, tag `v0.2.0`.
+**Demo tools**: implement `eqsl.fetch_inbox` + `eqsl.filter_summary` with mock fallback; add examples in manifest.
+**Docs**: `docs/integrations/eqsl/index.md` quickstart (mock + real creds).
+**Models**: expand ADIF models/enums + normalization helpers.
 
 ---
 
