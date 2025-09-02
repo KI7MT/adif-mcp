@@ -9,7 +9,6 @@ on:
   pull_request:
     branches: [ main ]
 
-# Avoid overlapping runs on the same PR/branch
 concurrency:
   group: pre-commit-${{ github.ref }}
   cancel-in-progress: true
@@ -20,28 +19,31 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # Install uv so local hooks like `entry: uv run ruff ...` work
       - name: Install uv
         uses: astral-sh/setup-uv@v1
         with:
           version: latest
 
+      # Ensure dev tools are available for your uv hooks
       - name: Sync deps for hooks
         run: |
+          set -e
           uv --version
-          uv sync --group dev --frozen || uv sync --frozen || uv sync
+          if [ -f uv.lock ]; then
+            uv sync --group dev --frozen || uv sync --frozen || uv sync
+          else
+            uv sync --group dev || uv sync
+          fi
 
-      - name: Run pre-commit
-        run: pre-commit run --show-diff-on-failure --color=always --all-files
-
-      # Optional: cache pre-commit envs for speed
+      # (Optional) cache pre-commit envs for speed — must run BEFORE the action
       - name: Cache pre-commit envs
         uses: actions/cache@v4
         with:
@@ -50,6 +52,8 @@ jobs:
           restore-keys: |
             pre-commit-${{ runner.os }}-
 
-      # Run pre-commit hooks (uses your .pre-commit-config.yaml)
+      # Run pre-commit (this action installs `pre-commit` for you)
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files --show-diff-on-failure --color=always
