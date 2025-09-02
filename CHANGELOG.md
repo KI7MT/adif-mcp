@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2025-09-03
+
+### Added
+- Provider probe framework under `adif_mcp/probes/`:
+  - `http_probe` (GET-only probe engine with redaction).
+  - `inbox_probe` (persona+provider → safe GET execution).
+  - `index_probe` (no-network credential presence check).
+- New CLI commands:
+  - `adif-mcp provider probe --provider … --persona …`
+  - `adif-mcp provider index-check --provider … --persona …`
+- Makefile targets `probe-index`, `probe-get`, `probe-all`.
+- Centralized credential validation via `PersonaManager.require()` with typed errors.
+- One-pager documentation: `docs/probes.md`.
+
+### Changed
+- Refactored all scripts into proper package modules (`adif_mcp/probes`, `adif_mcp/tools`, `adif_mcp/dev`).
+- CLI now uses in-package probe logic (no more `scripts/` imports).
+- Ruff line length standardized to 90 chars.
+
+### Fixed
+- Redaction for sensitive parameters (`password`, `token`, `api`, etc.) in probe output.
+- Interrogate coverage: added missing docstrings to new modules and helpers.
+
+---
+
 ## [0.1.21] - 2025-08-31
 ### Added
 - Introduced **PersonaManager** as the single point of truth for personas, providers, and secrets.
@@ -35,6 +60,8 @@ All notable changes to this project will be documented in this file.
   - `eqsl_inbox_probe.py`
   - `provider_inbox_probe.py`
 
+---
+
 ## [0.1.20] - 2025-08-30
 ### Added
 - Persona CLI enhancements:
@@ -54,6 +81,8 @@ All notable changes to this project will be documented in this file.
 ### Notes
 - This release marks the first complete integration of **Personas** with secure credential storage.
 - CI tests avoid touching the real keychain; use `make keychain-test` locally if you want to validate secrets end-to-end.
+
+---
 
 ## [0.1.19] - 2025-08-30
 
@@ -133,6 +162,7 @@ All notable changes to this project will be documented in this file.
 - MkDocs index/overview pages reorganized for clarity
 - Adopted consistent `.yml` extension for workflows and mkdocs config
 
+---
 
 ## [0.1.15] - 2025-08-27
 ### Added

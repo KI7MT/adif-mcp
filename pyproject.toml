@@ -1,12 +1,12 @@
 [project]
 name = "adif-mcp"
-version = "0.1.21"
+version = "0.2.0"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Club Log)"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "KI7MT" }]
 # Support modern CPython, develop on 3.13, run on 3.11+
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 
 # Runtime deps only (keep UI optional; Tkinter is stdlib)
 dependencies = [
@@ -30,22 +30,23 @@ classifiers = [
 
 [dependency-groups]
 dev = [
-  "pytest",
-  "mypy",
-  "ruff",
-  "commitizen",
-  "pydantic<2",
-  "jsonschema>=4.25.1",
-  "interrogate>=1.7.0",
-  "types-click>=7.1.8",
-  "mkdocs>=1.6.1",
-  "mkdocs-material>=9.6.18",
-  "mkdocstrings[python]>=0.30.0",
-  "pymdown-extensions>=10.10",
-  "pymdown-extensions[extra]>=10.10",
-  "mkdocs-redirects>=1.2.2",
-  "mkdocs-mermaid2-plugin>=1.2.2",
-  "mkdocs-git-revision-date-localized-plugin>=1.4.7",
+    "pytest",
+    "mypy",
+    "ruff",
+    "commitizen",
+    "pydantic<2",
+    "jsonschema>=4.25.1",
+    "interrogate>=1.7.0",
+    "types-click>=7.1.8",
+    "types-requests",          # ← add this
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.18",
+    "mkdocstrings[python]>=0.30.0",
+    "pymdown-extensions>=10.10",
+    "pymdown-extensions[extra]>=10.10",
+    "mkdocs-redirects>=1.2.2",
+    "mkdocs-mermaid2-plugin>=1.2.2",
+    "mkdocs-git-revision-date-localized-plugin>=1.4.7",
 ]
 
 # Optional extras (reserved for future use)
@@ -94,7 +95,7 @@ personas_index = "{config_dir}/personas.json"  # util resolves {config_dir}
 # Dev / QA tooling
 # ----------------
 [tool.ruff]
-line-length = 88
+line-length = 90
 target-version = "py311"
 extend-exclude = [
     ".venv",
@@ -164,7 +165,7 @@ requires = ["hatchling>=1.21"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.hooks.custom]
-path = "scripts/build_hooks.py"
+path = "src/adif_mcp/dev/build_hooks.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/adif_mcp"]

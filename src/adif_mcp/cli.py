@@ -10,19 +10,24 @@ from __future__ import annotations
 
 import getpass
 import importlib
+import importlib.util
 import json
 import pathlib
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Optional
+from typing import Any, Dict, Iterable, List, Literal, Optional, cast
 
 import click
 
 from adif_mcp import __adif_spec__, __version__
 from adif_mcp.parsers.adif_reader import QSORecord
 from adif_mcp.personas import Persona, PersonaStore
+from adif_mcp.probes import inbox_probe, index_probe
+from adif_mcp.providers import ProviderKey
 from adif_mcp.tools.eqsl_stub import fetch_inbox as _eqsl_fetch_inbox
 from adif_mcp.tools.eqsl_stub import filter_summary as _eqsl_filter_summary
+
+from .util_paths import personas_index_path
 
 # ---------------------------
 # Helper functions
@@ -225,7 +230,7 @@ def persona_version() -> None:
 )
 def persona_list(verbose: bool) -> None:
     """List configured personas."""
-    store = PersonaStore(_personas_index_path())
+    store = PersonaStore(personas_index_path())
     items = store.list()
     if not items:
         click.echo("No personas configured.")
@@ -241,32 +246,8 @@ def persona_list(verbose: bool) -> None:
                 click.echo(f"    • {prov}: {_mask_username(user)}")
 
 
-def _personas_index_path() -> Path:
-    """Resolve personas index path from pyproject (if present) or default."""
-    default = Path.home() / ".config" / "adif-mcp" / "personas.json"
-    try:
-        from . import _find_pyproject  # local helper in __init__.py
-
-        pj: Optional[Path] = _find_pyproject(Path.cwd())
-        if pj:
-            import tomllib
-
-            data = tomllib.loads(pj.read_text(encoding="utf-8"))
-            tool = data.get("tool", {})
-            adif = tool.get("adif", {})
-            custom = adif.get("personas_index")
-            if isinstance(custom, str) and custom.strip():
-                return (pj.parent / custom).resolve()
-    except Exception:
-        # Any parsing/import errors → fall back to default
-        pass
-    return default
-
-
 @persona.command("add", help="Add or update a persona.")
-@click.option(
-    "--name", required=True, help="Persona name (e.g., 'primary', 'w7a-2025')."
-)
+@click.option("--name", required=True, help="Persona name (e.g., 'primary', 'w7a-2025').")
 @click.option("--callsign", required=True, help="Callsign for this persona.")
 @click.option("--start", help="Start date (YYYY-MM-DD).", default=None)
 @click.option("--end", help="End date (YYYY-MM-DD).", default=None)
@@ -285,7 +266,7 @@ def persona_add(
         start (Optional[str]): start date of the persona
         end (Optional[str]): end date of the persona
     """
-    store = PersonaStore(_personas_index_path())
+    store = PersonaStore(personas_index_path())
     try:
         p = store.upsert(
             name=name,
@@ -311,7 +292,7 @@ def persona_remove(name: str) -> None:
     Raises:
         SystemExit: If no such persona exists.
     """
-    store = PersonaStore(_personas_index_path())
+    store = PersonaStore(personas_index_path())
     ok = store.remove(name)
     if ok:
         click.echo(f"Removed persona '{name}'.")
@@ -331,7 +312,7 @@ def persona_remove_all(yes: bool) -> None:
         click.echo("Refusing to remove without --yes.", err=True)
         raise SystemExit(1)
 
-    store = PersonaStore(_personas_index_path())
+    store = PersonaStore(personas_index_path())
     items = store.list()
     if not items:
         click.echo("No personas configured.")
@@ -378,7 +359,7 @@ def persona_remove_all(yes: bool) -> None:
 @click.argument("ident")
 def persona_show(by: str, ident: str) -> None:
     """Show persona details (credentials masked)."""
-    store = PersonaStore(_personas_index_path())
+    store = PersonaStore(personas_index_path())
 
     def _by_name() -> Optional[Persona]:
         """Show persona details by name"""
@@ -441,7 +422,7 @@ def persona_set_credential(
     Raises:
         SystemExit: No such persona
     """
-    store = PersonaStore(_personas_index_path())
+    store = PersonaStore(personas_index_path())
 
     # Save non-secret ref
     try:
@@ -486,7 +467,7 @@ def persona_set_credential(
 @click.argument("query")
 def persona_find(query: str) -> None:
     """Case-insensitive substring search over persona *name* and *callsign*."""
-    store = PersonaStore(_personas_index_path())
+    store = PersonaStore(personas_index_path())
     q = query.lower()
     hits = [p for p in store.list() if q in p.name.lower() or q in p.callsign.lower()]
     if not hits:
@@ -494,3 +475,42 @@ def persona_find(query: str) -> None:
         raise SystemExit(1)
     for p in hits:
         click.echo(_format_persona_line(p))
+
+
+@cli.group("provider")
+def provider_group() -> None:
+    """Provider tools (probes, etc.)."""
+    return
+
+
+@provider_group.command("probe")
+@click.option(
+    "--provider",
+    required=True,
+    type=click.Choice(["lotw", "eqsl", "qrz", "clublog"], case_sensitive=False),
+)
+@click.option("--persona", required=True)
+@click.option("--timeout", type=float, default=10.0, show_default=True)
+@click.option("--verbose", is_flag=True)
+@click.option("--real", is_flag=True, help="Reserved; behaves same as GET probe for now.")
+def provider_probe(
+    provider: str, persona: str, timeout: float, verbose: bool, real: bool
+) -> None:
+    """Probe the provider for valid connection"""
+    pkey = cast(ProviderKey, provider.lower())
+    code = inbox_probe.run(pkey, persona, timeout=timeout, verbose=verbose)
+    raise SystemExit(code)
+
+
+@provider_group.command("index-check")
+@click.option(
+    "--provider",
+    required=True,
+    type=click.Choice(["lotw", "eqsl", "qrz", "clublog"], case_sensitive=False),
+)
+@click.option("--persona", required=True)
+def provider_index_check(provider: str, persona: str) -> None:
+    """Verify credentials by performaing an index check on the provder"""
+    pkey = cast(ProviderKey, provider.lower())
+    code = index_probe.run(pkey, persona)
+    raise SystemExit(code)

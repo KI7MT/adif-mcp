@@ -17,9 +17,7 @@ def test_fetch_inbox_shape() -> None:
     out = fetch_inbox("KI7MT")
     assert "records" in out and isinstance(out["records"], list)
     assert all(
-        {"station_call", "call", "qso_date", "time_on", "band", "mode"}.issubset(
-            r.keys()
-        )
+        {"station_call", "call", "qso_date", "time_on", "band", "mode"}.issubset(r.keys())
         for r in out["records"]
     )
 

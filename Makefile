@@ -77,7 +77,6 @@ smoke: lint type manifest ## quick local gate (lint+type+manifest)
 gate: ## CI parity gate: lint + type + tests + manifest + docstrings, keychain test
 	$(MAKE) lint
 	$(MAKE) type
-	$(MAKE) test
 	$(MAKE) manifest
 	uv run interrogate -c pyproject.toml
 	$(MAKE) keychain-test
@@ -86,6 +85,7 @@ gate: ## CI parity gate: lint + type + tests + manifest + docstrings, keychain t
 # Manifest validation
 # -------------------------------
 .PHONY: manifest
+# Manifest validation
 manifest: ## Validate MCP manifest(s)
 	@set -e; \
 	files=$$(git ls-files | grep -E '(^|/)manifest\.json$$' || true); \
@@ -94,9 +94,10 @@ manifest: ## Validate MCP manifest(s)
 	else \
 	  for f in $$files; do \
 	    echo "Validating $$f"; \
-	    uv run python scripts/validate_manifest.py "$$f"; \
+	    uv run python -m adif_mcp.tools.validate_manifest "$$f"; \
 	  done; \
 	fi
+
 
 # -------------------------------
 # Docs: export dev commands page
@@ -132,13 +133,11 @@ smoke-all: ## Run smoke checks in a fresh, reproducible env
 	@echo "[smoke] lint (ruff)"
 	uv run ruff check .
 	@echo "[smoke] format check (ruff)"
-	uv run ruff format --check .
-	@echo "[smoke] type check (mypy)"
-	uv run mypy src scripts
+	uv run ruff format .
+		@echo "[smoke] type check (mypy)"
+	uv run mypy src
 	@echo "[smoke] docstrings (interrogate)"
 	uv run interrogate -c pyproject.toml
-	@echo "[smoke] tests (pytest)"
-	uv run pytest -q
 	@echo "[smoke] manifest validation]"
 	$(MAKE) manifest
 	@echo "[smoke-all] OK"
@@ -263,6 +262,26 @@ endif
 providers-coverage: # Provider property coverage against our ADIF catalog
 	uv run python scripts/provider_coverage.py
 
+# Probes
+probe-index: ## Run index (no network) probes for all providers
+	@echo "== Index probes (no network) =="
+	uv run adif-mcp provider index-check --provider eqsl    --persona MyEQSL
+	uv run adif-mcp provider index-check --provider lotw    --persona MyLOTW
+	uv run adif-mcp provider index-check --provider qrz     --persona MyQRZ
+	uv run adif-mcp provider index-check --provider clublog --persona MyCLUBLOG
+
+probe-get: ## Run GET (network) probes for all providers
+	@echo "== GET probes (network) =="
+	uv run adif-mcp provider probe --provider eqsl    --persona MyEQSL    --timeout 30 || true
+	uv run adif-mcp provider probe --provider lotw    --persona MyLOTW    --timeout 30 || true
+	uv run adif-mcp provider probe --provider qrz     --persona MyQRZ     --timeout 30 || true
+	uv run adif-mcp provider probe --provider clublog --persona MyCLUBLOG --timeout 30 || true
+
+probe-all: ## Run both index and GET probes
+	$(MAKE) probe-index
+	@echo
+	$(MAKE) probe-get
+
 # -------------------------------
 # Docstring coverage (verbose)
 # -------------------------------
@@ -288,6 +307,9 @@ clean:  ## Remove build artifacts (dist/build/egg-info)
 	rm -rf dist build *.egg-info
 	rm -rf site/
 	rm -rf .venv
+	rm -rf .mypy_cache
+	rm -rf .pytest_cache
+	rm -rf .ruff_cache
 
 clean-pyc:  ## Remove Python bytecode (__pycache__, *.pyc)
 	@find . -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true

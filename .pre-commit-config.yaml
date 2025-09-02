@@ -1,14 +1,25 @@
 # .pre-commit-config.yaml
 repos:
-  # Ruff (lint + format)
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+  - repo: local
     hooks:
       - id: ruff
-        args: [--fix]
-      - id: ruff-format
+        name: ruff (uv)
+        entry: uv run ruff check . --fix
+        language: system
+        pass_filenames: false
 
-  # Basic hygiene hooks
+      - id: ruff-format
+        name: ruff-format (uv)
+        entry: uv run ruff format .
+        language: system
+        pass_filenames: false
+
+      - id: mypy
+        name: mypy (uv)
+        entry: uv run mypy src
+        language: system
+        pass_filenames: false
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -19,15 +30,3 @@ repos:
       - id: check-json
       - id: check-toml
       - id: check-added-large-files
-
-  # Mypy (use the same config as local `uv run mypy`)
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.1
-    hooks:
-      - id: mypy
-        args:
-          - --config-file=pyproject.toml
-        # Add any stubs/plugins your code relies on so the hook env resolves types
-        additional_dependencies:
-          - pydantic<2
-          - types-click>=7.1.8

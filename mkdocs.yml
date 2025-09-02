@@ -35,7 +35,9 @@ nav:
     - userguide/persona-management.md
   - Dev Guide:
     - Overview: devguide/overview.md
+    - Dev Plan: devguide/dev-plan.md
     - Make Commands: devguide/make-commands.md
+    - Probes: devguide/probes.md
   - Program ID Policy: program-id-policy.md
   - Spec:
     - Overview: spec/spec.md

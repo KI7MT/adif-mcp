@@ -151,11 +151,7 @@ def render_report(catalog_fields: list[str], rows: list[tuple[str, set[str]]]) -
     status_w = 72  # shorten long lists
 
     header = (
-        f"{'Provider':<{name_w}} "
-        f"{'Cov':>{cov_w}} "
-        f"{'Miss':>{mis_w}} "
-        f"{'%':>{pct_w}} "
-        f"Status"
+        f"{'Provider':<{name_w}} {'Cov':>{cov_w}} {'Miss':>{mis_w}} {'%':>{pct_w}} Status"
     )
 
     sep = "-" * (name_w + cov_w + mis_w + pct_w + 8 + status_w)
