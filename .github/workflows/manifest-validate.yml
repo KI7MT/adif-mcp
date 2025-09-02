@@ -42,9 +42,10 @@ jobs:
           echo "count=${#FILES[@]}" >> "$GITHUB_OUTPUT"
 
       # Install uv before any uv run calls
-      - name: Set up uv
-        if: steps.find.outputs.count != '0'
+      - name: Install uv
         uses: astral-sh/setup-uv@v1
+        with:
+          version: latest
 
       - name: Set up Python
         if: steps.find.outputs.count != '0'
@@ -52,10 +53,15 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Sync deps (frozen if lock present)
-        if: steps.find.outputs.count != '0'
+      - name: Sync deps (prefer dev group; frozen if lock)
         run: |
-          if [ -f uv.lock ]; then uv sync --frozen; else uv sync; fi
+          set -e
+          uv --version || true
+          if [ -f uv.lock ]; then
+            uv sync --group dev --frozen || uv sync --frozen || uv sync
+          else
+            uv sync --group dev || uv sync
+          fi
 
       # Ensure the *new* schema location exists
       - name: Ensure schema exists

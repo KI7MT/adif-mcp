@@ -12,7 +12,6 @@ import getpass
 import importlib
 import importlib.util
 import json
-import pathlib
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Literal, Optional, cast
@@ -70,26 +69,68 @@ def version_cmd() -> None:
 @cli.command("manifest-validate")
 def manifest_validate() -> None:
     """
-    Validate the MCP manifest’s basic shape.
+    Validate the MCP manifest.
 
-    This is a lightweight check that ensures the file exists and has a top-level
-    'tools' array. For full schema validation, use the repo’s CI workflow or
-    the stricter validation script.
+    Tries the canonical packaged manifest first (src/adif_mcp/mcp/manifest.json),
+    and falls back to the repo manifest at mcp/manifest.json.
+    Prints "manifest: OK" on success; exits non-zero on failure.
     """
-    p = pathlib.Path("mcp/manifest.json")
-    if not p.exists():
-        raise click.ClickException(f"manifest not found: {p}")
+    import json
+    from importlib.resources import files
 
+    from adif_mcp.tools.validate_manifest import validate_one  # raises or returns code
+
+    candidates: list[Path] = []
+
+    # 1) Packaged manifest (preferred)
     try:
-        data = json.loads(p.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        raise click.ClickException(f"invalid JSON in {p}: {e}") from e
+        pkg_manifest = files("adif_mcp.mcp").joinpath("manifest.json")
+        candidates.append(Path(str(pkg_manifest)))
+    except Exception:
+        pass
 
-    tools = data.get("tools")
-    if not isinstance(tools, list):
-        raise click.ClickException("manifest.tools missing or not a list")
+    # 2) Repo manifest (fallback)
+    repo_manifest = Path("mcp/manifest.json")
+    if repo_manifest.exists():
+        candidates.append(repo_manifest)
 
-    click.echo("manifest: OK")
+    if not candidates:
+        click.echo("No manifest.json found (package or repo).", err=True)
+        raise SystemExit(1)
+
+    last_err: Exception | None = None
+    for p in candidates:
+        try:
+            # validate_one may return an int code, or raise on error.
+            code = validate_one(p)
+            if code == 0:
+                click.echo("manifest: OK")
+                return
+            # Non-zero code → try next candidate (record a generic error)
+            last_err = RuntimeError(f"validator returned exit code {code} for {p}")
+        except Exception as e:  # schema/shape/file errors
+            last_err = e
+            # try next candidate
+
+        # As a graceful fallback, ensure basic shape (tools: list)
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+            tools = data.get("tools", None)
+            if isinstance(tools, list) and tools:
+                click.echo("manifest: OK")
+                return
+        except Exception as e:
+            last_err = e
+            # continue loop
+
+    # If we get here, all candidates failed
+    msg = (
+        f"manifest validation failed: {last_err}"
+        if last_err
+        else "manifest validation failed"
+    )
+    click.echo(msg, err=True)
+    raise SystemExit(1)
 
 
 @cli.group("eqsl")

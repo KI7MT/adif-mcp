@@ -14,14 +14,25 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v1
+        with:
+          version: latest
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Sync deps (frozen, incl. dev tools)
-        run: uv sync --group dev --frozen
+      - name: Sync deps (prefer dev group; frozen if lock)
+        run: |
+          set -e
+          # log uv version for debugging
+          uv --version || true
+          # try newest syntax first; fall back for older uv
+          if [ -f uv.lock ]; then
+            uv sync --group dev --frozen || uv sync --frozen || uv sync
+          else
+            uv sync --group dev || uv sync
+          fi
 
       - name: Lint (ruff)
         run: uv run ruff check .
