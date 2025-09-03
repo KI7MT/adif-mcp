@@ -1,6 +1,6 @@
 [project]
 name = "adif-mcp"
-version = "0.3.2"
+version = "0.3.3"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Club Log)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -168,22 +168,22 @@ path = "src/adif_mcp/dev/build_hooks.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/adif_mcp"]
 include = [
+  "src/adif_mcp/mcp/manifest.json",
   "src/adif_mcp/resources/**",
-   "src/adif_mcp/mcp/manifest.json",
 ]
 
 [tool.hatch.build.targets.sdist]
 include = [
   "src/adif_mcp/**",
+  "src/adif_mcp/mcp/manifest.json",
   "src/adif_mcp/resources/**",
   "README.md",
   "LICENSE",
   "pyproject.toml",
-  "test/**",                      # optional but nice for source dists
+  "test/**",
 ]
 exclude = [
     "scripts/**",
-    "mcp",
     ".venv/**",
     ".smoke-venv/**",
     "dist/**",

@@ -2,7 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.3] - 2025-09-02
+### Fixed
+- Ensure manifest.json is included in dist aand wheel.
 
+---
+
+## [0.3.2] - 2025-09-02
+### Fixed
+- Ensured `manifest-validate` works reliably in both local and packaged installs by updating `cli.py` to prefer the packaged `src/adif_mcp/mcp/manifest.json` and gracefully fallback to repo manifests.
+- Cleaned up CI configuration:
+  - Updated `.github/workflows/ci.yml` to run manifest validation inline with other gates.
+  - Corrected paths and logic in `manifest-validate.yml` workflow.
+
+### Changed
+- Removed redundant manifest validation logic; consolidated to `adif-mcp manifest-validate` for consistency across local, CI, and release builds.
+- Minor cleanup of CLI docstrings and UX messages.
+
+---
 
 ## [0.3.1] - 2025-09-03
 ### Fixed
