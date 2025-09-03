@@ -73,31 +73,21 @@ test: bootstrap ## pytest
 smoke: lint type manifest ## quick local gate (lint+type+manifest)
 	@echo "[smoke] OK"
 
-.PHONY: gate lint type test manifest keychain-test
+.PHONY: gate lint type test validate-manifest keychain-test
 gate: ## CI parity gate: lint + type + tests + manifest + docstrings, keychain test
 	$(MAKE) lint
 	$(MAKE) type
-	$(MAKE) manifest
 	uv run interrogate -c pyproject.toml
+	$(MAKE) validate-manifest
 	$(MAKE) keychain-test
 
 # -------------------------------
 # Manifest validation
 # -------------------------------
-.PHONY: manifest
-# Manifest validation
-manifest: ## Validate MCP manifest(s)
-	@set -e; \
-	files=$$(git ls-files | grep -E '(^|/)manifest\.json$$' || true); \
-	if [ -z "$$files" ]; then \
-	  echo "No manifest.json found"; \
-	else \
-	  for f in $$files; do \
-	    echo "Validating $$f"; \
-	    uv run python -m adif_mcp.tools.validate_manifest "$$f"; \
-	  done; \
-	fi
 
+.PHONY: validate-manifest
+validate-manifest: ## Validate MCP manifest(s)
+	uv run adif-mcp validate-manifest
 
 # -------------------------------
 # Docs: export dev commands page

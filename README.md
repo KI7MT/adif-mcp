@@ -25,7 +25,7 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 [![MCP](https://img.shields.io/badge/AI--Agent--Ready-MCP-green)](https://modelcontextprotocol.io/)
 [![API Docs](https://img.shields.io/badge/API-Schema-blue)](https://adif-mcp.com/mcp/manifest.html)
 [![JSON Schema](https://img.shields.io/badge/Schema-JSON--Schema-lightgrey)](#)
-[![Manifest Validate](https://github.com/KI7MT/adif-mcp/actions/workflows/manifest-validate.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/manifest-validate.yml)
+[![Manifest Valid](https://github.com/KI7MT/adif-mcp/actions/workflows/validate-manifest.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/validate-manifest.yml)
 
 ## Compliance and Program Registry
 [![ADIF 3.1.5](https://img.shields.io/badge/ADIF-3.1.5-blue?label=Spec)](#-compliance--provenance)

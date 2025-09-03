@@ -4,14 +4,14 @@ on:
   push:
     paths:
       - "**/manifest.json"
-      - ".github/workflows/manifest-validate.yml"
+      - ".github/workflows/validate-manifest.yml"
       - "src/adif_mcp/tools/validate_manifest.py"
       - "src/adif_mcp/resources/schemas/manifest.v1.json"
       - "src/adif_mcp/mcp/manifest.json"
   pull_request:
     paths:
       - "**/manifest.json"
-      - ".github/workflows/manifest-validate.yml"
+      - ".github/workflows/validate-manifest.yml"
       - "src/adif_mcp/tools/validate_manifest.py"
       - "src/adif_mcp/resources/schemas/manifest.v1.json"
       - "src/adif_mcp/mcp/manifest.json"

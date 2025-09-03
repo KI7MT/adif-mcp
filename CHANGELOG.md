@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.3.3] - 2025-09-02
+### Changed:
+
+
+### Fixed:
+  - Fixed manifest-validate in CLI to check packaged + repo manifests
+  - Updated ci.yml to run manifest validation as part of gates
+  - Corrected manifest-validate.yml paths
+  - Consolidated redundant validation logic
+  - Remove the eQSL stub from the adif-help --help
+  - Enable stub by running: Usage: adif-mcp eqsl [OPTIONS] COMMAND [ARGS]...
+
+```bash
+      Commands for the (stub) eQSL integration.
+
+      These commands exercise the manifest-defined tools without calling the real
+      eQSL.cc service. Useful for wiring, demos, and end-to-end testing.
+
+    Options:
+      --version  Show the version and exit.
+      --help     Show this message and exit.
+
+    Commands:
+      inbox    Return a deterministic stubbed 'inbox' for the given user.
+      summary  Summarize QSO records by band or mode (stub data).
+    - Verified Green for ruff, mypy, and interrogate
+```
+
+## [0.3.3] - 2025-09-02
 ### Changed
 - Remove the eQSL stub (demo / test data ) from the adif-help --help
 - Enable stub by running: `ADIF_MCP_DEV_STUBS=1 adif-mcp eqsl --help`

@@ -1,7 +1,7 @@
 [project]
 name = "adif-mcp"
-version = "0.3.4"
-description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Club Log)"
+version = "0.3.5"
+description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Clublog)"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "KI7MT" }]

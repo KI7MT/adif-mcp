@@ -6,7 +6,8 @@ Commands:
     - version           -> prints package version + ADIF spec version
     - persona           -> add, remove, remove-all, list, show, set-credential
     - provider.         ->
-    - manifest-validate -> quick shape/sanity validation for MCP manifest
+    - validate-manifest -> quick shape/sanity validation for MCP manifest
+    - manifest-validate -> [DEPREICATED] Use validate-manifest instead
 """
 
 from __future__ import annotations
@@ -87,18 +88,21 @@ def version_cmd() -> None:
     click.echo(f"adif-mcp {__version__} (ADIF {__adif_spec__} compatible)")
 
 
-# ---------- Manifest Validate Block ---------- #
+# ---------- Validate Manifest Block ---------- #
 
 
-@cli.command("manifest-validate")
-def manifest_validate() -> None:
+# near: click group `cli()`
+
+
+@cli.command("validate-manifest")
+def validate_manifest_cmd() -> None:
+    """Validate the MCP manifest.
+
+    Tries the packaged manifest first (src/adif_mcp/mcp/manifest.json),
+    then falls back to mcp/manifest.json in the repo.
+    Prints "manifest validation: OK" on success; exits non-zero on failure.
     """
-    Validate the MCP manifest.
 
-    Tries the canonical packaged manifest first (src/adif_mcp/mcp/manifest.json),
-    and falls back to the repo manifest at mcp/manifest.json.
-    Prints "manifest: OK" on success; exits non-zero on failure.
-    """
     candidates: list[Path] = []
 
     # 1) Packaged manifest (preferred)
@@ -122,20 +126,18 @@ def manifest_validate() -> None:
         try:
             code = validate_one(p)
             if code == 0:
-                click.echo("manifest: OK")
+                click.echo("manifest validation: OK")
                 return
             last_err = RuntimeError(f"validator returned exit code {code} for {p}")
         except Exception as e:
             last_err = e
-            # As a graceful fallback, ensure basic shape (tools: list)
-            try:
-                data = json.loads(p.read_text(encoding="utf-8"))
-                if isinstance(data.get("tools"), list) and data["tools"]:
-                    click.echo("manifest: OK")
-                    return
-            except Exception as e2:
-                last_err = e2
-                # continue loop
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+            if isinstance(data.get("tools"), list) and data["tools"]:
+                click.echo("manifest validation: OK")
+                return
+        except Exception as e:
+            last_err = e
 
     msg = (
         f"manifest validation failed: {last_err}"
@@ -144,6 +146,16 @@ def manifest_validate() -> None:
     )
     click.echo(msg, err=True)
     raise SystemExit(1)
+
+
+# @cli.command("manifest-validate")
+# def manifest_validate_alias() -> None:
+#     """[DEPRECATED] Use `validate-manifest` instead."""
+#     click.echo(
+#         "`adif-mcp manifest-validate` is deprecated; use `adif-mcp validate-manifest`.",
+#         err=True,
+#     )
+#     validate_manifest_cmd()
 
 
 # -------- Persona Group --------

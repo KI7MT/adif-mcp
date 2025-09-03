@@ -39,35 +39,50 @@ Before submitting a PR, you must ensure all validations and smoke tests pass loc
 automation will faill after merging the PR.
 
 Minimal Validations
+make gate
+make smoke-all
+
 ~~~bash
+# Start fresh
+make clean ; make clean-all ; make clean-pyc
+
 # Linting (PEP8, unused imports, formatting, etc.)
-uv run ruff check src scripts test
+uv run ruff check src test
+
+# Attempt to auto-fix any issues reported
+uv run ruff check src test --fix
+
+# Attempt to fix formating issues
+uv run ruff format src test
 
 # Type checking (strict mode)
-uv run mypy src scripts test
+uv run mypy src test
 
 # Docstring coverage (must be 100%)
 uv run interrogate -v -c pyproject.toml --fail-under=100 --verbose
 
 # MCP manifest validation
-make manifest
+make validate-manifest
 
-# Unit tests
+# Run Unit tests
 uv run pytest -q
+
+# Auto run most all of the commands above
+make gate
+
+# Run the full smoke test
+make smoke-all
 ~~~
 
-### CLI Smoke Test
+### CLI Validation Testing
 Ensure the CLI entry points work as expected.
 ~~~bash
 uv run adif-mcp version
 uv run adif-mcp --help
-uv run adif-mcp manifest-validate
+uv run adif-mcp persona --help
+uv run adif-mcp provider --help
+uv run adif-mcp validate-manifest
 ~~~
-
-4. Run tests:
-   ~~~bash
-   make test
-   ```
 
 ### Optional but Recommended
 

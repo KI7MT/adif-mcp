@@ -46,7 +46,7 @@ jobs:
         run: uv run pytest -q
 
       - name: Manifest validate (CLI)
-        run: uv run adif-mcp manifest-validate
+        run: uv run adif-mcp validate-manifest
 
       - name: Fetch tags
         run: git fetch --tags --force --prune
