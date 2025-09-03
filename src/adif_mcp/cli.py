@@ -4,6 +4,8 @@ Command-line entry points for adif-mcp.
 
 Commands:
     - version           -> prints package version + ADIF spec version
+    - persona           -> add, remove, remove-all, list, show, set-credential
+    - provider.         ->
     - manifest-validate -> quick shape/sanity validation for MCP manifest
 """
 
@@ -12,6 +14,7 @@ from __future__ import annotations
 import getpass
 import importlib
 import json
+import os
 from datetime import date
 from importlib.resources import files
 from pathlib import Path
@@ -24,15 +27,13 @@ from adif_mcp.identity import Persona, PersonaStore
 from adif_mcp.parsers.adif_reader import QSORecord
 from adif_mcp.probes import inbox_probe, index_probe
 from adif_mcp.providers import ProviderKey
-from adif_mcp.tools.eqsl_stub import fetch_inbox as _eqsl_fetch_inbox
-from adif_mcp.tools.eqsl_stub import filter_summary as _eqsl_filter_summary
 from adif_mcp.tools.validate_manifest import validate_one
 
 from .util_paths import personas_index_path
 
-# ---------------------------
-# Helper functions
-# ---------------------------
+# --------------------------------
+# Helper functions for all Blocks
+# --------------------------------
 
 
 def _mask_username(u: str) -> str:
@@ -54,6 +55,21 @@ def _keyring_backend_name() -> str:
         return "unavailable"
 
 
+def _parse_date(s: Optional[str]) -> Optional[date]:
+    """Parse YYYY-MM-DD or return None."""
+    return None if not s else date.fromisoformat(s)
+
+
+def _format_persona_line(p: Persona) -> str:
+    """One-line summary used by persona list/show/find."""
+    span = p.active_span()
+    providers = ", ".join(sorted(p.providers)) or "—"
+    return f"- {p.name}: {p.callsign}  [{span}]  providers: {providers}"
+
+
+# ---------- CLI Group Entry Point ---------- #
+
+
 @click.group()
 @click.version_option(version=__version__, prog_name="adif-mcp")
 def cli() -> None:
@@ -62,10 +78,16 @@ def cli() -> None:
     return
 
 
+# ---------- Version Command Block ---------- #
+
+
 @cli.command("version")
 def version_cmd() -> None:
     """Show package version and ADIF spec compatibility."""
     click.echo(f"adif-mcp {__version__} (ADIF {__adif_spec__} compatible)")
+
+
+# ---------- Manifest Validate Block ---------- #
 
 
 @cli.command("manifest-validate")
@@ -124,125 +146,11 @@ def manifest_validate() -> None:
     raise SystemExit(1)
 
 
-@cli.group("eqsl")
-def eqsl() -> None:
-    """Commands for the (stub) eQSL integration.
-
-    These commands exercise the manifest-defined tools without calling the
-    real eQSL service. Useful for wiring, demos, and end-to-end tests.
-    """
-
-
-@eqsl.command("inbox")
-@click.option(
-    "-u",
-    "--user",
-    "username",
-    required=True,
-    help="eQSL username for the demo data (e.g., KI7MT).",
-)
-@click.option(
-    "--pretty/--no-pretty",
-    default=True,
-    show_default=True,
-    help="Pretty-print JSON output.",
-)
-@click.option(
-    "-o",
-    "--out",
-    "out_path",
-    type=click.Path(dir_okay=False, writable=True),
-    help="Optional path to write JSON instead of stdout.",
-)
-def eqsl_inbox(username: str, pretty: bool, out_path: Optional[Path]) -> None:
-    """Return a deterministic stubbed 'inbox' for the given user.
-
-    The payload matches the MCP tool output schema:
-    {"records": [QsoRecord, ...]}.
-    """
-    payload: Dict[str, List[QSORecord]] = _eqsl_fetch_inbox(username)
-    text = json.dumps(payload, indent=2 if pretty else None, sort_keys=pretty)
-    if out_path:
-        out_path.write_text(text + ("\n" if pretty else ""), encoding="utf-8")
-        click.echo(f"Wrote {len(payload['records'])} record(s) → {out_path}")
-    else:
-        click.echo(text)
-
-
-@eqsl.command("summary")
-@click.option(
-    "-u",
-    "--user",
-    "username",
-    help="If provided, summarize the stub inbox for this user.",
-)
-@click.option(
-    "--by",
-    type=click.Choice(["band", "mode"], case_sensitive=False),
-    default="band",
-    show_default=True,
-    help="Field to summarize.",
-)
-@click.option(
-    "-i",
-    "--in",
-    "in_path",
-    type=click.Path(exists=True, dir_okay=False, readable=True),
-    help="Optional JSON file produced by 'eqsl inbox -o ...' to summarize.",
-)
-@click.option(
-    "--pretty/--no-pretty",
-    default=True,
-    show_default=True,
-    help="Pretty-print JSON output.",
-)
-def eqsl_summary(
-    username: Optional[str],
-    by: Literal["band", "mode"],
-    in_path: Optional[Path],
-    pretty: bool,
-) -> None:
-    """Summarize QSO records by band or mode.
-
-    Records come from either:
-      * a prior JSON file (`--in`), or
-      * a fresh stub fetch (`--user`).
-
-    Output schema: {"summary": {"<key>": <count>, ...}}
-    """
-    records: Iterable[QSORecord]
-
-    if in_path:
-        data: Dict[str, Any] = json.loads(Path(in_path).read_text(encoding="utf-8"))
-        recs = data.get("records", [])
-        if not isinstance(recs, list):
-            raise click.ClickException("Input JSON must contain a 'records' array.")
-        records = recs
-    elif username:
-        records = _eqsl_fetch_inbox(username)["records"]
-    else:
-        raise click.ClickException("Provide either --in <file> or --user <callsign>.")
-
-    out = _eqsl_filter_summary(records, by=by)  # {"summary": {...}}
-    click.echo(json.dumps(out, indent=2 if pretty else None, sort_keys=pretty))
-
-
 # -------- Persona Group --------
 
 
-def _parse_date(s: Optional[str]) -> Optional[date]:
-    """Parse YYYY-MM-DD or return None."""
-    return None if not s else date.fromisoformat(s)
-
-
-def _format_persona_line(p: Persona) -> str:
-    """One-line summary used by list/show/find."""
-    span = p.active_span()
-    providers = ", ".join(sorted(p.providers)) or "—"
-    return f"- {p.name}: {p.callsign}  [{span}]  providers: {providers}"
-
-
-@cli.group(help="Manage personas & credentials (experimental).")
+@cli.group(help="Manage personas & credentials")
+@click.version_option(version=__version__, prog_name="adif-mcp persona")
 def persona() -> None:
     """Persona management commands."""
     return
@@ -478,10 +386,20 @@ def persona_find(query: str) -> None:
         click.echo(_format_persona_line(p))
 
 
+# ---------- Provider Block ---------- #
+
+
 @cli.group("provider")
+@click.version_option(version=__version__, prog_name="adif-mcp provider")
 def provider_group() -> None:
-    """Provider tools (probes, etc.)."""
+    """Provider tools (probes, index check, etc.)."""
     return
+
+
+@provider_group.command("version")
+def provider_version() -> None:
+    """Show package version and ADIF spec compatibility."""
+    click.echo(f"adif-mcp provider {__version__} (ADIF {__adif_spec__} compatible)")
 
 
 @provider_group.command("probe")
@@ -515,3 +433,126 @@ def provider_index_check(provider: str, persona: str) -> None:
     pkey = cast(ProviderKey, provider.lower())
     code = index_probe.run(pkey, persona)
     raise SystemExit(code)
+
+
+# ---------- eSQL Demo Block ---------- #
+
+# Conditional eQSL stub block for demo and testing purposes
+# To emable, run:
+#   make clean-all
+#   uv build
+#   ADIF_MCP_DEV_STUBS=1 uv run adif-mcp --help
+
+
+def _register_eqsl_stub_group() -> None:
+    """
+    Register the demo eQSL stub group/commands under `adif-mcp eqsl`.
+    Only called when ADIF_MCP_DEV_STUBS=1 is set.
+
+    Example:
+        ADIF_MCP_DEV_STUBS=1 uv run adif-mcp eqsl --help
+
+    The stub ( demo / sameple ) group provides:
+        - A list of 3 QSO records
+        - A Function to test the sample QsoRecords
+        - A filter for band and mode
+    """
+
+    # Import lazily so prod CLI doesn’t import stubs unless enabled
+    from adif_mcp.tools.eqsl_stub import fetch_inbox as _eqsl_fetch_inbox
+    from adif_mcp.tools.eqsl_stub import filter_summary as _eqsl_filter_summary
+
+    @cli.group("eqsl")
+    @click.version_option(version=__version__, prog_name="adif-mcp eqsl stud")
+    def eqsl() -> None:
+        """Commands for the (stub) eQSL integration.
+
+        These commands exercise the manifest-defined tools without calling the
+        real eQSL.cc service. Useful for wiring, demos, and end-to-end testing.
+
+        """
+
+    @eqsl.command("inbox")
+    @click.option(
+        "-u",
+        "--user",
+        "username",
+        required=True,
+        help="eQSL username for demo data (e.g., KI7MT).",
+    )
+    @click.option(
+        "--pretty/--no-pretty",
+        default=True,
+        show_default=True,
+        help="Pretty-print JSON output.",
+    )
+    @click.option(
+        "-o",
+        "--out",
+        "out_path",
+        type=click.Path(dir_okay=False, writable=True),
+        help="Optional path to write JSON instead of stdout.",
+    )
+    def eqsl_inbox(username: str, pretty: bool, out_path: Optional[Path]) -> None:
+        """Return a deterministic stubbed 'inbox' for the given user."""
+        payload: Dict[str, List[QSORecord]] = _eqsl_fetch_inbox(username)
+        text = json.dumps(payload, indent=2 if pretty else None, sort_keys=pretty)
+        if out_path:
+            Path(out_path).write_text(text + ("\n" if pretty else ""), encoding="utf-8")
+            click.echo(f"Wrote {len(payload['records'])} record(s) → {out_path}")
+        else:
+            click.echo(text)
+
+    @eqsl.command("summary")
+    @click.option(
+        "-u",
+        "--user",
+        "username",
+        help="If provided, summarize the stub inbox for this user.",
+    )
+    @click.option(
+        "--by",
+        type=click.Choice(["band", "mode"], case_sensitive=False),
+        default="band",
+        show_default=True,
+        help="Field to summarize.",
+    )
+    @click.option(
+        "-i",
+        "--in",
+        "in_path",
+        type=click.Path(exists=True, dir_okay=False, readable=True),
+        help="Optional JSON file produced by 'eqsl inbox -o ...' to summarize.",
+    )
+    @click.option(
+        "--pretty/--no-pretty",
+        default=True,
+        show_default=True,
+        help="Pretty-print JSON output.",
+    )
+    def eqsl_summary(
+        username: Optional[str],
+        by: Literal["band", "mode"],
+        in_path: Optional[Path],
+        pretty: bool,
+    ) -> None:
+        """Summarize QSO records by band or mode (stub data)."""
+        records: Iterable[QSORecord]
+        if in_path:
+            data: Dict[str, Any] = json.loads(Path(in_path).read_text(encoding="utf-8"))
+            recs = data.get("records", [])
+            if not isinstance(recs, list):
+                raise click.ClickException("Input JSON must contain a 'records' array.")
+            records = recs
+        elif username:
+            records = _eqsl_fetch_inbox(username)["records"]
+        else:
+            raise click.ClickException("Provide either --in <file> or --user <callsign>.")
+
+        out = _eqsl_filter_summary(records, by=by)
+        click.echo(json.dumps(out, indent=2 if pretty else None, sort_keys=pretty))
+
+
+# Register the stub group only in dev
+if os.getenv("ADIF_MCP_DEV_STUBS") == "1":
+    _register_eqsl_stub_group()

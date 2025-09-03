@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.3.3] - 2025-09-02
+### Changed
+- Remove the eQSL stub (demo / test data ) from the adif-help --help
+- Enable stub by running: `ADIF_MCP_DEV_STUBS=1 adif-mcp eqsl --help`
+- Verified Green for ruff, mypy, and interrogate
+
+---
+
+## [0.3.3] - 2025-09-02
 ### Fixed
 - Ensure manifest.json is included in dist aand wheel.
 
