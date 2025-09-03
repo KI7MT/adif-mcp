@@ -129,7 +129,7 @@ smoke-all: ## Run smoke checks in a fresh, reproducible env
 	@echo "[smoke] docstrings (interrogate)"
 	uv run interrogate -c pyproject.toml
 	@echo "[smoke] manifest validation]"
-	$(MAKE) manifest
+	$(MAKE) validate-manifest
 	@echo "[smoke-all] OK"
 
 # -------------------------------
