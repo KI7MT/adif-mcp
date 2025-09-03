@@ -10,6 +10,7 @@
 - provider index-check (no network)
 - provider probe (GET-only, safe, redacting secrets)
 - CI/make targets: probe-index, probe-get, probe-all
+
 ### Quality gates
 - ruff, mypy --strict, interrogate integrated with pre-commit
 - CI workflows fixed for uv + pre-commit + manifest validation
@@ -31,7 +32,8 @@
 ### Demo tools (eQSL)
 - eqsl.fetch_inbox → mock + real mode (still stubbed)
 - eqsl.filter_summary → analytics (band/mode/date/confirmed)
-- Validation / normalization
+
+### Validation / normalization
 - Expand models.py into proper ADIF Pydantic models
 - Add normalize.py helpers (callsign, grid, dates, times, rst, freq, power)
 - Add enums/ JSON + loader (bands, modes, qsl flags)
