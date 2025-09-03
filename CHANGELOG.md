@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+
+
 ## [0.3.1] - 2025-09-03
 ### Fixed
 - Restored and migrated `PersonaManager` into the new `adif_mcp.identity` namespace.

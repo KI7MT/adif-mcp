@@ -7,12 +7,14 @@ on:
       - ".github/workflows/manifest-validate.yml"
       - "src/adif_mcp/tools/validate_manifest.py"
       - "src/adif_mcp/resources/schemas/manifest.v1.json"
+      - "src/adif_mcp/mcp/manifest.json"
   pull_request:
     paths:
       - "**/manifest.json"
       - ".github/workflows/manifest-validate.yml"
       - "src/adif_mcp/tools/validate_manifest.py"
       - "src/adif_mcp/resources/schemas/manifest.v1.json"
+      - "src/adif_mcp/mcp/manifest.json"
   workflow_dispatch:
 
 permissions:
@@ -20,32 +22,32 @@ permissions:
 
 jobs:
   validate:
-    name: Validate MCP manifests
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Find manifests
+      - name: Find manifests (tracked files)
         id: find
         shell: bash
         run: |
-          mapfile -t FILES < <(git ls-files | grep -E '(^|/)manifest\.json$' || true)
-          if [ ${#FILES[@]} -eq 0 ]; then
-            echo "No manifest.json files found."
+          set -euo pipefail
+          files="$(git ls-files | grep -E '(^|/)manifest\.json$' || true)"
+          if [ -z "$files" ]; then
             echo "count=0" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          printf '%s\n' "${FILES[@]}"
-          printf 'files<<EOF\n%s\nEOF\n' "$(printf '%s\n' "${FILES[@]}")" >> "$GITHUB_OUTPUT"
-          echo "count=${#FILES[@]}" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$files"
+          echo "count=$(printf '%s\n' "$files" | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          # stash into an env var for later steps
+          echo "MANIFESTS<<EOF" >> "$GITHUB_ENV"
+          printf '%s\n' "$files" >> "$GITHUB_ENV"
+          echo "EOF" >> "$GITHUB_ENV"
 
-      # Install uv before any uv run calls
       - name: Install uv
-        uses: astral-sh/setup-uv@v1
-        with:
-          version: latest
+        if: steps.find.outputs.count != '0'
+        uses: astral-sh/setup-uv@v3
 
       - name: Set up Python
         if: steps.find.outputs.count != '0'
@@ -53,42 +55,46 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Sync deps (prefer dev group; frozen if lock)
-        run: |
-          set -e
-          uv --version || true
-          if [ -f uv.lock ]; then
-            uv sync --group dev --frozen || uv sync --frozen || uv sync
-          else
-            uv sync --group dev || uv sync
-          fi
-
-      # Ensure the *new* schema location exists
-      - name: Ensure schema exists
+      - name: Sync deps (frozen if lock present)
         if: steps.find.outputs.count != '0'
         run: |
-          test -f src/adif_mcp/resources/schemas/manifest.v1.json
+          if [ -f uv.lock ]; then uv sync --frozen || uv sync; else uv sync; fi
 
-      - name: Validate JSON syntax (jq)
+      - name: Optional JSON syntax lint (jq)
         if: steps.find.outputs.count != '0'
         run: |
           sudo apt-get update -y && sudo apt-get install -y jq
           ok=1
           while IFS= read -r f; do
+            [ -z "$f" ] && continue
             echo "🔎 jq lint: $f"
             if ! jq empty "$f"; then
               echo "::error file=$f::Invalid JSON"
               ok=0
             fi
-          done <<< "${{ steps.find.outputs.files }}"
+          done <<< "$MANIFESTS"
           [ $ok -eq 1 ] || exit 1
 
-      # Use the in-package validator module (new location)
-      - name: Validate against MCP schema
+      - name: Validate against schema via packaged validator
         if: steps.find.outputs.count != '0'
+        env:
+          MANIFESTS: ${{ env.MANIFESTS }}
         run: |
-          uv run python -m adif_mcp.tools.validate_manifest ${{ steps.find.outputs.files }}
+          set -euo pipefail
+          ok=1
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            echo "Validating $f"
+            if ! uv run python -c "import sys, pathlib; from adif_mcp.tools.validate_manifest import validate_one; sys.exit(validate_one(pathlib.Path(sys.argv[1])))" "$f"; then
+              ok=0
+            fi
+          done <<< "$MANIFESTS"
+          [ $ok -eq 1 ] || exit 1
 
       - name: Summary
         if: steps.find.outputs.count != '0'
         run: echo "✅ Validated ${{ steps.find.outputs.count }} manifest file(s)."
+
+      - name: Skip summary (no manifests)
+        if: steps.find.outputs.count == '0'
+        run: echo "ℹ️ No manifest.json files found in repo."

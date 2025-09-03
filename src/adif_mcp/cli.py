@@ -1,3 +1,4 @@
+# src/adif_mcp/cli.py
 """
 Command-line entry points for adif-mcp.
 
@@ -10,9 +11,9 @@ from __future__ import annotations
 
 import getpass
 import importlib
-import importlib.util
 import json
 from datetime import date
+from importlib.resources import files
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Literal, Optional, cast
 
@@ -25,12 +26,13 @@ from adif_mcp.probes import inbox_probe, index_probe
 from adif_mcp.providers import ProviderKey
 from adif_mcp.tools.eqsl_stub import fetch_inbox as _eqsl_fetch_inbox
 from adif_mcp.tools.eqsl_stub import filter_summary as _eqsl_filter_summary
+from adif_mcp.tools.validate_manifest import validate_one
 
 from .util_paths import personas_index_path
 
 # ---------------------------
 # Helper functions
-# ----------------------------
+# ---------------------------
 
 
 def _mask_username(u: str) -> str:
@@ -75,11 +77,6 @@ def manifest_validate() -> None:
     and falls back to the repo manifest at mcp/manifest.json.
     Prints "manifest: OK" on success; exits non-zero on failure.
     """
-    import json
-    from importlib.resources import files
-
-    from adif_mcp.tools.validate_manifest import validate_one  # raises or returns code
-
     candidates: list[Path] = []
 
     # 1) Packaged manifest (preferred)
@@ -101,29 +98,23 @@ def manifest_validate() -> None:
     last_err: Exception | None = None
     for p in candidates:
         try:
-            # validate_one may return an int code, or raise on error.
             code = validate_one(p)
             if code == 0:
                 click.echo("manifest: OK")
                 return
-            # Non-zero code → try next candidate (record a generic error)
             last_err = RuntimeError(f"validator returned exit code {code} for {p}")
-        except Exception as e:  # schema/shape/file errors
-            last_err = e
-            # try next candidate
-
-        # As a graceful fallback, ensure basic shape (tools: list)
-        try:
-            data = json.loads(p.read_text(encoding="utf-8"))
-            tools = data.get("tools", None)
-            if isinstance(tools, list) and tools:
-                click.echo("manifest: OK")
-                return
         except Exception as e:
             last_err = e
-            # continue loop
+            # As a graceful fallback, ensure basic shape (tools: list)
+            try:
+                data = json.loads(p.read_text(encoding="utf-8"))
+                if isinstance(data.get("tools"), list) and data["tools"]:
+                    click.echo("manifest: OK")
+                    return
+            except Exception as e2:
+                last_err = e2
+                # continue loop
 
-    # If we get here, all candidates failed
     msg = (
         f"manifest validation failed: {last_err}"
         if last_err
@@ -222,7 +213,7 @@ def eqsl_summary(
     records: Iterable[QSORecord]
 
     if in_path:
-        data: Dict[str, Any] = json.loads(in_path.read_text(encoding="utf-8"))
+        data: Dict[str, Any] = json.loads(Path(in_path).read_text(encoding="utf-8"))
         recs = data.get("records", [])
         if not isinstance(recs, list):
             raise click.ClickException("Input JSON must contain a 'records' array.")
@@ -253,8 +244,8 @@ def _format_persona_line(p: Persona) -> str:
 
 @cli.group(help="Manage personas & credentials (experimental).")
 def persona() -> None:
-    """Clickgroup for persona not fully implemented yet."""
-    pass
+    """Persona management commands."""
+    return
 
 
 @persona.command("version")
@@ -298,15 +289,7 @@ def persona_add(
     start: Optional[str],
     end: Optional[str],
 ) -> None:
-    """Add a new Persona."""
-    """Add a new Persona
-
-    Args:
-        name (str): name of the persona
-        callsign (str): callsign the persona is associated with
-        start (Optional[str]): start date of the persona
-        end (Optional[str]): end date of the persona
-    """
+    """Add a new Persona or update an existing one."""
     store = PersonaStore(personas_index_path())
     try:
         p = store.upsert(
@@ -325,14 +308,7 @@ def persona_add(
 @persona.command("remove", help="Remove a persona.")
 @click.argument("name")
 def persona_remove(name: str) -> None:
-    """Remove a persona.
-
-    Args:
-        name (str): Persona name to remove
-
-    Raises:
-        SystemExit: If no such persona exists.
-    """
+    """Remove a persona by name."""
     store = PersonaStore(personas_index_path())
     ok = store.remove(name)
     if ok:
@@ -340,9 +316,6 @@ def persona_remove(name: str) -> None:
     else:
         click.echo(f"No such persona: {name}", err=True)
         raise SystemExit(1)
-
-
-# in src/adif_mcp/cli.py
 
 
 @persona.command("remove-all", help="Delete ALL personas and purge saved secrets.")
@@ -361,7 +334,6 @@ def persona_remove_all(yes: bool) -> None:
 
     kr: Optional[Any]
     try:
-        # Runtime import; returns Any, so mypy is fine and no ignore is needed.
         kr = importlib.import_module("keyring")
     except Exception:
         kr = None
@@ -403,11 +375,9 @@ def persona_show(by: str, ident: str) -> None:
     store = PersonaStore(personas_index_path())
 
     def _by_name() -> Optional[Persona]:
-        """Show persona details by name"""
         return store.get(ident)
 
     def _by_callsign() -> Optional[Persona]:
-        """Show persona details by callsign"""
         ident_u = ident.upper()
         for p in store.list():
             if p.callsign.upper() == ident_u:
@@ -452,17 +422,7 @@ def persona_show(by: str, ident: str) -> None:
 def persona_set_credential(
     persona_name: str, provider: str, username: str, password: Optional[str]
 ) -> None:
-    """Attach provider credential (non-secret ref + secret in keyring
-
-    Args:
-        persona_name (str): name of the persona
-        provider (str): name of the provider ( LoTW, eQSL, etc )
-        username (str): username associated with the provider account
-        password (Optional[str]): password associated with the provider account
-
-    Raises:
-        SystemExit: No such persona
-    """
+    """Attach provider credential (non-secret ref + secret in keyring)."""
     store = PersonaStore(personas_index_path())
 
     # Save non-secret ref
@@ -537,7 +497,7 @@ def provider_group() -> None:
 def provider_probe(
     provider: str, persona: str, timeout: float, verbose: bool, real: bool
 ) -> None:
-    """Probe the provider for valid connection"""
+    """Probe the provider for a valid connection (GET-only, safe)."""
     pkey = cast(ProviderKey, provider.lower())
     code = inbox_probe.run(pkey, persona, timeout=timeout, verbose=verbose)
     raise SystemExit(code)
@@ -551,7 +511,7 @@ def provider_probe(
 )
 @click.option("--persona", required=True)
 def provider_index_check(provider: str, persona: str) -> None:
-    """Verify credentials by performaing an index check on the provder"""
+    """Verify credentials by checking index for the provider (no network)."""
     pkey = cast(ProviderKey, provider.lower())
     code = index_probe.run(pkey, persona)
     raise SystemExit(code)

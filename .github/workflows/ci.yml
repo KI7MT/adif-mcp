@@ -45,8 +45,8 @@ jobs:
           PYTHONWARNINGS: error
         run: uv run pytest -q
 
-      - name: Validate MCP manifest(s)
-        run: make manifest
+      - name: Manifest validate (CLI)
+        run: uv run adif-mcp manifest-validate
 
       - name: Fetch tags
         run: git fetch --tags --force --prune
