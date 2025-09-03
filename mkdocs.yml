@@ -25,10 +25,11 @@ nav:
     - Award Queries: userguide/awards.md
   - Dev Guide:
     - Dev Env Setup: dev/dev-env-setup.md
-    - Dev Plan: dev/dev-plan.md
+    - Command Reference: dev/command-reference.md
+    - Code Snippets: dev/code-snippets.md
     - Git Commits: dev/git-commits.md
-    - Cheatsheet: dev/make-commands.md
     - Probes: dev/probes.md
+    - Dev Plan: dev/dev-plan.md
   - Program-ID: program-id-policy.md
   - Roadmap: roadmap.md
   - '':
