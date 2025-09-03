@@ -1,8 +1,11 @@
-# src/adif_mcp/__init__.py
 from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 from typing import Final
+
+from .root import build_cli
+
+cli = build_cli()
 
 # Resolve once, then bind to Final exactly once
 try:

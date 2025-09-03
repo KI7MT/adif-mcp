@@ -13,7 +13,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict, cast
 
-from adif_mcp.util_paths import personas_index_path
+from adif_mcp.util.paths import personas_index_path
 
 from .models import Persona, ProviderRef
 

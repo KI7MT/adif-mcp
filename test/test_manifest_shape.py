@@ -1,82 +1,80 @@
-"""Validate the MCP manifest(s) against basic shape assumptions."""
-
+# test/test_manifest_shape.py
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Callable, Dict, Tuple
 
 import pytest
 
-# Prefer the in-package validator; if unavailable, we still do shape checks.
 try:
-    from adif_mcp.tools.validate_manifest import validate_one
-except Exception:  # pragma: no cover - optional path
-    validate_one = None  # type: ignore[assignment]
+    # Preferred: package validator
+    from adif_mcp.tools.validate_manifest import validate_one as _validate_one
 
-try:
-    from importlib.resources import files as pkg_files
-except ImportError:  # pragma: no cover - py<3.9 fallback (not expected)
-    pkg_files = None  # type: ignore
+    validate_one: Callable[[Path], int] = _validate_one
+except Exception:
+    # Typed fallback with a minimal shape check so the test still has value.
+    def _fallback_validate_one(p: Path) -> int:
+        data: Dict[str, Any] = json.loads(p.read_text(encoding="utf-8"))
+        tools = data.get("tools", None)
+        if not isinstance(tools, list) or not tools:
+            raise AssertionError("manifest missing non-empty 'tools' list")
+        return 0
+
+    validate_one = _fallback_validate_one
 
 
-def _load_package_manifest() -> Tuple[Path, Dict[str, Any]]:
+def _pkg_manifest_path() -> Path | None:
     """
-    Load the canonical manifest shipped with the package.
-
-    First tries: src/adif_mcp/mcp/manifest.json (via importlib.resources).
-    Falls back to repo-root mcp/manifest.json if needed.
+    Return the packaged manifest if available, else None.
+    We avoid importlib.resources in tests to keep it simple across envs.
     """
-    # Try packaged path
-    if pkg_files is not None:
-        try:
-            p = pkg_files("adif_mcp.mcp").joinpath("manifest.json")
-            text = p.read_text(encoding="utf-8")
-            return Path(str(p)), json.loads(text)
-        except Exception:
-            pass
-
-    # Fallback: repo path
-    fallback = Path("mcp/manifest.json")
-    if fallback.exists():
-        return fallback, json.loads(fallback.read_text(encoding="utf-8"))
-
-    pytest.skip("No manifest.json found in package or repo.")
+    p = Path("src/adif_mcp/mcp/manifest.json")
+    return p if p.exists() else None
 
 
-def _all_repo_manifests(repo_root: Path) -> List[Path]:
-    """Return any manifest.json tracked in the repo (e.g., examples)."""
-    return [p for p in repo_root.rglob("manifest.json")]
+def _repo_manifest_path() -> Path | None:
+    """Return a repo-root manifest (legacy/dev) if present, else None."""
+    p = Path("mcp/manifest.json")
+    return p if p.exists() else None
 
 
-def test_package_manifest_exists_and_has_tools() -> None:
-    """The packaged (or fallback) manifest must exist with a non-empty tools array."""
-    path, data = _load_package_manifest()
-    assert "tools" in data, f"manifest.tools missing in {path}"
+def _load_manifest_any() -> Tuple[Path, Dict[str, Any]]:
+    """
+    Load the first manifest we can find (packaged preferred, repo fallback).
+    Skip the test if none exists.
+    """
+    p = _pkg_manifest_path() or _repo_manifest_path()
+    if not p:
+        pytest.skip("No manifest.json found in package or repo.")
+    data: Dict[str, Any] = json.loads(p.read_text(encoding="utf-8"))
+    return p, data
+
+
+def test_validate_manifest_via_validator_or_fallback() -> None:
+    """
+    Use the shipped validator when available, otherwise a typed fallback.
+    """
+    p, _ = _load_manifest_any()
+    assert validate_one(p) == 0
+
+
+def test_manifest_has_non_empty_tools_array() -> None:
+    """The manifest must include a non-empty 'tools' list."""
+    p, data = _load_manifest_any()
+    assert "tools" in data, f"manifest.tools missing in {p}"
     tools = data["tools"]
     assert isinstance(tools, list) and tools, "manifest.tools must be a non-empty list"
 
 
-def test_manifest_examples_are_json_serializable() -> None:
-    """Each tool example (if present) should be valid JSON objects."""
-    _, data = _load_package_manifest()
+def test_examples_json_round_trip() -> None:
+    """If present, each tool's examples must be JSON-serializable objects."""
+    _, data = _load_manifest_any()
     tools = data.get("tools", [])
-    for t in tools:
-        examples = t.get("examples", [])
+    for tool in tools:
+        examples = tool.get("examples", [])
         assert isinstance(examples, list)
         for ex in examples:
             assert isinstance(ex, dict)
             # Round-trip sanity
             assert isinstance(json.loads(json.dumps(ex)), dict)
-
-
-def test_manifest_schema_validation_if_available() -> None:
-    """
-    If the in-package validator is available, validate the canonical manifest.
-
-    This keeps the test resilient if validate_one is renamed/relocated later.
-    """
-    if validate_one is None:
-        pytest.skip("Schema validator unavailable in package.")
-    path, _ = _load_package_manifest()
-    validate_one(path)

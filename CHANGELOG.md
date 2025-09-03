@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.5] - 2025-09-03
+### Added
+- CLI now exposes `validate-manifest` as a first-class command.
+- `Makefile` updated to run `uv run adif-mcp validate-manifest` for consistency.
+
+### Changed
+- Refactored CLI entrypoint into `src/adif_mcp/cli/root.py` with modular subcommand registration (`persona`, `provider`, optional `eqsl_stub`).
+- Tests updated to use the new CLI structure.
+- Manifest validation tests improved with fallback shape checks (ensures `tools` array exists).
+
+### Fixed
+- Missing `__version__` and `__adif_spec__` exports in `adif_mcp.__init__.py`.
+- MyPy typing issues in manifest tests and CLI tests.
+
+---
+
 ## [0.3.4] - 2025-09-02
 ### Changed:
   - Recator manifest-validate to validate-manifest src/adif_mcp/cli.py
@@ -30,6 +46,7 @@ All notable changes to this project will be documented in this file.
       summary  Summarize QSO records by band or mode (stub data).
     - Verified Green for ruff, mypy, and interrogate
 ```
+---
 
 ## [0.3.3] - 2025-09-02
 ### Changed

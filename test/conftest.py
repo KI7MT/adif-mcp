@@ -1,49 +1,67 @@
-"""Shared pytest fixtures for adif-mcp tests.
-
-Fixtures provided:
-- inbox_for_callsign: factory that returns synthetic eQSL inbox records.
-- sample_adi_records: minimal ADIF snippet parsed to QSO records.
-"""
-
 from __future__ import annotations
 
-import pathlib
-import sys
-
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
-
-from typing import Callable, List
-
-import pytest
-
-from adif_mcp.parsers.adif_reader import QSORecord, parse_adi_text
-from adif_mcp.tools.eqsl_stub import fetch_inbox
+import json
+from pathlib import Path
+from typing import Any, Dict, List, cast
 
 
-@pytest.fixture(scope="session")
-def inbox_for_callsign() -> Callable[[str], List[QSORecord]]:
-    """Factory that returns a list of QSO dicts for the given callsign
-    using the eqsl_stub."""
-
-    def _get(cs: str) -> List[QSORecord]:
-        """Returns a list of QSRecords
-
-        Args:
-            cs (list): Get list of QSORecord
-
-        Returns:
-            List[QSORecord]: Return a list of QQSORecord
-        """
-        out = fetch_inbox(cs)  # returns {"records": List[QSORecord]}
-        # return cast(List[QSORecord], out["records"])
-        return out["records"]
-
-    return _get
+def load_env_defaults(p: Path) -> dict[str, object]:
+    """Load a JSON file of environment defaults as a plain dict[str, object]."""
+    # json.loads returns dict[str, Any]; narrow to object for tests
+    data: Dict[str, Any] = json.loads(p.read_text(encoding="utf-8"))
+    return cast(Dict[str, object], data)
 
 
-@pytest.fixture(scope="session")
-def sample_adi_records() -> List[QSORecord]:
-    """Minimal ADIF snippet parsed into QSO records for smoke tests."""
-    txt = "<CALL:5>KI7MT<QSO_DATE:8>20240812<TIME_ON:4>0315<EOR>"
-    # return cast(List[QSORecord], parse_adi_text(txt))
-    return parse_adi_text(txt)
+def _load_sample(name: str) -> Dict[str, object]:
+    """Load a test JSON blob from test/data and return as dict[str, object]."""
+    here = Path(__file__).parent / "data"
+    data: Dict[str, Any] = json.loads((here / name).read_text(encoding="utf-8"))
+    return cast(Dict[str, object], data)
+
+
+def records_min() -> List[Dict[str, str]]:
+    """Small minimal record list used by several tests."""
+    return [
+        {
+            "station_call": "KI7MT",
+            "call": "K7ABC",
+            "qso_date": "20250101",
+            "time_on": "010203",
+            "band": "20m",
+            "mode": "FT8",
+            "rst_sent": "59",
+            "rst_rcvd": "59",
+            "freq": "14.074",
+            "gridsquare": "DN41",
+        }
+    ]
+
+
+def records_two_modes() -> List[Dict[str, str]]:
+    """Two records with different modes for summary tests."""
+    return [
+        {
+            "station_call": "KI7MT",
+            "call": "K7ABC",
+            "qso_date": "20250101",
+            "time_on": "010203",
+            "band": "20m",
+            "mode": "FT8",
+            "rst_sent": "59",
+            "rst_rcvd": "59",
+            "freq": "14.074",
+            "gridsquare": "DN41",
+        },
+        {
+            "station_call": "KI7MT",
+            "call": "K7XYZ",
+            "qso_date": "20250102",
+            "time_on": "020304",
+            "band": "20m",
+            "mode": "CW",
+            "rst_sent": "599",
+            "rst_rcvd": "599",
+            "freq": "14.020",
+            "gridsquare": "DN41",
+        },
+    ]
