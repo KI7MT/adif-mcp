@@ -2,18 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.3] - 2025-09-02
+## [0.3.4] - 2025-09-02
 ### Changed:
+  - Recator manifest-validate to validate-manifest src/adif_mcp/cli.py
+  - Renamed github workflow from manifest-validate.yml to validate-manifest.yml.
+  - Updated test/test_cli.py for new validate-manifest target.
 
+### Added
+  - Added new target to Makefile: validate-manifest.
 
-### Fixed:
-  - Fixed manifest-validate in CLI to check packaged + repo manifests
-  - Updated ci.yml to run manifest validation as part of gates
-  - Corrected manifest-validate.yml paths
-  - Consolidated redundant validation logic
-  - Remove the eQSL stub from the adif-help --help
-  - Enable stub by running: Usage: adif-mcp eqsl [OPTIONS] COMMAND [ARGS]...
+### Removed
+  - Removed old bootstrap Makefile target for manifest.
 
+### Optional CLI eQSL Stub ( demo / test functions )
 ```bash
       Commands for the (stub) eQSL integration.
 
