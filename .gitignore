@@ -1,5 +1,3 @@
-.venv/
-
 .pytest_cache/
 .cache/
 data/*.duckdb
@@ -15,7 +13,19 @@ build/
 __pycache__/
 *.py[cod]
 *$py.class
-ki7mt.adi
+.venv/
+.smoke-venv
+
+# ADIF & large artifacts
+*.adi
+*.ndjson
+*.jsonl
+/tmp/
+*.log
+
+# local scratch
+full.json
+*.errors.json
 
 # ------------------------
 # MkDocs Local Site Build
