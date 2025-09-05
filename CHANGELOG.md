@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [ Unreleased ] — 2025-09-05
+## [v0.3.6] — 2025-09-05
 
 ### Added
 - New `adif-mcp validate-manifest` subcommand (now in `cli/validate.py`) to check `mcp/manifest.json` against bundled JSON schema.
@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - Persona date-ranged callsign support (e.g., legacy calls merged by providers, user-facing ranges for reporting).
 - SSOT filesystem layout with configurable home (`ADIF_MCP_HOME`), standardized `config/`, `logs/`, `data/`, `state/`.
 - Lean archive script and Make target for sharing minimal, fast-to-review packages.
+- Added `cli.validate-manifest` key to usage.json mapping
+- Keeps CLI usage mapping consistent with new validate subcommand
 
 ### Changed
 - `convert-adi.py` moved to `src/adif_mcp/cli/convert_adi.py` and wired as library + CLI entry (`adif-mcp convert` / `convert-adi` alias).
