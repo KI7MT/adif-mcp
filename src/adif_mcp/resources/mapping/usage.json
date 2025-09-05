@@ -11,6 +11,6 @@
       "band",
       "mode"
     ],
-    "validate-manifest": []
+    "cli.validate-manifest": []
   }
 }

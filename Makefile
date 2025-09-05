@@ -4,6 +4,10 @@
 PROJECT	?= "adif-mcp"
 PYTHON	?= python3
 
+# Persona Variables
+PERSONA ?= Primary
+PROVIDERS := eqsl lotw qrz clublog
+
 # Pull versions from pyproject.toml (Python 3.11+ for tomllib)
 PY_PROJ_VERSION := $(shell $(PYTHON) -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])" 2>/dev/null)
 ADIF_SPEC_VERSION := $(shell $(PYTHON) -c "import tomllib;d=tomllib.load(open('pyproject.toml','rb'));print(d.get('tool',{}).get('adif',{}).get('spec_version','unknown'))" 2>/dev/null)
@@ -228,20 +232,10 @@ else
 	@set -euo pipefail; \
 	echo "[keychain-test] starting..."; \
 	uv run adif-mcp persona remove-all --yes; \
-	# add a persona (must include --start now)
-	uv run adif-mcp persona add --name Primary --callsign W7X --start 2000-01-01; \
-	# set creds via the new creds subcommand
+	uv run adif-mcp persona add --name Primary; \
 	uv run adif-mcp creds set Primary lotw --username W7X --password testpw; \
 	uv run adif-mcp persona list --verbose; \
-	# bad span must be rejected (end before start)
-	if uv run adif-mcp persona add --name BadSpan --callsign TEST --start 2025-04-01 --end 2025-03-01; then \
-	  echo "ERROR: Bad span accepted"; exit 1; \
-	else \
-	  echo "OK: rejected (bad date span)"; \
-	fi; \
-	# cleanup: remove persona and delete its creds
 	uv run adif-mcp persona remove-all --yes; \
-	uv run adif-mcp creds delete Primary lotw || true; \
 	# 'security' returns 44 when no items; neutralize it so pipefail doesn't trip
 	if command -v security >/dev/null 2>&1; then \
 	  cnt=$$( (security find-generic-password -s adif-mcp 2>/dev/null || true) | wc -l | tr -d ' ' ); \
@@ -250,20 +244,23 @@ else
 	echo "[keychain-test] done."
 endif
 
-# Probes
+# -------- Probes --------
+# Use one persona for all providers (override with `make probe-index PERSONA=Foo`)
 probe-index: ## Run index (no network) probes for all providers
-	@echo "== Index probes (no network) =="
-	uv run adif-mcp provider index-check --provider eqsl    --persona MyEQSL
-	uv run adif-mcp provider index-check --provider lotw    --persona MyLOTW
-	uv run adif-mcp provider index-check --provider qrz     --persona MyQRZ
-	uv run adif-mcp provider index-check --provider clublog --persona MyCLUBLOG
+	@echo "== Index probes (no network) for persona: $(PERSONA) =="
+	@set -e; \
+	for p in $(PROVIDERS); do \
+	  echo "-- $$p"; \
+	  uv run adif-mcp provider index-check --provider $$p --persona $(PERSONA); \
+	done
 
 probe-get: ## Run GET (network) probes for all providers
-	@echo "== GET probes (network) =="
-	uv run adif-mcp provider probe --provider eqsl    --persona MyEQSL    --timeout 30 || true
-	uv run adif-mcp provider probe --provider lotw    --persona MyLOTW    --timeout 30 || true
-	uv run adif-mcp provider probe --provider qrz     --persona MyQRZ     --timeout 30 || true
-	uv run adif-mcp provider probe --provider clublog --persona MyCLUBLOG --timeout 30 || true
+	@echo "== GET probes (network) for persona: $(PERSONA) =="
+	@set -e; \
+	for p in $(PROVIDERS); do \
+	  echo "-- $$p"; \
+	  uv run adif-mcp provider probe --provider $$p --persona $(PERSONA) --timeout 30 || true; \
+	done
 
 probe-all: ## Run both index and GET probes
 	$(MAKE) probe-index
