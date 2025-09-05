@@ -1,54 +1,54 @@
 # ADIF-MCP Roadmap
 
-**Release:** v0.3.6 (published 2025-09-05)
-**Next Target:** v0.3.7 (planned)
+- Release: v0.3.6 (published 2025-09-05)
+- Next Target: v0.3.7 through v0.3.14 ( planned )
 
 ---
 
-This roadmap tracks completed work and upcoming goals across releases.
+## This roadmap tracks completed work and upcoming goals across releases.
 - ✅ = Complete in current or prior release
 - 🚧 = In progress for current release
 - 🔜 = Planned for next release
 
-🚀 What we need to meet goals
+## 🚀 What we need to meet goals
 
-✅ Packaging & CLI
+### ✅ Packaging & CLI
 - convert-adi.py moved into package (src/adif_mcp/cli/convert_adi.py)
 - CLI entrypoint works: adif-mcp convert + alias convert-adi
 - root.py dispatcher clean, each subcommand has its own module
 
-✅ Single Source of Truth (SSOT)
+### ✅ Single Source of Truth (SSOT)
 - Configurable root (ADIF_MCP_HOME, else ~/.adif-mcp or %APPDATA%\adif-mcp)
 - Standard sub-dirs: config/, logs/, data/, state/
 - Persona configs live under config/
 
-✅ Credentials
+### ✅ Credentials
 - New adif-mcp creds {set,get,delete,list,doctor}
 - Stored in OS keyring (adif-mcp/<persona>:<provider>)
 - Supports both username+password and api_key providers
 - doctor verifies creds per persona/provider
 
-✅ Providers
+### ✅ Providers
 - Metadata in resources/providers/*.json with explicit auth type
 - CLI: provider list, enable, disable
 - Providers correctly report enabled/disabled per persona
 - QRZ and Clublog now included with metadata + docs
 
-✅ Personas
+### ✅ Personas
 - CLI: persona add, list, show, remove, set-active, sync-now
 - Supports multiple callsigns with date ranges in YAML config
 - Integrated with SSOT config dir
 
-✅ Validate
+### ✅ Validate
 - New adif-mcp validate-manifest subcommand in its own module (validate.py)
 - Validates mcp/manifest.json against bundled schema (resources/schemas/manifest.v1.json)
 
-✅ Tests / QA
+### ✅ Tests / QA
 - make gate runs lint (ruff), types (mypy), docs (interrogate), schema validation, pytest smoke, keychain tests
 
 ---
 
-🚧 Section 4: Sync Logic (in progress) - [ Target Release v0.3.7 ]
+### 🚧 Section 4: Sync Logic (in progress) - [ Target Release v0.3.7 ]
 - State JSON v1 per provider under $SSOT/state/providers/
 - File lock mechanism under $SSOT/state/locks/
 - Sliding window incremental sync (default 30 days) + backfill option
@@ -61,7 +61,7 @@ This roadmap tracks completed work and upcoming goals across releases.
 
 ---
 
-✅ Section 5: Documentation - [ Target Release v0.3.8 ]
+### ✅ Section 5: Documentation - [ Target Release v0.3.8 ]
 - MkDocs site published with Material theme, full nav + search + diagrams
 - Plugins enabled: search, mermaid2, git-revision-date-localized, redirects, mkdocstrings
 - Autodoc integrated with Google-style docstrings; source links visible
@@ -75,36 +75,37 @@ This roadmap tracks completed work and upcoming goals across releases.
 
 ---
 
-🔜 Section 6: Sync Follow-ups - [ Target Release v0.3.8 thru v0.3.14]
-[ ] Provider-specific adapters
+## 🔜 Section 6: Sync Follow-ups - [ Target Release v0.3.8 thru v0.3.14]
+
+### Provider-specific adapters
 - eQSL incremental fetcher (date cursor + 30-day overlap)
 - LoTW integration (TQSL support, ADIF download)
 - QRZ API fetch (rate-limit aware)
 - Clublog API fetch (username/password or API key)
 
-[ ] Enhanced scheduling
+### Enhanced scheduling
 - adif-mcp sync emit-schedule generates OS templates (systemd, launchd, Task Scheduler)
 - User Guide docs for enabling scheduled syncs
 
-[ ] Provenance & auditing
+### Provenance & auditing
 - Standardize run-logs in JSONL format
 - Add schema for run-log entries (fetch, normalize, merge, counts, timings)
 
-[ ] Sync status & observability
+### Sync status & observability
 - adif-mcp sync status command → human and --json output
 - Metrics counters: fetched, merged, dupes, errors, timings
 - Option for lightweight Grafana/Prometheus export (stretch goal)
 
-[ ] Data hygiene
+### Data hygiene
 - Compact Parquet partitions (maintenance task)
 - Sidecar fingerprint index files per partition for fast dedupe
 
-[ ] Error handling & resiliency
+### Error handling & resiliency
 - Exponential backoff with jitter for 429/5xx
 - Checkpointing mid-run; resume from last good batch
 - Lock recovery (stale lock detection)
 
-[ ] Testing matrix
+### Testing matrix
 - Idempotency: same window twice → 0 new merges second run
 - Boundary tests with UTC skew + provider quirks
 - Schema snapshot tests for normalized Parquet
