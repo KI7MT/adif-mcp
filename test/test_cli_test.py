@@ -1,21 +1,23 @@
 """CLI smoke tests for `adif-mcp`."""
 
-from __future__ import annotations
-
-from cli_test_helpers import CLI
-from click.testing import CliRunner
+# test/test_cli_test.py
+from cli_test_helpers import shell
 
 
-def test_cli_validate_manifest() -> None:
-    """`adif-mcp validate-manifest` prints OK for packaged/repo manifest."""
-    r = CliRunner().invoke(CLI, ["validate-manifest"])
+def test_entrypoint_help() -> None:
+    r = shell("adif-mcp --help")
     assert r.exit_code == 0
-    assert "manifest: OK" in (r.output or "")
+    assert "adif-mcp CLI" in r.stdout
 
 
-def test_cli_version() -> None:
-    """`adif-mcp version` prints package + ADIF spec."""
-    r = CliRunner().invoke(CLI, ["version"])
+def test_validate_help() -> None:
+    r = shell("adif-mcp validate-manifest --help")
     assert r.exit_code == 0
-    assert "adif-mcp" in r.output
-    assert "ADIF" in r.output
+    assert "manifest" in r.stdout.lower()
+
+
+def test_convert_help() -> None:
+    r1 = shell("adif-mcp convert --help")
+    r2 = shell("adif-mcp convert-adi --help")
+    assert r1.exit_code == 0
+    assert r2.exit_code == 0

@@ -54,6 +54,13 @@ dev = [
 [project.optional-dependencies]
 keyring = ["keyring>=25.2"]
 
+dev = [
+  "pytest>=7.4",
+  "cli-test-helpers>=2.3",
+]
+
+
+
 [project.urls]
 "Homepage" = "https://adif-mcp.com"
 "Repository" = "https://github.com/your-org/adif-mcp"
