@@ -14,6 +14,14 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+all = [
+    { name = "cli-test-helpers" },
+    { name = "interrogate" },
+    { name = "keyring" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "ruff" },
+]
 dev = [
     { name = "interrogate" },
     { name = "mypy" },
@@ -50,6 +58,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "adif-mcp", extras = ["dev", "test"], marker = "extra == 'all'" },
+    { name = "adif-mcp", extras = ["keyring"], marker = "extra == 'all'" },
     { name = "cli-test-helpers", marker = "extra == 'test'", specifier = ">=0.3.0" },
     { name = "click", specifier = ">=8.1.7" },
     { name = "interrogate", marker = "extra == 'dev'", specifier = ">=1.7.0" },
@@ -61,7 +71,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.8" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
 ]
-provides-extras = ["dev", "test", "keyring"]
+provides-extras = ["dev", "test", "keyring", "all"]
 
 [package.metadata.requires-dev]
 dev = [

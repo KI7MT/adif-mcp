@@ -53,15 +53,25 @@ dev = [
 # Optional extras (reserved for future use)
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.6.8",
-    "mypy>=1.11",
-    "interrogate>=1.7.0",
+  "ruff>=0.6.8",
+  "mypy>=1.11",
+  "interrogate>=1.7.0",
 ]
+
 test = [
-    "pytest>=8.3",
-    "cli-test-helpers>=0.3.0",
+  "pytest>=8.3",
+  "cli-test-helpers>=0.3.0",
 ]
+
+# Optional provider integration ( macOS )
 keyring = ["keyring>=25.2"]
+
+# Convenience bundle
+all = [
+  # bring in dev + test + keyring
+  "adif-mcp[dev,test]",
+  "adif-mcp[keyring]",
+]
 
 [project.urls]
 "Homepage" = "https://adif-mcp.com"
