@@ -15,11 +15,16 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
-    { name = "cli-test-helpers" },
-    { name = "pytest" },
+    { name = "interrogate" },
+    { name = "mypy" },
+    { name = "ruff" },
 ]
 keyring = [
     { name = "keyring" },
+]
+test = [
+    { name = "cli-test-helpers" },
+    { name = "pytest" },
 ]
 
 [package.dev-dependencies]
@@ -45,15 +50,18 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cli-test-helpers", marker = "extra == 'dev'", specifier = ">=2.3" },
+    { name = "cli-test-helpers", marker = "extra == 'test'", specifier = ">=0.3.0" },
     { name = "click", specifier = ">=8.1.7" },
+    { name = "interrogate", marker = "extra == 'dev'", specifier = ">=1.7.0" },
     { name = "keyring", specifier = ">=25.6.0" },
     { name = "keyring", marker = "extra == 'keyring'", specifier = ">=25.2" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3" },
     { name = "requests", specifier = ">=2.32.5" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.8" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
 ]
-provides-extras = ["keyring", "dev"]
+provides-extras = ["dev", "test", "keyring"]
 
 [package.metadata.requires-dev]
 dev = [
