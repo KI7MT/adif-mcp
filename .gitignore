@@ -19,6 +19,8 @@ __pycache__/
 # Local tools for build thin dist files
 z-build*
 z-make-lean*
+z-docs-backup*
+what-we-need*
 
 
 # ADIF & large artifacts

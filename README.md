@@ -77,11 +77,6 @@ Unlike existing ADIF editors and one-off utilities, ADIF-MCP is a shared protoco
 
 ---
 
-## Next Steps
-- Build `adif-mcp-lotw` and `adif-mcp-eqsl` adapters
-- Expose MCP tools for validation, award tracking, and service sync
-- Support cross-logger interoperability with AI-driven agents
-
 ## Compliance & Provenance
 
 ADIF-MCP and its plugins follow the [ADIF Specification](https://adif.org.uk) (currently 3.1.5) and use **registered Program IDs** to identify all exports:
@@ -101,6 +96,11 @@ Examples include:
 - `APP_ADIF-MCP-EQSL_TIME` → timestamp of eQSL merge
 
 See the [Program ID & APP_ Field Policy](docs/program-id-policy.md) for full details.
+
+
+## Roadmap
+
+See the [ADIF-MCP Roadmap](https://adif-mcp.com/roadmap/) for current goals, completed features, and upcoming milestones.
 
 ## License
 MIT — open and free for amateur radio use.
