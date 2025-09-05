@@ -2,10 +2,28 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, cast
 
 import pytest
+from _pytest.config.argparsing import Parser
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+
+def pytest_addoption(parser: Parser) -> None:
+    """Register adif-mcp custom ini keys so pytest won't warn."""
+    for name, default in [
+        ("config_dir_name", "config"),
+        ("manifest", "manifest.json"),
+        ("meta_output", "adif_meta.json"),
+        ("personas_index", "personas.json"),
+        ("providers_dir", "providers"),
+        ("schemas", "adif_catalog.json"),
+        ("spec", "ADIF_315"),
+    ]:
+        parser.addini(name, help=f"adif-mcp setting: {name}", default=default)
 
 
 def load_env_defaults(p: Path) -> Dict[str, object]:

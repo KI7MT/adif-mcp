@@ -21,15 +21,15 @@ from .secrets import InMemorySecretStore, KeyringSecretStore, SecretStore
 from .store import PersonaStore
 
 __all__ = [
-    "Persona",
-    "ProviderRef",
-    "PersonaStore",
-    "SecretStore",
-    "KeyringSecretStore",
-    "InMemorySecretStore",
-    "PersonaManager",
     "CredentialError",
+    "InMemorySecretStore",
+    "KeyringSecretStore",
+    "Persona",
+    "PersonaManager",
     "PersonaNotFound",
+    "PersonaStore",
+    "ProviderRef",
     "ProviderRefMissing",
     "SecretMissing",
+    "SecretStore",
 ]

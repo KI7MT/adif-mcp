@@ -1,5 +1,8 @@
 {
   "name": "QRZ",
+  "slub": "qrz",
+  "auth": "api_key",
+  "description": "QRZ XML Logbook",
   "fields": [
     "station_call",
     "call",

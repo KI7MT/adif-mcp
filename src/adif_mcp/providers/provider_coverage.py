@@ -24,8 +24,9 @@ import json
 import os
 import textwrap
 import tomllib
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable, List, Set, Tuple
+from typing import Any
 
 # ---- Repo defaults (used only if pyproject.toml doesn’t provide them) --------
 
@@ -74,7 +75,7 @@ def _load_adif_paths_from_pyproject(
 # ---- Loaders -----------------------------------------------------------------
 
 
-def load_catalog_fields(catalog_path: Path) -> Set[str]:
+def load_catalog_fields(catalog_path: Path) -> set[str]:
     """
     Extract canonical ADIF field names from a catalog JSON.
 
@@ -89,7 +90,7 @@ def load_catalog_fields(catalog_path: Path) -> Set[str]:
         return {str(x).strip() for x in data}
 
     fields = data.get("fields", [])
-    names: Set[str] = set()
+    names: set[str] = set()
     for item in fields:
         if isinstance(item, dict) and "name" in item:
             names.add(str(item["name"]).strip())
@@ -98,7 +99,7 @@ def load_catalog_fields(catalog_path: Path) -> Set[str]:
     return names
 
 
-def load_provider_file(p: Path) -> Tuple[str, Set[str]]:
+def load_provider_file(p: Path) -> tuple[str, set[str]]:
     """
     Extract provider name and implemented fields from a provider JSON.
 
@@ -113,9 +114,9 @@ def load_provider_file(p: Path) -> Tuple[str, Set[str]]:
     return name, impl
 
 
-def scan_providers(providers_dir: Path) -> List[Tuple[str, Set[str]]]:
+def scan_providers(providers_dir: Path) -> list[tuple[str, set[str]]]:
     """Load all provider JSON files in *providers_dir*, skipping usage.json."""
-    out: List[Tuple[str, Set[str]]] = []
+    out: list[tuple[str, set[str]]] = []
     for jf in sorted(providers_dir.glob("*.json")):
         if jf.name.lower() == "usage.json":
             continue
@@ -150,9 +151,7 @@ def render_report(catalog_fields: list[str], rows: list[tuple[str, set[str]]]) -
     pct_w = 6
     status_w = 72  # shorten long lists
 
-    header = (
-        f"{'Provider':<{name_w}} {'Cov':>{cov_w}} {'Miss':>{mis_w}} {'%':>{pct_w}} Status"
-    )
+    header = f"{'Provider':<{name_w}} {'Cov':>{cov_w}} {'Miss':>{mis_w}} {'%':>{pct_w}} Status"
 
     sep = "-" * (name_w + cov_w + mis_w + pct_w + 8 + status_w)
     print(header)

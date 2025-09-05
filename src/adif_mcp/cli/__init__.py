@@ -1,11 +1,17 @@
+"""
+CLI package initializer for adif-mcp.
+
+Exposes the root entrypoint (`main`) so that subcommands can be discovered
+and invoked. This module should remain minimal — primarily wiring and
+namespace setup.
+"""
+
 from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 from typing import Final
 
-from .root import build_cli
-
-cli = build_cli()
+from .root import main
 
 # Resolve once, then bind to Final exactly once
 try:
@@ -15,3 +21,8 @@ except PackageNotFoundError:  # local dev / editable installs without dist metad
 
 __version__: Final[str] = _pkg_version
 __adif_spec__: Final[str] = "3.1.5"
+
+__all__: list[str] = []
+
+if __name__ == "__main__":
+    main()

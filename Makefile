@@ -221,22 +221,27 @@ test-persona: # Run test using for persona
 # Keychain test (macOS only)
 # -------------------------------
 .PHONY: keychain-test
-keychain-test: # Test kkeychain for accepting credentials
+keychain-test: # Test keychain for accepting credentials
 ifneq ($(shell uname),Darwin)
 	@echo "[keychain-test] skipping Keychain check (not macOS)"
 else
 	@set -euo pipefail; \
 	echo "[keychain-test] starting..."; \
 	uv run adif-mcp persona remove-all --yes; \
-	uv run adif-mcp persona add --name Primary --callsign W7X; \
-	uv run adif-mcp persona set-credential --persona Primary --provider lotw --username W7X --password testpw; \
+	# add a persona (must include --start now)
+	uv run adif-mcp persona add --name Primary --callsign W7X --start 2000-01-01; \
+	# set creds via the new creds subcommand
+	uv run adif-mcp creds set Primary lotw --username W7X --password testpw; \
 	uv run adif-mcp persona list --verbose; \
+	# bad span must be rejected (end before start)
 	if uv run adif-mcp persona add --name BadSpan --callsign TEST --start 2025-04-01 --end 2025-03-01; then \
 	  echo "ERROR: Bad span accepted"; exit 1; \
 	else \
 	  echo "OK: rejected (bad date span)"; \
 	fi; \
+	# cleanup: remove persona and delete its creds
 	uv run adif-mcp persona remove-all --yes; \
+	uv run adif-mcp creds delete Primary lotw || true; \
 	# 'security' returns 44 when no items; neutralize it so pipefail doesn't trip
 	if command -v security >/dev/null 2>&1; then \
 	  cnt=$$( (security find-generic-password -s adif-mcp 2>/dev/null || true) | wc -l | tr -d ' ' ); \
@@ -244,13 +249,6 @@ else
 	fi; \
 	echo "[keychain-test] done."
 endif
-
-# -------------------------------
-# Provider coverage
-# -------------------------------
-.PHONY: providers-coverage
-providers-coverage: # Provider property coverage against our ADIF catalog
-	uv run python scripts/provider_coverage.py
 
 # Probes
 probe-index: ## Run index (no network) probes for all providers

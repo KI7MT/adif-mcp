@@ -7,20 +7,21 @@ them by band or mode.
 
 from __future__ import annotations
 
-from typing import Dict, Iterable, List, Literal
+from collections.abc import Iterable
+from typing import Literal
 
 from adif_mcp.parsers.adif_reader import QSORecord  # canonical TypedDict
 
 # Export a friendlier alias that tests (and callers) can import.
 QsoRecord = QSORecord
 
-__all__ = ["fetch_inbox", "filter_summary", "QsoRecord"]
+__all__ = ["QsoRecord", "fetch_inbox", "filter_summary"]
 
 
-def _sample_records(station: str) -> List[QSORecord]:
+def _sample_records(station: str) -> list[QSORecord]:
     """Return a small set of plausible QSO records for a station (synthetic)."""
     # Keep to fields defined by QSORecord; don't add extras like `adif_fields`.
-    base: List[QSORecord] = [
+    base: list[QSORecord] = [
         {
             "station_call": station,
             "call": "K7ABC",
@@ -61,7 +62,7 @@ def _sample_records(station: str) -> List[QSORecord]:
     return base
 
 
-def fetch_inbox(callsign: str) -> Dict[str, List[QSORecord]]:
+def fetch_inbox(callsign: str) -> dict[str, list[QSORecord]]:
     """Synthetic 'inbox' for eQSL — returns a dict with 'records' list."""
     records = _sample_records(callsign.upper())
     return {"records": records}
@@ -70,7 +71,7 @@ def fetch_inbox(callsign: str) -> Dict[str, List[QSORecord]]:
 def filter_summary(
     records: Iterable[QSORecord],
     by: Literal["band", "mode"],
-) -> Dict[str, Dict[str, int]]:
+) -> dict[str, dict[str, int]]:
     """Summarize an inbox by band or mode.
 
     Args:
@@ -87,7 +88,7 @@ def filter_summary(
     if by not in ("band", "mode"):
         raise ValueError(f"invalid selector for summary: {by!r}")
 
-    counts: Dict[str, int] = {}
+    counts: dict[str, int] = {}
     for r in records:
         key = r.get(by) or "UNKNOWN"  # ensure a string
         counts[key] = counts.get(key, 0) + 1

@@ -9,7 +9,8 @@ import re
 import sys
 import urllib.parse
 import urllib.request
-from typing import Any, List, Mapping, Optional, Tuple
+from collections.abc import Mapping
+from typing import Any
 
 EXIT_OK = 0
 EXIT_HTTP_ERROR = 3
@@ -71,7 +72,7 @@ def _build_url(base: str, query: Mapping[str, Any]) -> str:
     return f"{base}{sep}{qs}" if qs else base
 
 
-def _fetch(url: str, headers: Mapping[str, str], timeout: float) -> Tuple[int, bytes]:
+def _fetch(url: str, headers: Mapping[str, str], timeout: float) -> tuple[int, bytes]:
     """Fetch contest from provider"""
     req = urllib.request.Request(url, headers=dict(headers), method="GET")
     with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec - outbound GET
@@ -110,7 +111,7 @@ def execute(
         return EXIT_NET
 
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     """Compat CLI entry (useful for unit tests or -m invocation)."""
     p = argparse.ArgumentParser(description="GET-only probe (with redaction).")
     p.add_argument("--provider", required=True)

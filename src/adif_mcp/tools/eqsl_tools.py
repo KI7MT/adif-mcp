@@ -5,9 +5,10 @@ import os
 import re
 import urllib.parse
 import urllib.request
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple, TypedDict
+from typing import Any, Literal, TypedDict
 
 from adif_mcp.identity import PersonaManager
 from adif_mcp.providers.adapters import build_request
@@ -23,17 +24,17 @@ class QsoRecord(TypedDict, total=False):
     call: str
     qso_date: str  # YYYYMMDD
     time_on: str  # HHMM or HHMMSS
-    band: Optional[str]
-    mode: Optional[str]
-    freq: Optional[float]  # MHz
-    eqsl_qsl_rcvd: Optional[str]  # Y/N/I/…
-    eqsl_qslrdate: Optional[str]  # YYYYMMDD
-    adif: Dict[str, str]
+    band: str | None
+    mode: str | None
+    freq: float | None  # MHz
+    eqsl_qsl_rcvd: str | None  # Y/N/I/…
+    eqsl_qslrdate: str | None  # YYYYMMDD
+    adif: dict[str, str]
 
 
 @dataclass(frozen=True)
 class FetchResult:
-    records: List[QsoRecord]
+    records: list[QsoRecord]
 
 
 # ---------------------------
@@ -47,7 +48,7 @@ def _today_yyyymmdd() -> str:
     return datetime.utcnow().strftime("%Y%m%d")
 
 
-def _to_yyyymmdd(d: Optional[str | date]) -> str:
+def _to_yyyymmdd(d: str | date | None) -> str:
     if d is None:
         return _today_yyyymmdd()
     if isinstance(d, date):
@@ -59,13 +60,13 @@ def _to_yyyymmdd(d: Optional[str | date]) -> str:
         return _today_yyyymmdd()
 
 
-def _parse_adif_min(text: str) -> List[Dict[str, str]]:
+def _parse_adif_min(text: str) -> list[dict[str, str]]:
     """
     Extremely small ADIF extractor that collects tag->value pairs per <EOR>.
     Not a full ADIF parser—good enough for the demo scope.
     """
-    out: List[Dict[str, str]] = []
-    current: Dict[str, str] = {}
+    out: list[dict[str, str]] = []
+    current: dict[str, str] = {}
     i = 0
     n = len(text)
     while i < n:
@@ -101,8 +102,8 @@ def _parse_adif_min(text: str) -> List[Dict[str, str]]:
     return out
 
 
-def _to_qso(rec: Dict[str, str]) -> QsoRecord:
-    def ffloat(s: Optional[str]) -> Optional[float]:
+def _to_qso(rec: dict[str, str]) -> QsoRecord:
+    def ffloat(s: str | None) -> float | None:
         try:
             return float(s) if s else None
         except Exception:
@@ -122,8 +123,8 @@ def _to_qso(rec: Dict[str, str]) -> QsoRecord:
 
 
 def _download(
-    url: str, headers: Dict[str, str], query: Dict[str, Any], timeout: float
-) -> Tuple[int, bytes]:
+    url: str, headers: dict[str, str], query: dict[str, Any], timeout: float
+) -> tuple[int, bytes]:
     q = urllib.parse.urlencode(query, doseq=True)
     full = f"{url}?{q}" if q else url
     req = urllib.request.Request(full, headers=headers, method="GET")
@@ -140,10 +141,10 @@ def _download(
 def fetch_inbox(
     *,
     persona: str,
-    since: Optional[str | date] = None,
+    since: str | date | None = None,
     timeout: float = 10.0,
-    pm: Optional[PersonaManager] = None,
-    mock: Optional[bool] = None,
+    pm: PersonaManager | None = None,
+    mock: bool | None = None,
 ) -> FetchResult:
     """
     Fetch the eQSL inbox since a date and return normalized QSO records.
@@ -160,7 +161,7 @@ def fetch_inbox(
         # a) external sample path
         sample = os.getenv("ADIF_MCP_EQSL_ADIF")
         if sample and os.path.exists(sample):
-            text = open(sample, "r", encoding="utf-8").read()
+            text = open(sample, encoding="utf-8").read()
         else:
             # b) tiny embedded sample (2 records, confirmed + unconfirmed)
             text = (
@@ -193,9 +194,9 @@ def filter_summary(
     *,
     by: Literal["band", "mode"] = "band",
     confirmed_only: bool = False,
-    date_from: Optional[str] = None,  # YYYY-MM-DD
-    date_to: Optional[str] = None,  # YYYY-MM-DD
-) -> Dict[str, Any]:
+    date_from: str | None = None,  # YYYY-MM-DD
+    date_to: str | None = None,  # YYYY-MM-DD
+) -> dict[str, Any]:
     """Summarize QSOs by band or mode with optional date + confirmation filters."""
 
     def yyyymmdd_ok(d: str) -> bool:
@@ -212,7 +213,7 @@ def filter_summary(
         return True
 
     # Work on a concrete list to satisfy both mypy (Sized) and logic clarity
-    items: List[QsoRecord] = list(records)
+    items: list[QsoRecord] = list(records)
 
     if confirmed_only:
         items = [r for r in items if (r.get("eqsl_qsl_rcvd") or "").upper() == "Y"]
@@ -220,7 +221,7 @@ def filter_summary(
         items = [r for r in items if in_window(r)]
 
     key = "band" if by == "band" else "mode"
-    tally: Dict[str, int] = {}
+    tally: dict[str, int] = {}
     for r in items:
         # Guard each .upper() with a default string
         v = r.get(key)

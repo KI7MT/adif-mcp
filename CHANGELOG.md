@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [ Unreleased ] — 2025-09-05
+
+### Added
+- New `adif-mcp validate-manifest` subcommand (now in `cli/validate.py`) to check `mcp/manifest.json` against bundled JSON schema.
+- Credentials management CLI (`adif-mcp creds …`) with keychain/keyring storage; supports `username+password` and `api_key`.
+- Persona date-ranged callsign support (e.g., legacy calls merged by providers, user-facing ranges for reporting).
+- SSOT filesystem layout with configurable home (`ADIF_MCP_HOME`), standardized `config/`, `logs/`, `data/`, `state/`.
+- Lean archive script and Make target for sharing minimal, fast-to-review packages.
+
+### Changed
+- `convert-adi.py` moved to `src/adif_mcp/cli/convert_adi.py` and wired as library + CLI entry (`adif-mcp convert` / `convert-adi` alias).
+- Provider metadata discovered from `src/adif_mcp/resources/providers/*.json` with explicit `auth` types.
+- CLI reworked to argparse across modules (`root.py` dispatcher; subcommands in dedicated modules).
+- Tests and smoke tests updated to import from the package paths.
+
+### Fixed
+- ADIF parsing robustness: header station call detection, eQSL `eqsl_qslrdate → eqsl_qsl_date` mapping, band normalization.
+- Streaming NDJSON path: typed error records, memory-friendly iteration, correct stats accounting.
+- Mypy/ruff/interrogate hygiene across CLI modules (complete type hints, docstrings, line length ≤ 90).
+
+### Developer Experience
+- `make gate` validates schema, runs lint/type/doc checks, and performs keychain smoke test on macOS.
+- New script: `scripts/make-lean-archive.sh` to output `dist/*.tar.gz` and `dist/*.zip` with essential files.
+
+---
+
 ## [0.3.5] - 2025-09-03
 ### Added
 - CLI now exposes `validate-manifest` as a first-class command.

@@ -1,5 +1,8 @@
 {
   "name": "LoTW",
+  "slub": "lotw",
+  "auth": "username_password",
+  "description": "Log Book of The World",
   "fields": [
     "station_call",
     "call",

@@ -1,5 +1,8 @@
 {
   "name": "eQSL",
+  "slug": "eqsl",
+  "auth": "username_password",
+  "description": "eQSL.cc Logbook",
   "fields": [
     "station_call",
     "call",
