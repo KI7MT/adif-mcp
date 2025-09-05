@@ -1,5 +1,8 @@
 {
   "name": "Club Log",
+  "slub": "clublog",
+  "auth": "username_password",
+  "description": "Clublog Logbook",
   "fields": [
     "station_call",
     "call",

@@ -1,240 +1,443 @@
-# src/adif_mcp/cli/persona.py
+"""Persona subcommands with callsign date ranges and credentials wiring."""
+
 from __future__ import annotations
 
-import getpass
-import importlib
+import argparse
+import os
+import platform
+from dataclasses import dataclass
 from datetime import date
-from typing import Any, Optional
+from pathlib import Path
 
-import click
+# at top of src/adif_mcp/cli/persona.py
+from typing import Any, Dict, List
 
-from adif_mcp import __adif_spec__, __version__
-from adif_mcp.identity import Persona, PersonaStore
-from adif_mcp.util.paths import personas_index_path
+# YAML io
+try:
+    import yaml  # type: ignore
+except Exception:  # pragma: no cover
+    yaml = None
+
+# Keyring-backed creds (reuse existing helpers)
+from adif_mcp.credentials import Credentials, set_creds
 
 
-def _mask_username(u: str) -> str:
-    """Return a lightly-masked username for display."""
-    if len(u) <= 2:
-        return "*" * len(u)
-    return f"{u[0]}***{u[-1]}"
+def resolve_home(cli_home: str | None) -> Path:
+    """Resolve the SSOT home directory."""
+    if cli_home:
+        return Path(cli_home).expanduser().resolve()
+    env = os.environ.get("ADIF_MCP_HOME")
+    if env:
+        return Path(env).expanduser().resolve()
+    if platform.system() == "Windows":
+        base = Path(os.environ.get("APPDATA", "~")).expanduser()
+        return (base / "adif-mcp").resolve()
+    if platform.system() == "Darwin":
+        return (Path.home() / "Library/Application Support/adif-mcp").resolve()
+    return (Path.home() / ".adif-mcp").resolve()
 
 
-def _keyring_backend_name() -> str:
-    """Return active keyring backend name, or 'unavailable'."""
+def _cfg_dir(home: Path) -> Path:
+    """_summary_
+
+    Args:
+        home (Path): _description_
+
+    Returns:
+        Path: _description_
+    """
+    return home / "config"
+
+
+def _persona_path(home: Path, name: str) -> Path:
+    """_summary_
+
+    Args:
+        home (Path): _description_
+        name (str): _description_
+
+    Returns:
+        Path: _description_
+    """
+    return _cfg_dir(home) / f"{name}.yaml"
+
+
+def _require_yaml() -> None:
+    """_summary_
+
+    Raises:
+        RuntimeError: _description_
+    """
+    if yaml is None:  # pragma: no cover
+        raise RuntimeError("PyYAML required. Install: uv pip install pyyaml")
+
+
+def _load_yaml(path: Path) -> Dict[str, Any]:
+    """_summary_
+
+    Args:
+        path (Path): _description_
+
+    Returns:
+        Dict[str, Any]: _description_
+    """
+    _require_yaml()
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as fh:
+        return yaml.safe_load(fh) or {}
+
+
+def _save_yaml(path: Path, data: Dict[str, Any]) -> None:
+    """_summary_
+
+    Args:
+        path (Path): _description_
+        data (Dict[str, Any]): _description_
+    """
+    _require_yaml()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as fh:
+        yaml.safe_dump(data, fh, sort_keys=False)
+
+
+def discover_personas(home: Path) -> List[Dict[str, Any]]:
+    """_summary_
+
+    Args:
+        home (Path): _description_
+
+    Returns:
+        List[Dict[str, Any]]: _description_
+    """
+    cfg = _cfg_dir(home)
+    out: List[Dict[str, Any]] = []
+    if not cfg.exists():
+        return out
+    for f in sorted(cfg.glob("*.yaml")):
+        out.append(_load_yaml(f))
+    return out
+
+
+@dataclass(frozen=True)
+class DateRange:
+    """Inclusive date range (ISO 'YYYY-MM-DD'), end may be None (open-ended)."""
+
+    callsign: str
+    start: str
+    end: str | None
+
+
+def _parse_iso(d: str) -> date:
+    """_summary_
+
+    Args:
+        d (str): _description_
+
+    Returns:
+        date: _description_
+    """
+    y, m, d2 = d.split("-")
+    return date(int(y), int(m), int(d2))
+
+
+def _validate_range(callsign: str, start: str | None, end: str | None) -> DateRange:
+    """_summary_
+
+    Args:
+        callsign (str): _description_
+        start (str | None): _description_
+        end (str | None): _description_
+
+    Raises:
+        SystemExit: _description_
+        SystemExit: _description_
+        SystemExit: _description_
+        SystemExit: _description_
+        SystemExit: _description_
+
+    Returns:
+        DateRange: _description_
+    """
+    cs = (callsign or "").strip().upper()
+    if not cs:
+        raise SystemExit("callsign is required")
+    s = (start or "").strip()
+    if not s:
+        raise SystemExit("--start YYYY-MM-DD is required")
     try:
-        import keyring
-
-        kr = keyring.get_keyring()
-        cls = kr.__class__
-        return f"{cls.__module__}.{cls.__name__}"
-    except Exception:
-        return "unavailable"
-
-
-def _parse_date(s: Optional[str]) -> Optional[date]:
-    """Parse YYYY-MM-DD or return None."""
-    return None if not s else date.fromisoformat(s)
-
-
-def _format_persona_line(p: Persona) -> str:
-    """One-line summary used by list/show/find."""
-    span = p.active_span()
-    providers = ", ".join(sorted(p.providers)) or "—"
-    return f"- {p.name}: {p.callsign}  [{span}]  providers: {providers}"
-
-
-def register_persona(root: click.Group) -> None:
-    """Attach the `persona` command group to the root CLI."""
-
-    @root.group(help="Manage personas & credentials (experimental).")
-    @click.version_option(version=__version__, prog_name="adif-mcp persona")
-    def persona() -> None:
-        """Persona subcommands."""
-        return
-
-    @persona.command("version")
-    def persona_version() -> None:
-        """Show package version and ADIF spec compatibility."""
-        click.echo(f"adif-mcp persona {__version__} (ADIF {__adif_spec__} compatible)")
-
-    @persona.command("list", help="List configured personas.")
-    @click.option("--verbose", is_flag=True, help="Show provider usernames (masked).")
-    def persona_list(verbose: bool) -> None:
-        store = PersonaStore(personas_index_path())
-        items = store.list()
-        if not items:
-            click.echo("No personas configured.")
-            return
-        for p in items:
-            click.echo(_format_persona_line(p))
-            if verbose and p.providers:
-                for prov, ref in sorted(p.providers.items()):
-                    user = ref.get("username", "")
-                    click.echo(f"    • {prov}: {_mask_username(user)}")
-
-    @persona.command("add", help="Add or update a persona.")
-    @click.option("--name", required=True, help="Persona name (e.g., 'primary').")
-    @click.option("--callsign", required=True, help="Callsign for this persona.")
-    @click.option("--start", help="Start date (YYYY-MM-DD).", default=None)
-    @click.option("--end", help="End date (YYYY-MM-DD).", default=None)
-    def persona_add(
-        name: str, callsign: str, start: Optional[str], end: Optional[str]
-    ) -> None:
-        store = PersonaStore(personas_index_path())
+        ds = _parse_iso(s)
+    except Exception as exc:  # pragma: no cover
+        raise SystemExit(f"invalid --start '{start}'") from exc
+    e_str: str | None = None
+    if end:
+        end = end.strip()
         try:
-            p = store.upsert(
-                name=name,
-                callsign=callsign.upper().strip(),
-                start=_parse_date(start),
-                end=_parse_date(end),
-            )
-        except ValueError as e:
-            click.echo(f"[error] {e}", err=True)
-            raise SystemExit(1)
-        click.echo(f"Saved persona: {p.name}  ({p.callsign})  span={p.active_span()}")
+            de = _parse_iso(end)
+        except Exception as exc:  # pragma: no cover
+            raise SystemExit(f"invalid --end '{end}'") from exc
+        if de < ds:
+            raise SystemExit("end date must be >= start date")
+        e_str = end
+    return DateRange(callsign=cs, start=s, end=e_str)
 
-    @persona.command("remove", help="Remove a persona.")
-    @click.argument("name")
-    def persona_remove(name: str) -> None:
-        store = PersonaStore(personas_index_path())
-        ok = store.remove(name)
-        if ok:
-            click.echo(f"Removed persona '{name}'.")
+
+def cmd_list(args: argparse.Namespace) -> int:
+    """_summary_
+
+    Args:
+        args (argparse.Namespace): _description_
+
+    Returns:
+        int: _description_
+    """
+    home = resolve_home(args.home)
+    items = discover_personas(home)
+    if not items:
+        print("(no personas) — create with: adif-mcp persona add --name NAME …")
+        return 0
+
+    verbose = bool(getattr(args, "verbose", False))
+    for data in items:
+        name = str(data.get("persona") or "(unnamed)")
+        providers = ", ".join(data.get("enabled_providers", [])) or "(none)"
+        callsign = data.get("callsign") or "(unknown)"
+        start = data.get("start")
+        end = data.get("end")
+        if verbose:
+            rng = f"{start or '?'} → {end or '…'}"
+            print(f"{name:15s}  {callsign:10s}  {rng:23s}  providers: {providers}")
         else:
-            click.echo(f"No such persona: {name}", err=True)
-            raise SystemExit(1)
+            print(f"{name:15s}  providers: {providers}")
+    return 0
 
-    @persona.command("remove-all", help="Delete ALL personas and purge saved secrets.")
-    @click.option("--yes", is_flag=True, help="Confirm deletion without prompt.")
-    def persona_remove_all(yes: bool) -> None:
-        if not yes:
-            click.echo("Refusing to remove without --yes.", err=True)
-            raise SystemExit(1)
 
-        store = PersonaStore(personas_index_path())
-        items = store.list()
-        if not items:
-            click.echo("No personas configured.")
-            return
+def cmd_add(args: argparse.Namespace) -> int:
+    """_summary_
 
-        kr: Optional[Any]
-        try:
-            kr = importlib.import_module("keyring")
-        except Exception:
-            kr = None
+    Args:
+        args (argparse.Namespace): _description_
 
-        deleted_pw = 0
-        for p in items:
-            if kr is not None:
-                for prov, ref in p.providers.items():
-                    username = ref.get("username")
-                    if not username:
-                        continue
-                    try:
-                        kr.delete_password("adif-mcp", f"{p.name}:{prov}:{username}")
-                        deleted_pw += 1
-                    except Exception:
-                        pass  # ignore per-entry delete failures
-            store.remove(p.name)
+    Returns:
+        int: _description_
+    """
+    home = resolve_home(args.home)
+    name = args.name.strip()
+    if not name:
+        print("persona --name is required")
+        return 1
 
-        click.echo(f"Removed {len(items)} persona(s).")
-        if kr:
-            click.echo(f"Removed {deleted_pw} keyring entrie(s).")
-        else:
-            click.echo("Keyring not available; secrets unchanged.", err=True)
+    rng = _validate_range(args.callsign, args.start, args.end)
+    providers = [str(p).lower() for p in (args.providers or [])]
 
-    @persona.command("show", help="Show details for one persona.")
-    @click.option(
-        "--by",
-        type=click.Choice(["name", "callsign"], case_sensitive=False),
-        default="name",
-        show_default=True,
-        help="Lookup by persona name or callsign.",
-    )
-    @click.argument("ident")
-    def persona_show(by: str, ident: str) -> None:
-        store = PersonaStore(personas_index_path())
+    path = _persona_path(home, name)
+    if path.exists() and not args.force:
+        print(f"Persona {name} already exists at {path}")
+        return 1
 
-        def _by_name() -> Optional[Persona]:
-            return store.get(ident)
+    data = {
+        "persona": name,
+        "callsign": rng.callsign,
+        "start": rng.start,
+        "end": rng.end,
+        "enabled_providers": providers,
+    }
+    _save_yaml(path, data)
+    print(f"Created persona {name} at {path}")
+    return 0
 
-        def _by_callsign() -> Optional[Persona]:
-            ident_u = ident.upper()
-            for p in store.list():
-                if p.callsign.upper() == ident_u:
-                    return p
+
+def cmd_remove(args: argparse.Namespace) -> int:
+    """_summary_
+
+    Args:
+        args (argparse.Namespace): _description_
+
+    Returns:
+        int: _description_
+    """
+    home = resolve_home(args.home)
+    path = _persona_path(home, args.name)
+    if not path.exists():
+        print(f"No persona {args.name} at {path}")
+        return 1
+    path.unlink()
+    print(f"Removed persona {args.name}")
+    return 0
+
+
+def cmd_remove_all(args: argparse.Namespace) -> int:
+    """_summary_
+
+    Args:
+        args (argparse.Namespace): _description_
+
+    Returns:
+        int: _description_
+    """
+    if not args.yes:
+        print("Refusing to remove all personas without --yes")
+        return 2
+    home = resolve_home(args.home)
+    cfg = _cfg_dir(home)
+    if not cfg.exists():
+        print("(no personas)")
+        return 0
+    count = 0
+    for f in cfg.glob("*.yaml"):
+        f.unlink(missing_ok=True)
+        count += 1
+    print(f"Removed {count} persona(s)")
+    return 0
+
+
+def cmd_show(args: argparse.Namespace) -> int:
+    """_summary_
+
+    Args:
+        args (argparse.Namespace): _description_
+
+    Returns:
+        int: _description_
+    """
+    home = resolve_home(args.home)
+    path = _persona_path(home, args.name)
+    data = _load_yaml(path)
+    if not data:
+        print(f"No persona {args.name} found.")
+        return 1
+    _require_yaml()
+    print(yaml.safe_dump(data, sort_keys=False))
+    return 0
+
+
+def cmd_set_active(args: argparse.Namespace) -> int:
+    """_summary_
+
+    Args:
+        args (argparse.Namespace): _description_
+
+    Returns:
+        int: _description_
+    """
+    home = resolve_home(args.home)
+    (home / "config").mkdir(parents=True, exist_ok=True)
+    marker = home / "config" / "current.txt"
+    marker.write_text(args.name, encoding="utf-8")
+    print(f"Set active persona to {args.name}")
+    return 0
+
+
+def cmd_set_credential(args: argparse.Namespace) -> int:
+    """Set credentials for a persona/provider (keyring-backed)."""
+    home = resolve_home(args.home)  # noqa: F841 (kept for symmetry / future use)
+    name = args.persona
+    provider = args.provider.lower()
+
+    # Normalize blanks to None
+    def _norm(s: str | None) -> str | None:
+        if s is None:
             return None
+        s = s.strip()
+        return s if s else None
 
-        p = _by_name() if by == "name" else _by_callsign()
-        if not p:
-            click.echo(f"No such persona by {by}: {ident}", err=True)
-            raise SystemExit(1)
-
-        click.echo(f"Persona: {p.name}")
-        click.echo(f"Callsign: {p.callsign}")
-        click.echo(f"Active:   {p.active_span()}")
-
-        if not p.providers:
-            click.echo("Providers: —")
-            return
-
-        click.echo("Providers:")
-        for prov, ref in sorted(p.providers.items()):
-            user = ref.get("username", "")
-            click.echo(f"  - {prov}: {_mask_username(user)}")
-
-    @persona.command(
-        "set-credential",
-        help="Attach provider credential (non-secret ref + secret in keyring).",
+    creds = Credentials(
+        username=_norm(args.username),
+        password=_norm(args.password),
+        api_key=_norm(args.api_key),
     )
-    @click.option("--persona", "persona_name", required=True, help="Persona name.")
-    @click.option(
+    set_creds(name, provider, creds)
+    print(f"Saved credentials for {name}:{provider}.")
+    return 0
+
+
+def cmd_sync_now(args: argparse.Namespace) -> int:
+    """_summary_
+
+    Args:
+        args (argparse.Namespace): _description_
+
+    Returns:
+        int: _description_
+    """
+    print(f"(stub) Would sync persona {args.name or '(active)'}")
+    return 0
+
+
+# ---------------- CLI wiring ----------------
+
+
+def register_cli(
+    subparsers: argparse._SubParsersAction[argparse.ArgumentParser],
+) -> None:
+    """_summary_
+
+    Args:
+        subparsers (argparse._SubParsersAction[argparse.ArgumentParser]): _description_
+    """
+    p = subparsers.add_parser(
+        "persona",
+        help="Manage personas",
+        description="Manage persona profiles with callsign date ranges.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    p.add_argument("--home", help="Override SSOT home directory.")
+    sp = p.add_subparsers(dest="persona_cmd", required=True)
+
+    # list
+    s_list = sp.add_parser("list", help="List personas")
+    s_list.add_argument("--verbose", action="store_true", help="Show callsign and date range")
+    s_list.set_defaults(func=cmd_list)
+
+    # add
+    s_add = sp.add_parser("add", help="Add a new persona")
+    s_add.add_argument("--name", required=True, help="Persona name")
+    s_add.add_argument("--callsign", required=True, help="Primary callsign")
+    s_add.add_argument("--start", required=True, help="Start date YYYY-MM-DD (inclusive)")
+    s_add.add_argument("--end", help="End date YYYY-MM-DD (inclusive)")
+    s_add.add_argument(
+        "--providers",
+        nargs="*",
+        help="Initial providers to enable (e.g. eqsl lotw qrz clublog)",
+    )
+    s_add.add_argument("--force", action="store_true", help="Overwrite if exists")
+    s_add.set_defaults(func=cmd_add)
+
+    # remove
+    s_rm = sp.add_parser("remove", help="Remove a persona")
+    s_rm.add_argument("name", help="Persona name")
+    s_rm.set_defaults(func=cmd_remove)
+
+    # remove-all
+    s_rmall = sp.add_parser("remove-all", help="Remove ALL personas")
+    s_rmall.add_argument("--yes", action="store_true", help="Confirm destructive op")
+    s_rmall.set_defaults(func=cmd_remove_all)
+
+    # show
+    s_show = sp.add_parser("show", help="Show persona config")
+    s_show.add_argument("name", help="Persona name")
+    s_show.set_defaults(func=cmd_show)
+
+    # set-active
+    s_set = sp.add_parser("set-active", help="Mark persona as active")
+    s_set.add_argument("name", help="Persona name")
+    s_set.set_defaults(func=cmd_set_active)
+
+    # set-credential (wrapper over keyring-backed creds)
+    s_sc = sp.add_parser("set-credential", help="Set credentials for a persona/provider")
+    s_sc.add_argument("--persona", required=True, help="Persona name")
+    s_sc.add_argument(
         "--provider",
         required=True,
-        type=click.Choice(["lotw", "eqsl", "qrz", "clublog"], case_sensitive=False),
+        choices=["eqsl", "lotw", "qrz", "clublog"],
+        help="Provider slug",
     )
-    @click.option("--username", required=True, help="Account username for the provider.")
-    @click.option(
-        "--password",
-        help="Password/secret. If omitted, will prompt securely.",
-        default=None,
-    )
-    def persona_set_credential(
-        persona_name: str, provider: str, username: str, password: Optional[str]
-    ) -> None:
-        store = PersonaStore(personas_index_path())
+    s_sc.add_argument("--username", help="Username/callsign", default=None)
+    s_sc.add_argument("--password", help="Password", default=None)
+    s_sc.add_argument("--api-key", help="API key/token", default=None)
+    s_sc.set_defaults(func=cmd_set_credential)
 
-        try:
-            store.set_provider_ref(
-                persona=persona_name,
-                provider=provider.lower(),
-                username=username,
-            )
-        except KeyError:
-            click.echo(f"No such persona: {persona_name}", err=True)
-            raise SystemExit(1)
-
-        secret = password or getpass.getpass(f"{provider} password for {username}: ")
-
-        try:
-            import keyring  # optional dep
-
-            keyring.set_password(
-                "adif-mcp",
-                f"{persona_name}:{provider}:{username}",
-                secret,
-            )
-
-            backend = _keyring_backend_name()
-            click.echo(
-                "Credential ref saved for "
-                f"{persona_name}/{provider} (username={username}). "
-                f"Secret stored in keyring [{backend}]."
-            )
-        except Exception as e:  # nosec - surfaced as UX note
-            click.echo(
-                f"[warn] keyring unavailable or failed: {e}\n"
-                f"       Secret was NOT stored. You can set it later when keyring works.",
-                err=True,
-            )
+    # sync-now (stub)
+    s_sync = sp.add_parser("sync-now", help="Run sync now (stub)")
+    s_sync.add_argument("name", nargs="?", help="Persona name (default active)")
+    s_sync.set_defaults(func=cmd_sync_now)

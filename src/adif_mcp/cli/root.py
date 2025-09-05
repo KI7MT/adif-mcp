@@ -1,99 +1,83 @@
+"""Root CLI wiring for adif-mcp.
+
+Builds the top-level argument parser and registers all subcommands
+(`convert`, `convert-adi`, `validate-manifest`, `persona`, `provider`,
+`creds`, `eqsl`). This module is the central dispatcher invoked by the
+`adif-mcp` console script.
+"""
+
 from __future__ import annotations
 
-import json
-import os
-from importlib.resources import files
-from pathlib import Path
+import argparse
+import sys
+from typing import Callable, Protocol, cast
 
-import click
-
-from adif_mcp import __adif_spec__, __version__
-from adif_mcp.tools.validate_manifest import validate_one
-
-from .eqsl_stub import register_eqsl_stub
-from .persona import register_persona
-from .provider import register_provider
+from . import convert_adi, creds, eqsl_stub, persona, provider, validate
 
 
-def build_cli() -> click.Group:
-    """Construct the root Click CLI group and attach subcommands."""
+class _RegisterCLI(Protocol):
+    """Protocol for subcommand registration functions."""
 
-    @click.group()
-    @click.version_option(version=__version__, prog_name="adif-mcp")
-    def cli() -> None:
-        """ADIF MCP core CLI."""
-        return
+    def __call__(self, sp: argparse._SubParsersAction[argparse.ArgumentParser]) -> None: ...
 
-    # Subcommand groups
-    register_persona(cli)
-    register_provider(cli)
 
-    # Optional: dev/demo eQSL stub (hidden unless enabled)
-    if os.getenv("ADIF_MCP_DEV_STUBS") == "1":
-        register_eqsl_stub(cli)
+# ------------------------ parser ------------------------
 
-    # Version convenience
-    @cli.command("version")
-    def version_cmd() -> None:
-        """Show package version and ADIF spec compatibility."""
-        click.echo(f"adif-mcp {__version__} (ADIF {__adif_spec__} compatible)")
 
-    # Validate manifest
-    @cli.command("validate-manifest")
-    def validate_manifest() -> None:
-        """
-        Validate the MCP manifest.
+def build_parser() -> argparse.ArgumentParser:
+    """Create and return the root argparse parser with all subcommands."""
+    parser = argparse.ArgumentParser(prog="adif-mcp", description="adif-mcp CLI")
+    subparsers: argparse._SubParsersAction[argparse.ArgumentParser] = parser.add_subparsers(
+        dest="command"
+    )
 
-        Tries packaged manifest first (adif_mcp/mcp/manifest.json),
-        then common repo fallbacks.
-        """
-        candidates: list[Path] = []
+    # convert + alias
+    p_conv = subparsers.add_parser(
+        "convert",
+        help="Convert ADIF to JSON/NDJSON",
+        description="Convert ADIF (.adi) to QsoRecord JSON/NDJSON.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    convert_adi.add_convert_args(p_conv)
+    p_conv.set_defaults(func=lambda _args: convert_adi.main(sys.argv[2:]))
 
-        # 1) Packaged manifest
-        try:
-            pkg_manifest = files("adif_mcp.mcp").joinpath("manifest.json")
-            candidates.append(Path(str(pkg_manifest)))
-        except Exception:
-            pass
+    p_conv_alias = subparsers.add_parser(
+        "convert-adi",
+        help="(alias) Convert ADIF to JSON/NDJSON",
+        description="Convert ADIF (.adi) to QsoRecord JSON/NDJSON.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    convert_adi.add_convert_args(p_conv_alias)
+    p_conv_alias.set_defaults(func=lambda _args: convert_adi.main(sys.argv[2:]))
 
-        # 2) Repo fallbacks
-        for rel in ("src/adif_mcp/mcp/manifest.json", "mcp/manifest.json"):
-            p = Path(rel)
-            if p.exists():
-                candidates.append(p)
+    # persona / provider / creds / eqsl
+    if hasattr(persona, "register_cli"):
+        cast(_RegisterCLI, getattr(persona, "register_cli"))(subparsers)
+    if hasattr(provider, "register_cli"):
+        cast(_RegisterCLI, getattr(provider, "register_cli"))(subparsers)
+    if hasattr(creds, "register_cli"):
+        cast(_RegisterCLI, getattr(creds, "register_cli"))(subparsers)
+    if hasattr(eqsl_stub, "register_cli"):
+        cast(_RegisterCLI, getattr(eqsl_stub, "register_cli"))(subparsers)
+    if hasattr(validate, "register_cli"):
+        cast(_RegisterCLI, getattr(validate, "register_cli"))(subparsers)
 
-        if not candidates:
-            click.echo("No manifest.json found (package or repo).", err=True)
-            raise SystemExit(1)
+    return parser
 
-        last_err: Exception | None = None
-        for p in candidates:
-            try:
-                code = validate_one(p)
-                if code == 0:
-                    click.echo("manifest: OK")
-                    return
-                last_err = RuntimeError(f"validator exited with code {code} for {p}")
-            except Exception as e:
-                last_err = e
 
-            # Graceful shape fallback: must have a non-empty 'tools' list
-            try:
-                data = json.loads(p.read_text(encoding="utf-8"))
-                tools = data.get("tools")
-                if isinstance(tools, list) and tools:
-                    click.echo("manifest: OK")
-                    return
-            except Exception as e:
-                last_err = e
+def main(argv: list[str] | None = None) -> int:
+    """Entry point for the adif-mcp CLI."""
+    args_in = sys.argv[1:] if argv is None else argv
+    parser = build_parser()
 
-        msg = (
-            f"manifest validation failed: \
-            {last_err}"
-            if last_err
-            else "manifest validation failed"
-        )
-        click.echo(msg, err=True)
-        raise SystemExit(1)
+    # Default to `convert` if no subcommand was provided
+    if not args_in:
+        return convert_adi.main([])
 
-    return cli
+    args = parser.parse_args(args_in)
+    func = cast(Callable[[argparse.Namespace], int] | None, getattr(args, "func", None))
+    if func is not None:
+        return func(args)
+
+    parser.print_help()
+    return 2

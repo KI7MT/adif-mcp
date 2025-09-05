@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Optional, Tuple
 
 try:
     import tomllib  # Python 3.11+
@@ -34,7 +33,7 @@ except Exception:  # pragma: no cover - py<=3.10 not supported by this project
 # ---------------------------
 
 
-def _find_pyproject(start: Optional[Path] = None) -> Path | None:
+def _find_pyproject(start: Path | None = None) -> Path | None:
     """
     Walk upward from `start` (or CWD) to locate a pyproject.toml file.
 
@@ -52,7 +51,7 @@ def _find_pyproject(start: Optional[Path] = None) -> Path | None:
     return None
 
 
-def _load_tool_adif(pyproject: Path | None) -> Tuple[str | None, str | None]:
+def _load_tool_adif(pyproject: Path | None) -> tuple[str | None, str | None]:
     """
     Load `[tool.adif]` fields we care about.
 

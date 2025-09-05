@@ -14,11 +14,12 @@ Tiny, dependency-free ADIF (.adi) reader.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterator, List, Optional, TypedDict, cast
+from typing import TypedDict, cast
 
-__all__ = ["QSORecord", "parse_adi_text", "parse_adi_file"]
+__all__ = ["QSORecord", "parse_adi_file", "parse_adi_text"]
 
 
 class QSORecord(TypedDict, total=False):
@@ -82,7 +83,7 @@ class _Token:
     """
 
     tag: str
-    length: Optional[int]
+    length: int | None
     start: int
     end: int  # index just after the '>'
 
@@ -111,7 +112,7 @@ def _scan_tokens(s: str) -> Iterator[_Token]:
         )
 
 
-def parse_adi_text(text: str) -> List[QSORecord]:
+def parse_adi_text(text: str) -> list[QSORecord]:
     """
     Parse ADIF text into a list of QSORecord dicts.
 
@@ -125,8 +126,8 @@ def parse_adi_text(text: str) -> List[QSORecord]:
     list[QSORecord]
     """
     # Build raw dictionaries first (easier for TypedDict constraints).
-    records_raw: List[Dict[str, str]] = []
-    cur: Dict[str, str] = {}
+    records_raw: list[dict[str, str]] = []
+    cur: dict[str, str] = {}
 
     tokens = list(_scan_tokens(text))
     for i, tok in enumerate(tokens):
@@ -156,7 +157,7 @@ def parse_adi_text(text: str) -> List[QSORecord]:
     return [record_as_qso(r) for r in records_raw]
 
 
-def parse_adi_file(path: str | Path, encoding: str = "utf-8") -> List[QSORecord]:
+def parse_adi_file(path: str | Path, encoding: str = "utf-8") -> list[QSORecord]:
     """
     Read and parse an ADIF (.adi) file.
 
@@ -172,7 +173,7 @@ def parse_adi_file(path: str | Path, encoding: str = "utf-8") -> List[QSORecord]
     return parse_adi_text(data)
 
 
-def record_as_qso(d: Dict[str, str]) -> QSORecord:
+def record_as_qso(d: dict[str, str]) -> QSORecord:
     """
     Convert a raw parsed dict to a QSORecord.
 
@@ -181,7 +182,7 @@ def record_as_qso(d: Dict[str, str]) -> QSORecord:
     - Drops keys not declared in `QSORecord` (keeps the record schema-tight).
     """
     # Normalize keys first
-    tmp: Dict[str, str] = {_normalize_key(k): v for k, v in d.items()}
+    tmp: dict[str, str] = {_normalize_key(k): v for k, v in d.items()}
 
     # Keep only fields that exist on the TypedDict schema
     allowed = set(QSORecord.__annotations__.keys())

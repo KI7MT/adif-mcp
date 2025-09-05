@@ -13,8 +13,14 @@ dependencies = [
     { name = "typing-extensions" },
 ]
 
+[package.optional-dependencies]
+keyring = [
+    { name = "keyring" },
+]
+
 [package.dev-dependencies]
 dev = [
+    { name = "cli-test-helpers" },
     { name = "commitizen" },
     { name = "interrogate" },
     { name = "jsonschema" },
@@ -37,12 +43,15 @@ dev = [
 requires-dist = [
     { name = "click", specifier = ">=8.1.7" },
     { name = "keyring", specifier = ">=25.6.0" },
+    { name = "keyring", marker = "extra == 'keyring'", specifier = ">=25.2" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
 ]
+provides-extras = ["keyring"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "cli-test-helpers", specifier = ">=4.1.0" },
     { name = "commitizen" },
     { name = "interrogate", specifier = ">=1.7.0" },
     { name = "jsonschema", specifier = ">=4.25.1" },
@@ -218,6 +227,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/8c/9839225320046ed279c6e839d51f028342eb77c91c89b8ef2549f951f3ec/charset_normalizer-3.4.3-cp314-cp314-win32.whl", hash = "sha256:c6dbd0ccdda3a2ba7c2ecd9d77b37f3b5831687d8dc1b6ca5f56a4880cc7b7ce", size = 100086, upload-time = "2025-08-09T07:56:52.722Z" },
     { url = "https://files.pythonhosted.org/packages/ee/7a/36fbcf646e41f710ce0a563c1c9a343c6edf9be80786edeb15b6f62e17db/charset_normalizer-3.4.3-cp314-cp314-win_amd64.whl", hash = "sha256:73dc19b562516fc9bcf6e5d6e596df0b4eb98d87e4f79f3ae71840e6ed21361c", size = 107400, upload-time = "2025-08-09T07:56:55.172Z" },
     { url = "https://files.pythonhosted.org/packages/8a/1f/f041989e93b001bc4e44bb1669ccdcf54d3f00e628229a85b08d330615c5/charset_normalizer-3.4.3-py3-none-any.whl", hash = "sha256:ce571ab16d890d23b5c278547ba694193a45011ff86a9162a71307ed9f86759a", size = 53175, upload-time = "2025-08-09T07:57:26.864Z" },
+]
+
+[[package]]
+name = "cli-test-helpers"
+version = "4.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/14/ea/c389552b72ae8a6415c5df0e54afe008b6a66272c919db718e5ee2dd86bd/cli_test_helpers-4.1.0.tar.gz", hash = "sha256:317a642087f2b86d04ffa279200492d186d103284d082ff20a0287223409351e", size = 49433, upload-time = "2025-01-06T22:28:25.314Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b1/13/084afd8429bd56dfc273736df2dab6d34518c0d00134eb1d456e30ca4763/cli_test_helpers-4.1.0-py3-none-any.whl", hash = "sha256:1a5308842e929e2c70dbb446be1b05f235dd09a896256bbb0bac7bdd89bae88e", size = 34951, upload-time = "2025-01-06T22:28:23.004Z" },
 ]
 
 [[package]]

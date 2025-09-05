@@ -8,10 +8,11 @@ index (non-secret fields) and leaves credential storage to the secrets backend.
 
 from __future__ import annotations
 
+import builtins
 import json
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, List, Optional, TypedDict, cast
+from typing import Any, TypedDict, cast
 
 from adif_mcp.util.paths import personas_index_path
 
@@ -30,12 +31,12 @@ class _PersonaJSON(TypedDict, total=False):
 
     name: str
     callsign: str
-    start: Optional[str]  # ISO date
-    end: Optional[str]  # ISO date
-    providers: Dict[str, ProviderRef]
+    start: str | None  # ISO date
+    end: str | None  # ISO date
+    providers: dict[str, ProviderRef]
 
 
-def _to_date(s: Optional[str]) -> Optional[date]:
+def _to_date(s: str | None) -> date | None:
     """Parse YYYY-MM-DD or return None."""
     if not s:
         return None
@@ -60,10 +61,10 @@ class PersonaStore:
       - Path is determined by util_paths.personas_index_path() in most callers.
     """
 
-    def __init__(self, index_path: Optional[Path] = None) -> None:
+    def __init__(self, index_path: Path | None = None) -> None:
         """Initialize the store with a JSON index path."""
         self.index_path = index_path or personas_index_path()
-        self._personas: Dict[str, Persona] = {}
+        self._personas: dict[str, Persona] = {}
         self._load()
 
     # -------- JSON IO --------
@@ -77,14 +78,14 @@ class PersonaStore:
             self.index_path.write_text(_dumps({"personas": {}}), encoding="utf-8")
             return
 
-        data: Dict[str, Any] = json.loads(self.index_path.read_text(encoding="utf-8"))
-        raw = cast(Dict[str, _PersonaJSON], data.get("personas", {}))
+        data: dict[str, Any] = json.loads(self.index_path.read_text(encoding="utf-8"))
+        raw = cast(dict[str, _PersonaJSON], data.get("personas", {}))
 
         for name, rec in raw.items():
             start = _to_date(rec.get("start"))
             end = _to_date(rec.get("end"))
             providers_raw = rec.get("providers")
-            providers_map: Dict[str, ProviderRef] = (
+            providers_map: dict[str, ProviderRef] = (
                 dict(providers_raw) if providers_raw else {}
             )
             self._personas[name] = Persona(
@@ -97,7 +98,7 @@ class PersonaStore:
 
     def _save(self) -> None:
         """Persist the current in-memory map to disk."""
-        out: Dict[str, _PersonaJSON] = {}
+        out: dict[str, _PersonaJSON] = {}
         for name, p in self._personas.items():
             out[name] = {
                 "name": p.name,
@@ -110,11 +111,11 @@ class PersonaStore:
 
     # -------- Queries --------
 
-    def list(self) -> List[Persona]:
+    def list(self) -> builtins.list[Persona]:
         """Return all personas, sorted by name."""
         return [self._personas[k] for k in sorted(self._personas)]
 
-    def get(self, name: str) -> Optional[Persona]:
+    def get(self, name: str) -> Persona | None:
         """Return a persona by name (or None)."""
         return self._personas.get(name)
 
@@ -125,8 +126,8 @@ class PersonaStore:
         *,
         name: str,
         callsign: str,
-        start: Optional[date],
-        end: Optional[date],
+        start: date | None,
+        end: date | None,
     ) -> Persona:
         """
         Create or update a persona (non-secret fields only) and return it.

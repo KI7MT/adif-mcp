@@ -38,7 +38,7 @@ dev = [
     "jsonschema>=4.25.1",
     "interrogate>=1.7.0",
     "types-click>=7.1.8",
-    "types-requests",          # ← add this
+    "types-requests", # ← add this
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.18",
     "mkdocstrings[python]>=0.30.0",
@@ -47,12 +47,12 @@ dev = [
     "mkdocs-redirects>=1.2.2",
     "mkdocs-mermaid2-plugin>=1.2.2",
     "mkdocs-git-revision-date-localized-plugin>=1.4.7",
+    "cli-test-helpers>=4.1.0",
 ]
 
 # Optional extras (reserved for future use)
 [project.optional-dependencies]
-# ui = []   # e.g., if we ever add non-stdlib GUI widgets
-# providers = []  # e.g., OAuth libs if a provider needs it
+keyring = ["keyring>=25.2"]
 
 [project.urls]
 "Homepage" = "https://adif-mcp.com"
@@ -65,7 +65,7 @@ dev = [
 "QRZ" = "https://www.qrz.com/"
 
 [project.scripts]
-adif-mcp = "adif_mcp.cli:cli"
+adif-mcp = "adif_mcp.cli.__main__:main"
 
 # --------------------------------------------------------------------
 # ADIF tool config (OS-agnostic & SSOT-ish; your helpers interpret it)
@@ -73,6 +73,20 @@ adif-mcp = "adif_mcp.cli:cli"
 [tool.adif]
 spec_version = "3.1.5"
 features = ["core QSO model", "band/mode/QSL_RCVD enums"]
+
+[tool.adif_mcp]
+config_dir_name = "config"
+manifest = "manifest.json"
+meta_output = "adif_meta.json"
+personas_index = "personas.json"
+providers_dir = "providers"
+schemas = "adif_catalog.json"
+spec = "ADIF_315"
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = ["src"]
+#addopts = "-q"
 
 # Paths below are *logical* (not absolute). Your util code should:
 # - Resolve {config_dir} to a platform-appropriate location (e.g., appdirs)
@@ -93,7 +107,7 @@ personas_index = "{config_dir}/personas.json"  # util resolves {config_dir}
 [tool.ruff]
 target-version = "py311"
 src = ["src", "test"]
-line-length = 90
+line-length = 95
 extend-exclude = [
     ".venv",
     ".smoke-venv",

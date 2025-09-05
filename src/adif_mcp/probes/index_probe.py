@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from adif_mcp.identity.errors import (
     PersonaNotFound,
     ProviderRefMissing,
@@ -16,7 +14,7 @@ EXIT_OK = 0
 EXIT_MISSING = 5
 
 
-def _mask_username(u: Optional[str]) -> str:
+def _mask_username(u: str | None) -> str:
     """Lightly mask a username for display."""
     if not u:
         return ""
@@ -29,12 +27,7 @@ def run(provider: ProviderKey | str, persona: str) -> int:
     p = str(provider).lower()
     try:
         username, _ = pm.require(persona, p)
-    except (
-        PersonaNotFound,
-        ProviderRefMissing,
-        ProviderRefMissing,  # username missing maps to ProviderRefMissing
-        SecretMissing,
-    ):
+    except (PersonaNotFound, ProviderRefMissing, SecretMissing):
         return EXIT_MISSING
 
     print(f"[OK] {p} persona={persona} username={_mask_username(username)}")

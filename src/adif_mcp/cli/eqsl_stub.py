@@ -1,9 +1,11 @@
 # src/adif_mcp/cli/eqsl_stub.py
 from __future__ import annotations
 
+import argparse
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Literal, Optional
+from typing import Any, Literal
 
 import click
 
@@ -30,12 +32,10 @@ def register_eqsl_stub(root: click.Group) -> None:
         help="eQSL username for demo data (e.g., KI7MT).",
     )
     @click.option("--pretty/--no-pretty", default=True, show_default=True)
-    @click.option(
-        "-o", "--out", "out_path", type=click.Path(dir_okay=False, writable=True)
-    )
-    def eqsl_inbox(username: str, pretty: bool, out_path: Optional[Path]) -> None:
+    @click.option("-o", "--out", "out_path", type=click.Path(dir_okay=False, writable=True))
+    def eqsl_inbox(username: str, pretty: bool, out_path: Path | None) -> None:
         """Return a deterministic stubbed 'inbox' for the given user."""
-        payload: Dict[str, List[QSORecord]] = _eqsl_fetch_inbox(username)
+        payload: dict[str, list[QSORecord]] = _eqsl_fetch_inbox(username)
         text = json.dumps(payload, indent=2 if pretty else None, sort_keys=pretty)
         if out_path:
             Path(out_path).write_text(text + ("\n" if pretty else ""), encoding="utf-8")
@@ -64,15 +64,15 @@ def register_eqsl_stub(root: click.Group) -> None:
     )
     @click.option("--pretty/--no-pretty", default=True, show_default=True)
     def eqsl_summary(
-        username: Optional[str],
+        username: str | None,
         by: Literal["band", "mode"],
-        in_path: Optional[Path],
+        in_path: Path | None,
         pretty: bool,
     ) -> None:
         """Summarize QSO records by band or mode (stub data)."""
         records: Iterable[QSORecord]
         if in_path:
-            data: Dict[str, Any] = json.loads(Path(in_path).read_text(encoding="utf-8"))
+            data: dict[str, Any] = json.loads(Path(in_path).read_text(encoding="utf-8"))
             recs = data.get("records", [])
             if not isinstance(recs, list):
                 raise click.ClickException("Input JSON must contain a 'records' array.")
@@ -84,3 +84,37 @@ def register_eqsl_stub(root: click.Group) -> None:
 
         out = _eqsl_filter_summary(records, by=by)
         click.echo(json.dumps(out, indent=2 if pretty else None, sort_keys=pretty))
+
+
+def main_inbox_count(args: argparse.Namespace) -> int:
+    """_summary_
+
+    Args:
+        args (argparse.Namespace): _description_
+
+    Returns:
+        int: _description_
+    """
+    # TODO: placeholder for future `eqsl count`/fetchers
+    print("eQSL inbox count: (stub) unknown")
+    return 0
+
+
+def register_cli(
+    subparsers: argparse._SubParsersAction[argparse.ArgumentParser],
+) -> None:
+    """_summary_
+
+    Args:
+        subparsers (argparse._SubParsersAction[argparse.ArgumentParser]): _description_
+    """
+    p = subparsers.add_parser(
+        "eqsl",
+        help="eQSL utilities (stub)",
+        description="eQSL utilities (stub)",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    sp = p.add_subparsers(dest="eqsl_cmd", required=True)
+
+    p_cnt = sp.add_parser("count", help="Show eQSL inbox/outbox counts (stub)")
+    p_cnt.set_defaults(func=main_inbox_count)

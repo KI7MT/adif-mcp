@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from adif_mcp.identity import PersonaManager
 from adif_mcp.providers import ProviderKey
@@ -11,7 +11,7 @@ from adif_mcp.providers import ProviderKey
 
 def build_request(
     provider: ProviderKey, persona: str, pm: PersonaManager
-) -> Tuple[str, Dict[str, str], Dict[str, Any]]:
+) -> tuple[str, dict[str, str], dict[str, Any]]:
     """Return (url, headers, query) for a GET-only probe for the given provider."""
     p = provider.lower()
     if p == "lotw":
@@ -27,13 +27,13 @@ def build_request(
 
 def _lotw_request(
     pm: PersonaManager, persona: str
-) -> Tuple[str, Dict[str, str], Dict[str, Any]]:
+) -> tuple[str, dict[str, str], dict[str, Any]]:
     """LoTW: report endpoint with tomorrow’s date to keep body minimal."""
     username, secret = pm.require(persona, "lotw")
     qslsince = (date.today() + timedelta(days=1)).isoformat()
     url = "https://lotw.arrl.org/lotwuser/lotwreport.adi"
-    headers: Dict[str, str] = {}
-    query: Dict[str, Any] = {
+    headers: dict[str, str] = {}
+    query: dict[str, Any] = {
         "login": username,
         "password": secret,
         "qso_query": 1,
@@ -44,13 +44,13 @@ def _lotw_request(
 
 def _eqsl_request(
     pm: PersonaManager, persona: str
-) -> Tuple[str, Dict[str, str], Dict[str, Any]]:
+) -> tuple[str, dict[str, str], dict[str, Any]]:
     """eQSL: inbox download with today’s date for minimal response."""
     username, secret = pm.require(persona, "eqsl")
     rcvd_since = date.today().strftime("%Y%m%d")
     url = "https://www.eqsl.cc/qslcard/DownloadInBox.cfm"
-    headers: Dict[str, str] = {}
-    query: Dict[str, Any] = {
+    headers: dict[str, str] = {}
+    query: dict[str, Any] = {
         "UserName": username,
         "Password": secret,
         "RcvdSince": rcvd_since,
@@ -60,12 +60,12 @@ def _eqsl_request(
 
 def _qrz_request(
     pm: PersonaManager, persona: str
-) -> Tuple[str, Dict[str, str], Dict[str, Any]]:
+) -> tuple[str, dict[str, str], dict[str, Any]]:
     """QRZ: XML login endpoint."""
     username, secret = pm.require(persona, "qrz")
     url = "https://xmldata.qrz.com/xml/current/"
-    headers: Dict[str, str] = {}
-    query: Dict[str, Any] = {
+    headers: dict[str, str] = {}
+    query: dict[str, Any] = {
         "username": username,
         "password": secret,
         "agent": "adif-mcp",
@@ -75,12 +75,12 @@ def _qrz_request(
 
 def _clublog_request(
     pm: PersonaManager, persona: str
-) -> Tuple[str, Dict[str, str], Dict[str, Any]]:
+) -> tuple[str, dict[str, str], dict[str, Any]]:
     """Club Log: logsearch JSON with future year to avoid heavy bodies."""
     _username, secret = pm.require(persona, "clublog")
     url = "https://clublog.org/logsearchjson.php"
-    headers: Dict[str, str] = {}
-    query: Dict[str, Any] = {
+    headers: dict[str, str] = {}
+    query: dict[str, Any] = {
         "call": "G7VJR",
         "log": "G3TXF",
         "year": "2099",

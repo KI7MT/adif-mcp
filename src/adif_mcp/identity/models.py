@@ -9,14 +9,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Dict, Optional, TypedDict
+from typing import TypedDict
 
 # -----------------------------
 # Persona Helper functions
 # -----------------------------
 
 
-def _to_date(s: Optional[str]) -> Optional[date]:
+def _to_date(s: str | None) -> date | None:
     """None-safe ISO date parser."""
     return date.fromisoformat(s) if s else None
 
@@ -59,10 +59,10 @@ class Persona:
 
     name: str
     callsign: str
-    start: Optional[date] = None
-    end: Optional[date] = None
+    start: date | None = None
+    end: date | None = None
     # Typed map of provider -> ProviderRef; default empty
-    providers: Dict[str, ProviderRef] = field(default_factory=dict)
+    providers: dict[str, ProviderRef] = field(default_factory=dict)
 
     def active_span(self) -> str:
         """Human-friendly date span."""

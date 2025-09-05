@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 from .errors import PersonaNotFound, ProviderRefMissing, SecretMissing
 from .models import Persona, ProviderRef
 from .secrets import KeyringSecretStore, SecretStore
@@ -17,8 +15,8 @@ class PersonaManager:
 
     def __init__(
         self,
-        store: Optional[PersonaStore] = None,
-        secrets: Optional[SecretStore] = None,
+        store: PersonaStore | None = None,
+        secrets: SecretStore | None = None,
     ) -> None:
         """Create a new manager with a persona store and secret backend."""
         self.store: PersonaStore = store or PersonaStore()
@@ -26,16 +24,16 @@ class PersonaManager:
 
     # -------- Persona lookups --------
 
-    def get_persona(self, name: str) -> Optional[Persona]:
+    def get_persona(self, name: str) -> Persona | None:
         """Return the persona by name, or None if missing."""
         return self.store.get(name)
 
-    def get_provider_username(self, persona: str, provider: str) -> Optional[str]:
+    def get_provider_username(self, persona: str, provider: str) -> str | None:
         """Return the stored (non-secret) username for persona/provider."""
         p = self.get_persona(persona)
         if p is None:
             return None
-        ref: Optional[ProviderRef] = p.providers.get(provider.lower())
+        ref: ProviderRef | None = p.providers.get(provider.lower())
         if ref is None:
             return None
         user = ref.get("username")
@@ -56,7 +54,7 @@ class PersonaManager:
         """
         return f"{persona}:{provider}:{username}"
 
-    def get_secret(self, persona: str, provider: str) -> Optional[str]:
+    def get_secret(self, persona: str, provider: str) -> str | None:
         """Return secret/password for personaprovider from secrets backend."""
         username = self.get_provider_username(persona, provider)
         if not username:
@@ -70,13 +68,13 @@ class PersonaManager:
 
     # -------- Strict API --------
 
-    def require(self, persona: str, provider: str) -> Tuple[str, str]:
+    def require(self, persona: str, provider: str) -> tuple[str, str]:
         """Return (username, secret) or raise typed errors for UX-friendly flow."""
         p = self.get_persona(persona)
         if p is None:
             raise PersonaNotFound(f"No such persona: '{persona}'")
 
-        ref: Optional[ProviderRef] = p.providers.get(provider.lower())
+        ref: ProviderRef | None = p.providers.get(provider.lower())
         if ref is None:
             raise ProviderRefMissing(f"Persona '{persona}' has no '{provider}' ref")
 

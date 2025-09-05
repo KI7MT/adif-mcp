@@ -1,58 +1,283 @@
-# src/adif_mcp/cli/provider.py
+"""Provider subcommands and metadata access (dynamic discovery)."""
+
 from __future__ import annotations
 
-from typing import cast
+import argparse
+import json
+from functools import cache
+from importlib.resources import files
+from pathlib import Path
+from typing import Any, Dict, List, cast
 
-import click
+from adif_mcp.credentials import get_creds
 
-from adif_mcp import __adif_spec__, __version__
-from adif_mcp.probes import inbox_probe, index_probe
-from adif_mcp.providers import ProviderKey
+from .persona import resolve_home
+
+# ---------- Provider metadata (resources/providers/*.json) ----------
+
+# importlib.resources.files returns a Traversable; convert to Path for typing
+PROVIDERS_DIR: Path = Path(files("adif_mcp.resources") / "providers")  # type: ignore[arg-type]
 
 
-def register_provider(root: click.Group) -> None:
-    """Attach the `provider` command group to the root CLI."""
+def _provider_path(slug: str) -> Path:
+    """_summary_
 
-    @root.group("provider")
-    @click.version_option(version=__version__, prog_name="adif-mcp provider")
-    def provider_group() -> None:
-        """Provider tools (probes, etc.)."""
-        return
+    Args:
+        slug (str): _description_
 
-    @provider_group.command("version")
-    def provider_version() -> None:
-        """Show package version and ADIF spec compatibility."""
-        click.echo(f"adif-mcp provider {__version__} (ADIF {__adif_spec__} compatible)")
+    Returns:
+        Path: _description_
+    """
+    return Path(PROVIDERS_DIR) / f"{slug}.json"
 
-    @provider_group.command("probe")
-    @click.option(
-        "--provider",
-        required=True,
-        type=click.Choice(["lotw", "eqsl", "qrz", "clublog"], case_sensitive=False),
+
+def list_supported() -> List[str]:
+    """Return provider slugs discovered in resources/providers."""
+    p = Path(PROVIDERS_DIR)
+    if not p.exists():
+        return []
+    return sorted(f.stem for f in p.glob("*.json"))
+
+
+@cache
+def get_provider(slug: str) -> Dict[str, Any]:
+    """Load and cache provider metadata by slug."""
+    path = _provider_path(slug)
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+            return cast(Dict[str, Any], data or {})
+    except FileNotFoundError:
+        return {"name": slug, "slug": slug, "auth": "none"}
+    except json.JSONDecodeError:
+        return {"name": slug, "slug": slug, "auth": "none"}
+
+
+def auth_type(slug: str) -> str:
+    """Auth type for a provider: 'username_password', 'api_key', or 'none'."""
+    meta = get_provider(slug)
+    return str(meta.get("auth", "none")).lower()
+
+
+# ---------- YAML IO for persona configs ----------
+
+
+def _cfg_dir(home: Path) -> Path:
+    """_summary_
+
+    Args:
+        home (Path): _description_
+
+    Returns:
+        Path: _description_
+    """
+    return home / "config"
+
+
+def _persona_path(home: Path, name: str) -> Path:
+    """_summary_
+
+    Args:
+        home (Path): _description_
+        name (str): _description_
+
+    Returns:
+        Path: _description_
+    """
+    return _cfg_dir(home) / f"{name}.yaml"
+
+
+def _load_yaml(path: Path) -> Dict[str, Any]:
+    """_summary_
+
+    Args:
+        path (Path): _description_
+
+    Raises:
+        RuntimeError: _description_
+
+    Returns:
+        Dict[str, Any]: _description_
+    """
+    try:
+        import yaml  # type: ignore
+    except Exception as exc:  # pragma: no cover
+        raise RuntimeError("PyYAML required. Install: uv pip install pyyaml") from exc
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh)
+        return cast(Dict[str, Any], data or {})
+
+
+def _save_yaml(path: Path, data: Dict[str, Any]) -> None:
+    """_summary_
+
+    Args:
+        path (Path): _description_
+        data (Dict[str, Any]): _description_
+
+    Raises:
+        RuntimeError: _description_
+    """
+    try:
+        import yaml
+    except Exception as exc:  # pragma: no cover
+        raise RuntimeError("PyYAML required. Install: uv pip install pyyaml") from exc
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as fh:
+        yaml.safe_dump(data, fh, sort_keys=False)
+
+
+def _require_supported(provider: str) -> str:
+    """_summary_
+
+    Args:
+        provider (str): _description_
+
+    Raises:
+        SystemExit: _description_
+
+    Returns:
+        str: _description_
+    """
+    p = provider.lower()
+    supported = set(list_supported())
+    if p not in supported:
+        raise SystemExit(
+            f"Unknown provider '{provider}'. Supported: {', '.join(sorted(supported))}"
+        )
+    return p
+
+
+# ---------- Commands ----------
+
+
+def cmd_list(args: argparse.Namespace) -> int:
+    """Print supported providers and which personas enable them."""
+    home = resolve_home(args.home)
+    cfg = _cfg_dir(home)
+
+    providers = list_supported()
+    print("Supported providers: " + ", ".join(providers or ["(none found)"]))
+
+    if not cfg.exists():
+        print("(no personas discovered)")
+        return 0
+
+    # discover personas
+    personas: List[Dict[str, Any]] = []
+    for f in sorted(cfg.glob("*.yaml")):
+        data = _load_yaml(f)
+        if data:
+            personas.append(data)
+
+    if not personas:
+        print("(no personas discovered)")
+        return 0
+
+    print("\nEnabled per persona:")
+    for pdata in personas:
+        name = str(pdata.get("persona") or "(unnamed)")
+        enabled = [str(p).lower() for p in (pdata.get("enabled_providers") or [])]
+        enabled = [p for p in enabled if p in providers]
+        print(f"  {name:15s} -> {', '.join(enabled) or '(none)'}")
+    return 0
+
+
+def cmd_enable(args: argparse.Namespace) -> int:
+    """Enable a provider for a persona, warn if creds missing."""
+    home = resolve_home(args.home)
+    persona = args.persona
+    provider = _require_supported(args.provider)
+
+    path = _persona_path(home, persona)
+    data = _load_yaml(path)
+    if not data:
+        print(f"Persona '{persona}' not found at {path}")
+        return 1
+
+    enabled: List[str] = [str(p).lower() for p in (data.get("enabled_providers") or [])]
+    if provider in enabled:
+        print(f"{provider} already enabled for {persona}")
+    else:
+        enabled.append(provider)
+        data["enabled_providers"] = sorted(enabled)
+        _save_yaml(path, data)
+        print(f"Enabled {provider} for {persona}")
+
+    # warn if creds missing for this persona/provider
+    c = get_creds(persona, provider)
+    a = auth_type(provider)
+    need = (
+        "username+password"
+        if a == "username_password"
+        else ("username+api_key" if a == "api_key" else "some secret")
     )
-    @click.option("--persona", required=True)
-    @click.option("--timeout", type=float, default=10.0, show_default=True)
-    @click.option("--verbose", is_flag=True)
-    @click.option(
-        "--real", is_flag=True, help="Reserved; behaves same as GET probe for now."
+    missing = (
+        not c
+        or (a == "username_password" and not (c.username and c.password))
+        or (a == "api_key" and not (c.username and c.api_key))
     )
-    def provider_probe(
-        provider: str, persona: str, timeout: float, verbose: bool, real: bool
-    ) -> None:
-        """Probe the provider for valid connection."""
-        pkey = cast(ProviderKey, provider.lower())
-        code = inbox_probe.run(pkey, persona, timeout=timeout, verbose=verbose)
-        raise SystemExit(code)
+    if missing:
+        print(
+            f"note: no credentials for {persona}:{provider} ({a}). "
+            f"Run: adif-mcp creds set {persona} {provider}  # need {need}"
+        )
+    return 0
 
-    @provider_group.command("index-check")
-    @click.option(
-        "--provider",
-        required=True,
-        type=click.Choice(["lotw", "eqsl", "qrz", "clublog"], case_sensitive=False),
+
+def cmd_disable(args: argparse.Namespace) -> int:
+    """Disable a provider for a persona."""
+    home = resolve_home(args.home)
+    persona = args.persona
+    provider = _require_supported(args.provider)
+
+    path = _persona_path(home, persona)
+    data = _load_yaml(path)
+    if not data:
+        print(f"Persona '{persona}' not found at {path}")
+        return 1
+
+    enabled: List[str] = [str(p).lower() for p in (data.get("enabled_providers") or [])]
+    if provider not in enabled:
+        print(f"{provider} already disabled for {persona}")
+        return 0
+
+    enabled = [p for p in enabled if p != provider]
+    data["enabled_providers"] = sorted(enabled)
+    _save_yaml(path, data)
+    print(f"Disabled {provider} for {persona}")
+    return 0
+
+
+# ---------- CLI wiring ----------
+
+
+def register_cli(
+    subparsers: argparse._SubParsersAction[argparse.ArgumentParser],
+) -> None:
+    """Register the provider subcommands."""
+    p = subparsers.add_parser(
+        "provider",
+        help="Provider operations",
+        description="Enable/disable providers on persona profiles.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    @click.option("--persona", required=True)
-    def provider_index_check(provider: str, persona: str) -> None:
-        """Verify credentials by performing an index check on the provider."""
-        pkey = cast(ProviderKey, provider.lower())
-        code = index_probe.run(pkey, persona)
-        raise SystemExit(code)
+    p.add_argument("--home", help="Override SSOT home directory.")
+    sp: argparse._SubParsersAction[argparse.ArgumentParser] = p.add_subparsers(
+        dest="provider_cmd", required=True
+    )
+
+    s_list = sp.add_parser("list", help="List supported and enabled providers.")
+    s_list.set_defaults(func=cmd_list)
+
+    s_en = sp.add_parser("enable", help="Enable a provider for a persona.")
+    s_en.add_argument("persona", help="Persona name")
+    s_en.add_argument("provider", help="Provider to enable")
+    s_en.set_defaults(func=cmd_enable)
+
+    s_dis = sp.add_parser("disable", help="Disable a provider for a persona.")
+    s_dis.add_argument("persona", help="Persona name")
+    s_dis.add_argument("provider", help="Provider to disable")
+    s_dis.set_defaults(func=cmd_disable)

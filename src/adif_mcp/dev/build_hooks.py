@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import tomllib
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 # ---- Typed base for static checkers; real base only at build time ----
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
         def __init__(self, *args: Any, **kwargs: Any) -> None:
             """Initialize the hook (stub only, no runtime logic)."""
 
-        def initialize(self, version: str, build_data: Dict[str, Any]) -> None:
+        def initialize(self, version: str, build_data: dict[str, Any]) -> None:
             """Stub initializer; overridden by the real Hatch interface at runtime."""
 
 else:
@@ -38,7 +38,7 @@ else:
     from hatchling.builders.hooks.plugin.interface import BuildHookInterface as _Base
 
 
-def _load_adif_meta(pyproject_path: Path) -> Dict[str, Any]:
+def _load_adif_meta(pyproject_path: Path) -> dict[str, Any]:
     """Load ADIF metadata from *pyproject_path*.
 
     Returns:
@@ -54,12 +54,10 @@ def _load_adif_meta(pyproject_path: Path) -> Dict[str, Any]:
     return {"spec_version": spec, "features": features}
 
 
-def _write_meta_json(path: Path, payload: Dict[str, Any]) -> None:
+def _write_meta_json(path: Path, payload: dict[str, Any]) -> None:
     """Write *payload* as pretty JSON to *path*, creating parent dirs if needed."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 class BuildHook(_Base):
@@ -67,7 +65,7 @@ class BuildHook(_Base):
 
     PLUGIN_NAME = "adif-meta"
 
-    def initialize(self, version: str, build_data: Dict[str, Any]) -> None:
+    def initialize(self, version: str, build_data: dict[str, Any]) -> None:
         """Create `adif_meta.json` before wheel/sdist are built."""
         pyproject = Path("pyproject.toml")
         payload = _load_adif_meta(pyproject)

@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
+from cli_test_helpers import CLI
 from click.testing import CliRunner
-
-from adif_mcp.cli.root import build_cli
-
-CLI = build_cli()
 
 
 def test_cli_validate_manifest() -> None:

@@ -16,6 +16,11 @@ __pycache__/
 .venv/
 .smoke-venv
 
+# Local tools for build thin dist files
+z-build*
+z-make-lean*
+
+
 # ADIF & large artifacts
 *.adi
 *.ndjson

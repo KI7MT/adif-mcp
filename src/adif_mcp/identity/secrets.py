@@ -7,14 +7,14 @@ Defines a small protocol plus concrete backends:
 
 from __future__ import annotations
 
-from typing import Any, Optional, Protocol, cast, runtime_checkable
+from typing import Any, Protocol, cast, runtime_checkable
 
 
 @runtime_checkable
 class SecretStore(Protocol):
     """Protocol for credential secret storage."""
 
-    def get(self, service: str, key: str) -> Optional[str]:
+    def get(self, service: str, key: str) -> str | None:
         """Return secret for (service, key) or None if missing."""
 
     def set(self, service: str, key: str, secret: str) -> None:
@@ -55,7 +55,7 @@ class KeyringSecretStore:
         if self._keyring is None:  # pragma: no cover - environment dependent
             raise RuntimeError(f"keyring unavailable: {self._err}")
 
-    def get(self, service: str, key: str) -> Optional[str]:
+    def get(self, service: str, key: str) -> str | None:
         """TODO: Add valid docstring for KeyringSecretStore: get
 
         Args:
@@ -69,7 +69,7 @@ class KeyringSecretStore:
             return None
         # keyring.get_password returns Optional[str], but our _keyring is Any.
         # Cast to keep mypy happy without leaking Any.
-        return cast(Optional[str], self._keyring.get_password(service, key))
+        return cast(str | None, self._keyring.get_password(service, key))
 
     def set(self, service: str, key: str, secret: str) -> None:
         """TODO: Add valid docstring for KeyringSecretStore: set
@@ -106,7 +106,7 @@ class InMemorySecretStore:
         """In-Memory Class initialization"""
         self._data: dict[tuple[str, str], str] = {}
 
-    def get(self, service: str, key: str) -> Optional[str]:
+    def get(self, service: str, key: str) -> str | None:
         """TODO: Add valid docstring for InMemorySecretStore: get
         Args:
             service (str): _description_
