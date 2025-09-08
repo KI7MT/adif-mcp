@@ -15,7 +15,6 @@ theme:
     - search.highlight
     - content.code.copy
 nav:
-nav:
   - Home: index.md
   - Concepts:
       - Why ADIF-MCP Matters: concepts/why-matters.md

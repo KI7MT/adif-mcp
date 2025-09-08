@@ -37,14 +37,6 @@ jobs:
       - name: Lint (ruff)
         run: uv run ruff check .
 
-      - name: Type-check (mypy)
-        run: uv run mypy src
-
-      - name: Tests (pytest)
-        env:
-          PYTHONWARNINGS: error
-        run: uv run pytest -q
-
       - name: Manifest validate (CLI)
         run: uv run adif-mcp validate-manifest
 

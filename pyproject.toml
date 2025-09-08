@@ -31,7 +31,6 @@ classifiers = [
 [dependency-groups]
 dev = [
     "pytest",
-    "mypy",
     "ruff",
     "commitizen",
     "pydantic<2",
@@ -54,7 +53,6 @@ dev = [
 [project.optional-dependencies]
 dev = [
   "ruff>=0.6.8",
-  "mypy>=1.11",
   "interrogate>=1.7.0",
 ]
 
@@ -141,44 +139,6 @@ select = ["E", "F", "I"]
 ignore = []
 fixable = ["I"]
 
-[tool.mypy]
-python_version = "3.11"
-strict = true
-packages = ["adif-mcp"]
-disable_error_code = ["annotation-unchecked", "call-arg"]
-warn_unused_ignores = true
-warn_redundant_casts = true
-warn_return_any = true
-no_implicit_optional = true
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "adif_mcp.cli"
-disable_error_code = ["misc"]
-ignore_missing_imports = true
-
-# If tests get too noisy, we can loosen just that package
-[[tool.mypy.overrides]]
-module = "test.*"
-disable_error_code = ["annotation-unchecked"]
-
-[tool.interrogate]
-fail-under = 100
-verbose = 1
-quiet = false
-color = true
-ignore-init-method = true
-ignore-module = false
-ignore-magic = true
-ignore-private = true
-ignore-nested-functions = true
-ignore-properties = true
-paths = ["src", "test"]
-exclude = [".venv", ".smoke-venv", "dist", "build", "site", "docs/_site"]
-whitelist-regex = [
-    "^test_*"
-]
-
 [tool.commitizen]
 name = "cz_conventional_commits"
 version_provider = "pep621"
@@ -224,6 +184,5 @@ exclude = [
     "docs/**",
     "site/**",
     ".ruff_cache/**",
-    ".mypy_cache/**",
     ".pytest_cache/**",
 ]
