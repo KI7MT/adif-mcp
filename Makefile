@@ -49,7 +49,7 @@ clean: ## Remove Gradle artifacts
 
 clean-all: clean ## Deep clean (Gradle + docs caches)
 	@echo "[clean all] - Python and Gradle Artifacts"
-	rm -rf .venv .docs-venv .ruff_cache .mypy_cache .pytest_cache site dist build
+	rm -rf .venv .docs-venv .ruff_cache .mypy_cache .pytest_cache site dist build docs/javadoc
 	@echo "Done"
 	@echo ""
 
@@ -97,6 +97,11 @@ docs-build: docs-install ## Build docs to ./site
 
 docs-serve: docs-install ## Serve docs locally
 	uv run mkdocs serve -a 127.0.0.1:8000
+
+docs-javadoc: ## Build javadocs docs/javadoc/
+	./gradlew --no-configuration-cache javadoc
+	rm -rf docs/javadoc && mkdir -p docs/javadoc
+	cp -R build/docs/javadoc/* docs/javadoc/
 
 # -------- Release helpers (optional) --------
 .PHONY: dist installDist shadow

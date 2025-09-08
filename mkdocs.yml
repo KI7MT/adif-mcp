@@ -23,7 +23,6 @@ nav:
     - User Credentials: userguide/persona-management.md
     - Award Queries: userguide/awards.md
   - Dev Guide:
-    - API (JavaDoc): api/index.html
     - Dev Env Setup: dev/dev-env-setup.md
     - Provider Shemas: dev/provider-schemas.md
     - Probes: dev/probes.md
@@ -31,6 +30,7 @@ nav:
     - Command Reference: dev/command-reference.md
     - Code Snippets: dev/code-snippets.md
     - Dev Plan: dev/dev-plan.md
+    - Javadocs API: javadocs/index.html
   - Program-ID: program-id-policy.md
   - Roadmap: roadmap.md
   - '':

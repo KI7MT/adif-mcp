@@ -8,7 +8,7 @@ import picocli.CommandLine.Spec;
 @Command(
     name = "adif-mcp",
     description = "ADIF MCP — CLI & UI launcher",
-    mixinStandardHelpOptions = true, // adds --help, --version
+    mixinStandardHelpOptions = true, // --help, --version
     versionProvider = Main.VersionProvider.class,
     subcommands = {Chat.class, Ui.class})
 public class Main implements Runnable {
@@ -17,7 +17,7 @@ public class Main implements Runnable {
 
   @Override
   public void run() {
-    // Default action when no subcommand is provided
+    // default action: show usage
     spec.commandLine().usage(System.out);
   }
 
@@ -26,11 +26,17 @@ public class Main implements Runnable {
     System.exit(code);
   }
 
-  /** Supplies version text for --version (kept simple for now). */
   static class VersionProvider implements CommandLine.IVersionProvider {
     @Override
     public String[] getVersion() {
-      return new String[] {"adif-mcp 0.4.0-SNAPSHOT (Java 21)", "Copyright (c) KI7MT"};
+      String manifestVersion =
+          Main.class.getPackage().getImplementationVersion(); // null with gradle run
+      String sysPropVersion = System.getProperty("adifmcp.version"); // set by Gradle
+      String version =
+          manifestVersion != null
+              ? manifestVersion
+              : (sysPropVersion != null ? sysPropVersion : "dev");
+      return new String[] {"adif-mcp " + version, "Copyright (c) KI7MT"};
     }
   }
 }

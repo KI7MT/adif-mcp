@@ -49,15 +49,29 @@ javafx {
 
 application {
     mainClass.set("com.ki7mt.adifmcp.Main")
+    applicationDefaultJvmArgs = listOf("-Dadifmcp.version=${project.version}")
 }
 
 tasks.test { useJUnitPlatform() }
 
-// simple taks to set runUi for testing
+// TASK: Set runUi alias
 tasks.register<JavaExec>("runUi") {
     group = "application"
     description = "Run the JavaFX UI"
     mainClass.set(application.mainClass)
     classpath = sourceSets["main"].runtimeClasspath
     args("ui")
+}
+
+// TASK: Publish JavaDocs docs/javadoc
+tasks.register<Copy>("publishJavadoc") {
+    dependsOn(tasks.javadoc)
+    from(tasks.javadoc)
+    into(layout.projectDirectory.dir("docs/javadoc"))
+}
+
+// TASK: Add version information to the Jar
+application {
+    mainClass.set("com.ki7mt.adifmcp.Main")
+    applicationDefaultJvmArgs = listOf("-Dadifmcp.version=${project.version}")
 }
