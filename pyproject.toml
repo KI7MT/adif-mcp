@@ -1,6 +1,6 @@
 [project]
 name = "adif-mcp"
-version = "0.3.6"
+version = "0.3.7"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Clublog)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -103,9 +103,7 @@ schemas = "adif_catalog.json"
 spec = "ADIF_315"
 
 [tool.pytest.ini_options]
-testpaths = ["test"]
-pythonpath = ["src"]
-#addopts = "-q"
+testpaths = []
 
 # Paths below are *logical* (not absolute). Your util code should:
 # - Resolve {config_dir} to a platform-appropriate location (e.g., appdirs)
