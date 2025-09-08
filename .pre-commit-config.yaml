@@ -12,26 +12,26 @@ repos:
   # Java tools (local hooks example)
   - repo: local
     hooks:
-      - id: google-java-format
-        name: google-java-format
-        entry: google-java-format --replace
+      - id: gradle-google-java-format
+        name: google-java-format via Gradle
+        entry: ./gradlew spotlessApply
         language: system
-        types: [java]
+        pass_filenames: false
 
       - id: checkstyle
-        name: checkstyle
-        entry: checkstyle -c /google_checks.xml
+        name: Checkstyle
+        entry: ./gradlew checkstyleMain checkstyleTest
         language: system
-        types: [java]
+        pass_filenames: false
 
       - id: spotbugs
-        name: spotbugs
-        entry: spotbugs
+        name: SpotBugs
+        entry: ./gradlew spotbugsMain spotbugsTest
         language: system
-        types: [java]
+        pass_filenames: false
 
       - id: pmd
-        name: pmd
-        entry: pmd -d src/main/java -R rulesets/java/quickstart.xml -f text
+        name: PMD
+        entry: ./gradlew pmdMain pmdTest
         language: system
-        types: [java]
+        pass_filenames: false
