@@ -8,37 +8,40 @@ on:
       - ".github/workflows/docs.yml"
 
 permissions:
-  contents: write        # <-- allow pushing to gh-pages
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
+        with: { python-version: "3.11" }
       - uses: astral-sh/setup-uv@v3
-
-      - name: Create venv
-        run: uv venv --python 3.11
-
-      - name: Install MkDocs deps (uv)
+      - name: Install MkDocs deps
         run: |
-          uv pip install \
-            mkdocs mkdocs-material mkdocstrings mkdocstrings-python \
-            mkdocs-autorefs mkdocs-redirects mkdocs-mermaid2-plugin \
-            mkdocs-git-revision-date-localized-plugin
-
+          uv venv
+          uv pip install -r requirements.docs
       - name: Build docs
         run: uv run mkdocs build --strict
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-          publish_branch: gh-pages
-          force_orphan: true      # first deploy: create branch cleanly
+          path: ./site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

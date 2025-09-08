@@ -1,29 +1,31 @@
 # ADIF-MCP
 
-⚠️ Status: Deprecated – Python implementation is frozen
-The Python codebase (≤ v0.3.6) is no longer maintained.
-Future development is moving to Java 21 + JavaFX.
-
-## Documentation
-- User & Developer Docs: https://adif-mcp.com
-- Release notes & tags: GitHub Releases
-
-## Python Legacy
-- The last working Python release: v0.3.6
-- A tombstone branch preserves the Python sources for reference.
-- All new development is happening in Java.
-
-## Migration Plan
-- Existing CLI concepts (personas, providers, creds, sync) will re-emerge in Java.
-- MkDocs remains the user-facing documentation system.
-- Developer API docs will move to Javadoc.
-
 ## Core Project Health
 ![ADIF](https://img.shields.io/badge/ADIF-3.1.5-blue)
 [![Docs](https://img.shields.io/badge/docs-github_pages-blue)](https://adif-mcp.com/)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![SSL Certificate Expiry Check](https://github.com/KI7MT/adif-mcp/actions/workflows/ssl-expiry.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/ssl-expiry.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/KI7MT/adif-mcp/blob/main/LICENSE)
+
+## Python Migration to Java
+
+⚠️ Status: Deprecated – Python implementation is frozen
+The Python codebase (≤ v0.3.6) is no longer maintained.
+Future development is moving to Java 21 + JavaFX.
+
+### Documentation
+- User & Developer Docs: https://adif-mcp.com
+- Release notes & tags: GitHub Releases
+
+### Python Legacy
+- The last working Python release: v0.3.6
+- A tombstone branch preserves the Python sources for reference.
+- All new development is happening in Java.
+
+### Migration Plan
+- Existing CLI concepts (personas, providers, creds, sync) will re-emerge in Java.
+- MkDocs remains the user-facing documentation system.
+- Developer API docs will move to Javadoc.
 
 ## Project Ethos
 
