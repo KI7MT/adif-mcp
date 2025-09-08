@@ -1,0 +1,1916 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="ADIF MCP Documentation">
+      
+      
+      
+        <link rel="canonical" href="https://adif-mcp.com/dev/dev-plan/">
+      
+      
+        <link rel="prev" href="../code-snippets/">
+      
+      
+        <link rel="next" href="../../program-id-policy/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.19">
+    
+    
+      
+        <title>Dev Plan - ADIF MCP</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../css/timeago.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adif-mcp-unified-plan-demo-production" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ADIF MCP" class="md-header__button md-logo" aria-label="ADIF MCP" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ADIF MCP
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Dev Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/KI7MT/adif-mcp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../concepts/why-matters/" class="md-tabs__link">
+          
+  
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../userguide/persona-management/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+  Dev Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../program-id-policy/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Program-ID
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../roadmap/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Roadmap
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../spec/spec/" class="md-tabs__link">
+          
+  
+  
+  
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integrations/overview/" class="md-tabs__link">
+          
+  
+  
+  
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../mcp/overview/" class="md-tabs__link">
+          
+  
+  
+  
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ADIF MCP" class="md-nav__button md-logo" aria-label="ADIF MCP" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ADIF MCP
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/KI7MT/adif-mcp" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Concepts
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Concepts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/why-matters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Why ADIF-MCP Matters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/choice-of-llms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Choice of LLMs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userguide/persona-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    User Credentials
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../userguide/awards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Award Queries
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Dev Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Dev Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API (JavaDoc)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev-env-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dev Env Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../provider-schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Provider Shemas
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../probes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Probes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../git-commits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Git Commits
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../command-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Command Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../code-snippets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Code Snippets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Dev Plan
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dev Plan
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-tldr-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. TL;DR (decisions)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-current-surface-working-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Current Surface (working today)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-manifests-placement-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Manifests: Placement &amp; Rules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Manifests: Placement &amp; Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canonical-placement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Canonical Placement
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Validation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-source-of-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      One Source of Truth
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-demo-scope-kept-as-plan-not-all-implemented-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Demo Scope (kept as plan; not all implemented yet)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Demo Scope (kept as plan; not all implemented yet)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-demo-will-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      What the demo will do
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimal-data-surface-from-eqsl-adif" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimal Data Surface (from eQSL ADIF)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tools-demo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools (demo)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-production-baseline-condensed" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Production Baseline (condensed)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Production Baseline (condensed)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#types-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Types &amp; Validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      MCP Design
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing &amp; CI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security &amp; Ops
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-immediate-actions-manifests-doc-consolidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Immediate Actions (manifests + doc consolidation)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-roadmap-near-term" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Roadmap (near-term)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-checks-every-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Acceptance Checks (every merge)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../program-id-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Program-ID
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roadmap
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../spec/spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Specs
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/lotw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LoTW
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/eqsl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    eQSL
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mcp/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mcp/manifest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manifest
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mcp/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-tldr-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. TL;DR (decisions)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-current-surface-working-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Current Surface (working today)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-manifests-placement-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Manifests: Placement &amp; Rules
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Manifests: Placement &amp; Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#canonical-placement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Canonical Placement
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Validation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Validation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-source-of-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      One Source of Truth
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-demo-scope-kept-as-plan-not-all-implemented-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Demo Scope (kept as plan; not all implemented yet)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Demo Scope (kept as plan; not all implemented yet)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-demo-will-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      What the demo will do
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimal-data-surface-from-eqsl-adif" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimal Data Surface (from eQSL ADIF)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tools-demo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools (demo)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-production-baseline-condensed" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Production Baseline (condensed)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Production Baseline (condensed)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#types-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Types &amp; Validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcp-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      MCP Design
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing &amp; CI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security &amp; Ops
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-immediate-actions-manifests-doc-consolidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Immediate Actions (manifests + doc consolidation)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-roadmap-near-term" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Roadmap (near-term)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-checks-every-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      Acceptance Checks (every merge)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="adif-mcp-unified-plan-demo-production">adif-mcp: Unified Plan (Demo → Production)<a class="headerlink" href="#adif-mcp-unified-plan-demo-production" title="Permanent link">&para;</a></h1>
+<p>This document consolidates the <strong>demo scope</strong> with the <strong>production-grade baseline</strong>, and clarifies where <strong>MCP manifests</strong> should live as we evolve this repo into a stable MCP server. It’s the single planning page to review and iterate on.</p>
+<hr />
+<h2 id="1-tldr-decisions">1. TL;DR (decisions)<a class="headerlink" href="#1-tldr-decisions" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Manifests live inside the package</strong> so they ship with the server:</li>
+<li>Canonical: <code>src/adif_mcp/mcp/manifest.json</code></li>
+<li>Provider manifests (optional, only if exposing provider-scoped tools):
+    <code>src/adif_mcp/providers/&lt;prov&gt;/mcp/manifest.json</code></li>
+<li><strong>Keep one source of truth</strong> for each manifest. Remove the legacy root <code>mcp/</code> folder after moving the manifest.</li>
+<li>Probes, CLI and quality gates are ✅. Next up: add CI smoke (no network) and tag <code>v0.2.0</code>.</li>
+</ul>
+<hr />
+<h2 id="2-current-surface-working-today">2. Current Surface (working today)<a class="headerlink" href="#2-current-surface-working-today" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Probes</strong>: GET-only and safe. <code>lotw</code>/<code>eqsl</code>/<code>qrz</code> ⇒ HTTP 200; <code>clublog</code> ⇒ expected 403 with redaction.</li>
+<li><strong>CLI</strong>:</li>
+<li><code>adif-mcp provider index-check …</code> (no network)</li>
+<li><code>adif-mcp provider probe …</code> (network)</li>
+<li><strong>Quality</strong>: <code>ruff</code>, <code>mypy --strict</code>, <code>interrogate</code> all green. <code>make gate</code> and <code>make smoke-all</code> green.</li>
+<li><strong>DNS</strong>:</li>
+<li><code>adif-mcp.com</code> → GitHub Pages</li>
+<li><code>eqsl.adif-mcp.com</code> / <code>lotw.adif-mcp.com</code> → <code>adif-mcp.com</code></li>
+</ul>
+<hr />
+<h2 id="3-manifests-placement-rules">3. Manifests: Placement &amp; Rules<a class="headerlink" href="#3-manifests-placement-rules" title="Permanent link">&para;</a></h2>
+<h3 id="canonical-placement">Canonical Placement<a class="headerlink" href="#canonical-placement" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Server manifest</strong> (single contract for the MCP server):
+  <div class="highlight"><pre><span></span><code>src/adif_mcp/mcp/manifest.json
+</code></pre></div></li>
+<li><strong>Optional per-provider manifests</strong> (only if you expose provider-scoped tools or ship provider plugins):
+  <div class="highlight"><pre><span></span><code>src/adif_mcp/providers/eqsl/mcp/manifest.json
+src/adif_mcp/providers/lotw/mcp/manifest.json
+</code></pre></div></li>
+</ul>
+<h2 id="4-validation">4. Validation<a class="headerlink" href="#4-validation" title="Permanent link">&para;</a></h2>
+<p>The <code>make manifest</code> target scans all tracked <code>manifest.json</code> files and validates them. No changes needed when you move manifests under <code>src/…</code>.</p>
+<h3 id="one-source-of-truth">One Source of Truth<a class="headerlink" href="#one-source-of-truth" title="Permanent link">&para;</a></h3>
+<p>Keep <strong>exactly one</strong> manifest per server or plugin. After moving the root manifest, <strong>remove the root <code>mcp/</code></strong> to avoid drift.</p>
+<hr />
+<h2 id="5-demo-scope-kept-as-plan-not-all-implemented-yet">5. Demo Scope (kept as plan; not all implemented yet)<a class="headerlink" href="#5-demo-scope-kept-as-plan-not-all-implemented-yet" title="Permanent link">&para;</a></h2>
+<h3 id="what-the-demo-will-do">What the demo <em>will</em> do<a class="headerlink" href="#what-the-demo-will-do" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Fetch new <strong>eQSL</strong> entries since a date.</li>
+<li>Answer:
+  1) “What confirmed eQSLs did I get this week?”
+  2) “How many eQSL confirmations on 20m FT8 in August?”</li>
+</ul>
+<h3 id="minimal-data-surface-from-eqsl-adif">Minimal Data Surface (from eQSL ADIF)<a class="headerlink" href="#minimal-data-surface-from-eqsl-adif" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>CALL</code>, <code>QSO_DATE</code>, <code>TIME_ON</code></li>
+<li><code>BAND</code>, <code>MODE</code>, <code>FREQ</code> (optional)</li>
+<li><code>EQSL_QSL_RCVD</code>, <code>EQSL_QSLRDATE</code></li>
+<li>Optional passthrough: <code>RST_SENT</code>, <code>RST_RCVD</code>, <code>GRIDSQUARE</code>, <code>COMMENT</code></li>
+</ul>
+<h3 id="tools-demo">Tools (demo)<a class="headerlink" href="#tools-demo" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>eqsl.fetch_inbox</code></strong></li>
+<li>Input: <code>{ since?: "YYYY-MM-DD" }</code></li>
+<li>Output: <code>{ records: QsoRecord[] }</code></li>
+<li>Behavior: real GET to <code>DownloadInBox.cfm</code> or mock file if <code>MOCK=1</code></li>
+<li><strong><code>eqsl.filter_summary</code></strong></li>
+<li>Input: <code>{ band?, mode?, date_from?, date_to?, confirmed_only? }</code></li>
+<li>Output:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;confirmed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;by_band&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;band&quot;</span><span class="p">:</span><span class="s2">&quot;20m&quot;</span><span class="p">,</span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="err">...</span><span class="p">}],</span>
+<span class="w">  </span><span class="nt">&quot;by_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;mode&quot;</span><span class="p">:</span><span class="s2">&quot;FT8&quot;</span><span class="p">,</span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="err">...</span><span class="p">}],</span>
+<span class="w">  </span><span class="nt">&quot;sample&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="cm">/* first 10 QSOs */</span><span class="w"> </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></li>
+</ul>
+<p><strong>Why two tools?</strong> <code>fetch_inbox</code> centralizes I/O + normalization; <code>filter_summary</code> gives the agent fast analytics without repeated downloads.</p>
+<hr />
+<h2 id="6-production-baseline-condensed">6. Production Baseline (condensed)<a class="headerlink" href="#6-production-baseline-condensed" title="Permanent link">&para;</a></h2>
+<h3 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>adif-mcp/
+  pyproject.toml
+  src/adif_mcp/
+    mcp/manifest.json           # ← canonical server manifest
+    probes/…                    # safe probes (done)
+    providers/…                 # adapters (done)
+    tools/…                     # manifest validation, future eqsl tools
+    models.py                   # ADIF models (present; to expand)
+    # planned
+    enums.py
+    normalize.py
+  docs/
+  tests/
+</code></pre></div>
+<p><em>(If you later split provider plugins, each plugin repo keeps its own <code>src/adif_mcp_&lt;prov&gt;/mcp/manifest.json</code>.)</em></p>
+<h3 id="types-validation">Types &amp; Validation<a class="headerlink" href="#types-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Treat ADIF 3.1.x as a formal schema via Pydantic models.</li>
+<li>Enumerations loaded from data files, not hard-coded.</li>
+<li>JSON Schema exports for tool I/O.</li>
+<li>Normalization: uppercase CALL, YYYYMMDD date, HHMM[SS] time, MHz/frequency, watts/power.</li>
+</ul>
+<h3 id="mcp-design">MCP Design<a class="headerlink" href="#mcp-design" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Small, explicit tools with strict schemas and conservative defaults (limits, pagination, timeouts).</li>
+<li>Machine-readable errors; narrow tools over one mega-tool.</li>
+</ul>
+<h3 id="testing-ci">Testing &amp; CI<a class="headerlink" href="#testing-ci" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Golden fixtures for valid/invalid ADIF.</li>
+<li>Contract tests for MCP tools (JSON examples &amp; snapshots).</li>
+<li>CI: <code>uv sync --frozen</code>, <code>ruff</code>, <code>mypy --strict</code>, <code>pytest -q</code>, <code>make manifest</code>.</li>
+</ul>
+<h3 id="security-ops">Security &amp; Ops<a class="headerlink" href="#security-ops" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Secrets via env/keyring; never log secrets.</li>
+<li>Later: API façade with OAuth2/API keys; strict request bodies (Pydantic + size caps).</li>
+</ul>
+<hr />
+<h2 id="7-immediate-actions-manifests-doc-consolidation">7. Immediate Actions (manifests + doc consolidation)<a class="headerlink" href="#7-immediate-actions-manifests-doc-consolidation" title="Permanent link">&para;</a></h2>
+<p><strong>Move the server manifest</strong> into the package:
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>src/adif_mcp/mcp
+git<span class="w"> </span>mv<span class="w"> </span>mcp/manifest.json<span class="w"> </span>src/adif_mcp/mcp/manifest.json
+</code></pre></div></p>
+<p><strong>Docs</strong>: Add a pointer in <code>docs/mcp/manifest.md</code> that the canonical manifest now lives under <code>src/adif_mcp/mcp/manifest.json</code>. The existing <code>make manifest</code> target validates all tracked manifests.</p>
+<p><strong>Keep this plan</strong> checked in as <code>docs/dev/plan.md</code> so there’s one planning page.</p>
+<hr />
+<h2 id="8-roadmap-near-term">8. Roadmap (near-term)<a class="headerlink" href="#8-roadmap-near-term" title="Permanent link">&para;</a></h2>
+<p><strong>CI smoke</strong>: run <code>make probe-index</code> (no network) in CI; skip network probes by default.
+<strong>Version &amp; tag</strong>: bump to <code>0.2.0</code>, update <code>CHANGELOG.md</code>, tag <code>v0.2.0</code>.
+<strong>Demo tools</strong>: implement <code>eqsl.fetch_inbox</code> + <code>eqsl.filter_summary</code> with mock fallback; add examples in manifest.
+<strong>Docs</strong>: <code>docs/integrations/eqsl/index.md</code> quickstart (mock + real creds).
+<strong>Models</strong>: expand ADIF models/enums + normalization helpers.</p>
+<hr />
+<h2 id="acceptance-checks-every-merge">Acceptance Checks (every merge)<a class="headerlink" href="#acceptance-checks-every-merge" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>make gate</code> ✅</li>
+<li><code>make smoke-all</code> ✅</li>
+<li><code>make manifest</code> ✅</li>
+<li>Probes: <code>make probe-all</code> ✅</li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 8, 2025 19:24:20 UTC"><span class="timeago" datetime="2025-09-08T19:24:20+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 8, 2025 19:24:20 UTC">2025-09-08</span>
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+        <script src="../../js/timeago.min.js"></script>
+      
+        <script src="../../js/timeago_mkdocs_material.js"></script>
+      
+    
+  </body>
+</html>

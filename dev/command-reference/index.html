@@ -1,0 +1,907 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="ADIF MCP Documentation" name="description"/>
+<link href="https://adif-mcp.com/dev/command-reference/" rel="canonical"/>
+<link href="../git-commits/" rel="prev"/>
+<link href="../code-snippets/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.19" name="generator"/>
+<title>Command Reference - ADIF MCP</title>
+<link href="../../assets/stylesheets/main.7e37652d.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../../css/timeago.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#useful-command-reference-dev-power-users">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="ADIF MCP" class="md-header__button md-logo" data-md-component="logo" href="../.." title="ADIF MCP">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            ADIF MCP
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Command Reference
+            
+          </span>
+</div>
+</div>
+</div>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/KI7MT/adif-mcp" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4" fill="currentColor"></path></svg>
+</div>
+<div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../concepts/why-matters/">
+          
+  
+  
+  Concepts
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../userguide/persona-management/">
+          
+  
+  
+  User Guide
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../../api/">
+          
+  
+  
+  Dev Guide
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../program-id-policy/">
+        
+  
+  
+    
+  
+  Program-ID
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../roadmap/">
+        
+  
+  
+    
+  
+  Roadmap
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../spec/spec/">
+</a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../integrations/overview/">
+</a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../mcp/overview/">
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="ADIF MCP" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="ADIF MCP">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    ADIF MCP
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/KI7MT/adif-mcp" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4" fill="currentColor"></path></svg>
+</div>
+<div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    Concepts
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            Concepts
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../concepts/why-matters/">
+<span class="md-ellipsis">
+    Why ADIF-MCP Matters
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../concepts/choice-of-llms/">
+<span class="md-ellipsis">
+    Choice of LLMs
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    User Guide
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../userguide/persona-management/">
+<span class="md-ellipsis">
+    User Credentials
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../userguide/awards/">
+<span class="md-ellipsis">
+    Award Queries
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+<span class="md-ellipsis">
+    Dev Guide
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            Dev Guide
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/">
+<span class="md-ellipsis">
+    API (JavaDoc)
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dev-env-setup/">
+<span class="md-ellipsis">
+    Dev Env Setup
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../provider-schemas/">
+<span class="md-ellipsis">
+    Provider Shemas
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../probes/">
+<span class="md-ellipsis">
+    Probes
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../git-commits/">
+<span class="md-ellipsis">
+    Git Commits
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Command Reference
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Command Reference
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-quick-start">
+<span class="md-ellipsis">
+      1. Quick Start
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-environments">
+<span class="md-ellipsis">
+      2. Environments
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-code-quality-local-parity-with-ci">
+<span class="md-ellipsis">
+      3. Code Quality (local parity with CI)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-one-shot-gates-make">
+<span class="md-ellipsis">
+      4. One-shot gates (Make)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-tests">
+<span class="md-ellipsis">
+      5. Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-provider-probes-get-sanity-checks">
+<span class="md-ellipsis">
+      6. Provider Probes (GET sanity checks)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-personas-credentials">
+<span class="md-ellipsis">
+      7. Personas &amp; Credentials
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-manifest-validation">
+<span class="md-ellipsis">
+      8. Manifest Validation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-building-installing-locally">
+<span class="md-ellipsis">
+      9. Building &amp; Installing Locally
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-common-troubleshooting">
+<span class="md-ellipsis">
+      10. Common Troubleshooting
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-handy-one-liners">
+<span class="md-ellipsis">
+      11. Handy One-liners
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-narrow-pytest">
+<span class="md-ellipsis">
+      12. Narrow PyTest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-suggested-aliases-optional">
+<span class="md-ellipsis">
+      13. Suggested Aliases (optional)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#14-makefile-targets">
+<span class="md-ellipsis">
+      14. Makefile Targets
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../code-snippets/">
+<span class="md-ellipsis">
+    Code Snippets
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dev-plan/">
+<span class="md-ellipsis">
+    Dev Plan
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../program-id-policy/">
+<span class="md-ellipsis">
+    Program-ID
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../roadmap/">
+<span class="md-ellipsis">
+    Roadmap
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_7" type="checkbox"/>
+<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<span class="md-ellipsis">
+</span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_7">
+<span class="md-nav__icon md-icon"></span>
+</label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../spec/spec/">
+<span class="md-ellipsis">
+    Specs
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+<span class="md-ellipsis">
+</span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_8_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_8">
+<span class="md-nav__icon md-icon"></span>
+</label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../integrations/overview/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../integrations/lotw/">
+<span class="md-ellipsis">
+    LoTW
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../integrations/eqsl/">
+<span class="md-ellipsis">
+    eQSL
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_9" type="checkbox"/>
+<label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+<span class="md-ellipsis">
+</span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_9_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_9">
+<span class="md-nav__icon md-icon"></span>
+</label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../mcp/overview/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../mcp/manifest/">
+<span class="md-ellipsis">
+    Manifest
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../mcp/tools/">
+<span class="md-ellipsis">
+    Tools
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-quick-start">
+<span class="md-ellipsis">
+      1. Quick Start
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-environments">
+<span class="md-ellipsis">
+      2. Environments
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-code-quality-local-parity-with-ci">
+<span class="md-ellipsis">
+      3. Code Quality (local parity with CI)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-one-shot-gates-make">
+<span class="md-ellipsis">
+      4. One-shot gates (Make)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-tests">
+<span class="md-ellipsis">
+      5. Tests
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-provider-probes-get-sanity-checks">
+<span class="md-ellipsis">
+      6. Provider Probes (GET sanity checks)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#7-personas-credentials">
+<span class="md-ellipsis">
+      7. Personas &amp; Credentials
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#8-manifest-validation">
+<span class="md-ellipsis">
+      8. Manifest Validation
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#9-building-installing-locally">
+<span class="md-ellipsis">
+      9. Building &amp; Installing Locally
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#10-common-troubleshooting">
+<span class="md-ellipsis">
+      10. Common Troubleshooting
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#11-handy-one-liners">
+<span class="md-ellipsis">
+      11. Handy One-liners
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#12-narrow-pytest">
+<span class="md-ellipsis">
+      12. Narrow PyTest
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#13-suggested-aliases-optional">
+<span class="md-ellipsis">
+      13. Suggested Aliases (optional)
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#14-makefile-targets">
+<span class="md-ellipsis">
+      14. Makefile Targets
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="useful-command-reference-dev-power-users">Useful Command Reference (Dev &amp; Power Users)<a class="headerlink" href="#useful-command-reference-dev-power-users" title="Permanent link">¶</a></h1>
+<p>A compact, copy-pasteable guide to the most common commands you’ll use while developing or validating adif-mcp.</p>
+<h2 id="1-quick-start">1. Quick Start<a class="headerlink" href="#1-quick-start" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Install deps (project venv managed by uv)</span>
+uv<span class="w"> </span>sync
+
+<span class="c1"># See CLI help</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>--help
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>version
+</code></pre></div>
+<h2 id="2-environments">2. Environments<a class="headerlink" href="#2-environments" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Show which Python uv is using and where the venv lives</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import sys,site;print(sys.executable);print(site.getsitepackages())"</span>
+
+<span class="c1"># Recreate venv from lock</span>
+uv<span class="w"> </span>sync<span class="w"> </span>--frozen
+</code></pre></div>
+<h2 id="3-code-quality-local-parity-with-ci">3. Code Quality (local parity with CI)<a class="headerlink" href="#3-code-quality-local-parity-with-ci" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Lint (Ruff)</span>
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.<span class="w"> </span>--fix
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>.
+
+<span class="c1"># Type check (mypy)</span>
+uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>src
+
+<span class="c1"># Docstring coverage (interrogate)</span>
+uv<span class="w"> </span>run<span class="w"> </span>interrogate<span class="w"> </span>-c<span class="w"> </span>pyproject.toml
+uv<span class="w"> </span>run<span class="w"> </span>interrogate<span class="w"> </span>-vv<span class="w"> </span>-c<span class="w"> </span>pyproject.toml<span class="w"> </span>--fail-under<span class="o">=</span><span class="m">100</span><span class="w"> </span>src<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+<h2 id="4-one-shot-gates-make">4. One-shot gates (Make)<a class="headerlink" href="#4-one-shot-gates-make" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Local smoke (quick) and full gate (CI parity)</span>
+make<span class="w"> </span>smoke-all
+make<span class="w"> </span>gate
+</code></pre></div>
+<h2 id="5-tests">5. Tests<a class="headerlink" href="#5-tests" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># All tests</span>
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-q
+
+<span class="c1"># Specific file or test</span>
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-q<span class="w"> </span>test/test_resources.py
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-q<span class="w"> </span>-k<span class="w"> </span><span class="s2">"manifest"</span>
+</code></pre></div>
+<h2 id="6-provider-probes-get-sanity-checks">6. Provider Probes (GET sanity checks)<a class="headerlink" href="#6-provider-probes-get-sanity-checks" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Index (no network): checks persona + provider wiring</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>provider<span class="w"> </span>index-check<span class="w"> </span>--provider<span class="w"> </span>lotw<span class="w">   </span>--persona<span class="w"> </span>MyLOTW
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>provider<span class="w"> </span>index-check<span class="w"> </span>--provider<span class="w"> </span>eqsl<span class="w">   </span>--persona<span class="w"> </span>MyEQSL
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>provider<span class="w"> </span>index-check<span class="w"> </span>--provider<span class="w"> </span>qrz<span class="w">    </span>--persona<span class="w"> </span>MyQRZ
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>provider<span class="w"> </span>index-check<span class="w"> </span>--provider<span class="w"> </span>clublog<span class="w"> </span>--persona<span class="w"> </span>MyCLUBLOG
+
+<span class="c1"># Network GET (safe probe)</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>provider<span class="w"> </span>probe<span class="w"> </span>--provider<span class="w"> </span>lotw<span class="w">   </span>--persona<span class="w"> </span>MyLOTW<span class="w">    </span>--timeout<span class="w"> </span><span class="m">30</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>provider<span class="w"> </span>probe<span class="w"> </span>--provider<span class="w"> </span>eqsl<span class="w">   </span>--persona<span class="w"> </span>MyEQSL<span class="w">    </span>--timeout<span class="w"> </span><span class="m">30</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>provider<span class="w"> </span>probe<span class="w"> </span>--provider<span class="w"> </span>qrz<span class="w">    </span>--persona<span class="w"> </span>MyQRZ<span class="w">     </span>--timeout<span class="w"> </span><span class="m">30</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>provider<span class="w"> </span>probe<span class="w"> </span>--provider<span class="w"> </span>clublog<span class="w"> </span>--persona<span class="w"> </span>MyCLUBLOG<span class="w"> </span>--timeout<span class="w"> </span><span class="m">30</span>
+
+<span class="c1"># Make helpers</span>
+make<span class="w"> </span>probe-index
+make<span class="w"> </span>probe-get
+make<span class="w"> </span>probe-all
+</code></pre></div>
+<h2 id="7-personas-credentials">7. Personas &amp; Credentials<a class="headerlink" href="#7-personas-credentials" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># List / show</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>list
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>show<span class="w"> </span>Primary
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>show<span class="w"> </span>--by<span class="w"> </span>callsign<span class="w"> </span>KI7MT
+
+<span class="c1"># Add / update</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>add<span class="w"> </span>--name<span class="w"> </span>Primary<span class="w"> </span>--callsign<span class="w"> </span>KI7MT
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>add<span class="w"> </span>--name<span class="w"> </span>ContestW7A<span class="w"> </span>--callsign<span class="w"> </span>W7A<span class="w"> </span>--start<span class="w"> </span><span class="m">2025</span>-03-01<span class="w"> </span>--end<span class="w"> </span><span class="m">2025</span>-03-31
+
+<span class="c1"># Set credential ( stores ref in index; secret in OS keyring )</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>set-credential<span class="w"> </span>--persona<span class="w"> </span>Primary<span class="w"> </span>--provider<span class="w"> </span>lotw<span class="w"> </span>--username<span class="w"> </span>ki7mt
+
+<span class="c1"># Remove one / all</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>remove<span class="w"> </span>Primary
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>remove-all<span class="w"> </span>--yes
+</code></pre></div>
+<h2 id="8-manifest-validation">8. Manifest Validation<a class="headerlink" href="#8-manifest-validation" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Preferred (packaged manifest with repo fallback)</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>validate-manifest
+
+<span class="c1"># Make target (calls the CLI)</span>
+make<span class="w"> </span>validate-manifest
+</code></pre></div>
+<h2 id="9-building-installing-locally">9. Building &amp; Installing Locally<a class="headerlink" href="#9-building-installing-locally" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build sdist+wheel</span>
+uv<span class="w"> </span>build
+
+<span class="c1"># Install the just-built wheel in a throwaway venv to smoke test packaging</span>
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>/tmp/adif-smoke<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>/tmp/adif-smoke/bin/activate
+pip<span class="w"> </span>install<span class="w"> </span>./dist/adif_mcp-*.whl
+adif-mcp<span class="w"> </span>--help
+deactivate
+</code></pre></div>
+<h2 id="10-common-troubleshooting">10. Common Troubleshooting<a class="headerlink" href="#10-common-troubleshooting" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Clear pre-commit envs if hooks act weird</span>
+pre-commit<span class="w"> </span>clean
+
+<span class="c1"># Confirm keyring backend</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import keyring; k=keyring.get_keyring(); print(k.__class__.__module__+'.'+k.__class__.__name__)"</span>
+</code></pre></div>
+<h2 id="11-handy-one-liners">11. Handy One-liners<a class="headerlink" href="#11-handy-one-liners" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Show masked usernames for all personas</span>
+uv<span class="w"> </span>run<span class="w"> </span>adif-mcp<span class="w"> </span>persona<span class="w"> </span>list<span class="w"> </span>--verbose
+</code></pre></div>
+<h2 id="12-narrow-pytest">12. Narrow PyTest<a class="headerlink" href="#12-narrow-pytest" title="Permanent link">¶</a></h2>
+<ul>
+<li>Run then open last failing traceback interactively
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-k<span class="w"> </span>probe<span class="w"> </span>-q<span class="w"> </span>-x
+</code></pre></div></li>
+</ul>
+<h2 id="13-suggested-aliases-optional">13. Suggested Aliases (optional)<a class="headerlink" href="#13-suggested-aliases-optional" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nb">alias</span><span class="w"> </span><span class="nv">amcp</span><span class="o">=</span><span class="s1">'uv run adif-mcp'</span>
+<span class="nb">alias</span><span class="w"> </span><span class="nv">ruffc</span><span class="o">=</span><span class="s1">'uv run ruff check .'</span>
+<span class="nb">alias</span><span class="w"> </span><span class="nv">mypyc</span><span class="o">=</span><span class="s1">'uv run mypy src'</span>
+<span class="nb">alias</span><span class="w"> </span><span class="nv">itg</span><span class="o">=</span><span class="s1">'uv run interrogate -c pyproject.toml'</span>
+</code></pre></div>
+<h2 id="14-makefile-targets">14. Makefile Targets<a class="headerlink" href="#14-makefile-targets" title="Permanent link">¶</a></h2>
+<p>The Makefile provides shortcuts for iterative testing, linting, and packaging.
+Run <code>make help</code> to see the full list (excerpt below):</p>
+<blockquote>
+<p>NOTE: <strong>Note:</strong> All commands use <code>uv</code> consistently, respect strict lint/type/docstring/test gates, and follow the OS-agnostic/secret-safe practices defined in this project.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>Developer<span class="w"> </span>Commands
+--------------------------------------------------------------------------------------------------------
+add-dev<span class="w">                </span>Add<span class="w"> </span>a<span class="w"> </span>dev<span class="w"> </span>dep<span class="w"> </span><span class="o">(</span>usage:<span class="w"> </span>make<span class="w"> </span>add-dev<span class="w"> </span><span class="nv">DEP</span><span class="o">=</span>pytest<span class="o">)</span>
+add<span class="w">                    </span>Add<span class="w"> </span>a<span class="w"> </span>runtime<span class="w"> </span>dep<span class="w"> </span><span class="o">(</span>usage:<span class="w"> </span>make<span class="w"> </span>add<span class="w"> </span><span class="nv">DEP</span><span class="o">=</span>requests<span class="o">)</span>
+bootstrap<span class="w">              </span>Ensure<span class="w"> </span>dev<span class="w"> </span>tools<span class="w"> </span><span class="o">(</span>ruff/mypy/pytest/interrogate<span class="o">)</span><span class="w"> </span>are<span class="w"> </span>installed
+check-all<span class="w">              </span>Ruff<span class="w"> </span>+<span class="w"> </span>mypy<span class="w"> </span>+<span class="w"> </span>verbose<span class="w"> </span>docstrings<span class="w"> </span>+<span class="w"> </span>manifest<span class="w"> </span>validation
+check-version<span class="w">          </span>Ensure<span class="w"> </span>VERSION<span class="w"> </span>and/or<span class="w"> </span>SPEC<span class="w"> </span>match<span class="w"> </span>pyproject.toml<span class="w"> </span><span class="o">(</span>use<span class="w"> </span><span class="nv">VERSION</span><span class="o">=</span>...<span class="w"> </span><span class="nv">SPEC</span><span class="o">=</span>...<span class="o">)</span>
+clean-all<span class="w">              </span>Deep<span class="w"> </span>clean<span class="w"> </span><span class="o">(</span>incl.<span class="w"> </span>smoke<span class="w"> </span>venv<span class="o">)</span>
+clean-pyc<span class="w">              </span>Remove<span class="w"> </span>Python<span class="w"> </span>bytecode<span class="w"> </span><span class="o">(</span>__pycache__,<span class="w"> </span>*.pyc<span class="o">)</span>
+clean<span class="w">                  </span>Remove<span class="w"> </span>build<span class="w"> </span>artifacts<span class="w"> </span><span class="o">(</span>dist/build/egg-info<span class="o">)</span>
+docs-build<span class="w">             </span>Build<span class="w"> </span>docs<span class="w"> </span>to<span class="w"> </span>./site
+docs-check<span class="w">             </span>Verify<span class="w"> </span>Mermaid<span class="w"> </span>rendered<span class="w"> </span><span class="o">(</span>div.mermaid<span class="w"> </span>present<span class="p">;</span><span class="w"> </span>no<span class="w"> </span>code.language-mermaid<span class="w"> </span>left<span class="o">)</span>
+docs-dev<span class="w">               </span>Generate<span class="w"> </span>docs/dev.md<span class="w"> </span>from<span class="w"> </span>make<span class="w"> </span><span class="nb">help</span>
+docs-serve<span class="w">             </span>Serve<span class="w"> </span>MkDocs<span class="w"> </span>locally<span class="w"> </span>on<span class="w"> </span>http://127.0.0.1:8000/
+docstrings<span class="w">             </span>Show<span class="w"> </span>per-object<span class="w"> </span>docstring<span class="w"> </span>coverage<span class="w"> </span>with<span class="w"> </span>file/function<span class="w"> </span>lines
+format<span class="w">                 </span>Ruff<span class="w"> </span>format<span class="w"> </span><span class="o">(</span><span class="k">in</span>-place<span class="o">)</span>
+gate<span class="w">                   </span>CI<span class="w"> </span>parity<span class="w"> </span>gate:<span class="w"> </span>lint<span class="w"> </span>+<span class="w"> </span><span class="nb">type</span><span class="w"> </span>+<span class="w"> </span>tests<span class="w"> </span>+<span class="w"> </span>manifest<span class="w"> </span>+<span class="w"> </span>docstrings,<span class="w"> </span>keychain<span class="w"> </span><span class="nb">test</span>
+<span class="nb">help</span><span class="w">                   </span>Show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span>
+init<span class="w">                   </span>One-time<span class="w"> </span>bootstrap:<span class="w"> </span>sync<span class="w"> </span>deps,<span class="w"> </span>install<span class="w"> </span>hooks,<span class="w"> </span>run<span class="w"> </span>smoke-all
+lint<span class="w">                   </span>Ruff<span class="w"> </span>lint
+pre-commit-install<span class="w">     </span>Install<span class="w"> </span>pre-commit<span class="w"> </span>hooks<span class="w"> </span><span class="o">(</span>pre-commit<span class="w"> </span><span class="p">&amp;</span><span class="w"> </span>commit-msg<span class="o">)</span>
+pre-commit-run<span class="w">         </span>Run<span class="w"> </span>hooks<span class="w"> </span>on<span class="w"> </span>all<span class="w"> </span>files
+print-versions<span class="w">         </span>Show<span class="w"> </span>versions<span class="w"> </span>from<span class="w"> </span>pyproject.toml
+probe-all<span class="w">              </span>Run<span class="w"> </span>both<span class="w"> </span>index<span class="w"> </span>and<span class="w"> </span>GET<span class="w"> </span>probes
+probe-get<span class="w">              </span>Run<span class="w"> </span>GET<span class="w"> </span><span class="o">(</span>network<span class="o">)</span><span class="w"> </span>probes<span class="w"> </span><span class="k">for</span><span class="w"> </span>all<span class="w"> </span>providers
+probe-index<span class="w">            </span>Run<span class="w"> </span>index<span class="w"> </span><span class="o">(</span>no<span class="w"> </span>network<span class="o">)</span><span class="w"> </span>probes<span class="w"> </span><span class="k">for</span><span class="w"> </span>all<span class="w"> </span>providers
+release<span class="w">                </span>Tag<span class="w"> </span><span class="p">&amp;</span><span class="w"> </span>push<span class="w"> </span>release<span class="w"> </span><span class="o">[</span>usage:<span class="w"> </span>make<span class="w"> </span>release<span class="w"> </span><span class="nv">VERSION</span><span class="o">=</span>x.y.z<span class="w"> </span><span class="nv">SPEC</span><span class="o">=</span><span class="m">3</span>.1.5<span class="o">]</span>
+setup-dev<span class="w">              </span>Create<span class="w"> </span>venv,<span class="w"> </span>sync<span class="w"> </span>deps<span class="w"> </span><span class="o">(</span>incl.<span class="w"> </span>dev<span class="o">)</span>,<span class="w"> </span>install<span class="w"> </span>pre-commit<span class="w"> </span>hooks
+smoke-all<span class="w">              </span>Run<span class="w"> </span>smoke<span class="w"> </span>checks<span class="w"> </span><span class="k">in</span><span class="w"> </span>a<span class="w"> </span>fresh,<span class="w"> </span>reproducible<span class="w"> </span>env
+smoke<span class="w">                  </span>quick<span class="w"> </span><span class="nb">local</span><span class="w"> </span>gate<span class="w"> </span><span class="o">(</span>lint+type+manifest<span class="o">)</span>
+sync<span class="w">                   </span>uv<span class="w"> </span>sync<span class="w"> </span>dependencies
+<span class="nb">test</span><span class="w">                   </span>pytest
+<span class="nb">type</span><span class="w">                   </span>mypy<span class="w"> </span><span class="o">(</span>src<span class="w"> </span>only<span class="o">)</span>
+validate-manifest<span class="w">      </span>Validate<span class="w"> </span>MCP<span class="w"> </span>manifest<span class="o">(</span>s<span class="o">)</span>
+</code></pre></div>
+<aside class="md-source-file">
+<span class="md-source-file__fact">
+<span class="md-icon" title="Last update">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 8, 2025 19:24:20 UTC"><span class="timeago" datetime="2025-09-08T19:24:20+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 8, 2025 19:24:20 UTC">2025-09-08</span>
+</span>
+</aside>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.sections", "navigation.tabs", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+<script src="../../js/timeago.min.js"></script>
+<script src="../../js/timeago_mkdocs_material.js"></script>
+</body>
+</html>
