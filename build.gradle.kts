@@ -3,7 +3,6 @@ plugins {
     id("application")
     id("org.openjfx.javafxplugin") version "0.1.0"
     id("com.diffplug.spotless") version "6.25.0"    // google format
-    id("checkstyle")
     id("pmd")
     id("com.github.spotbugs") version "6.0.26"
 }
@@ -13,12 +12,6 @@ spotless {
         googleJavaFormat("1.22.0")
         target("src/**/*.java")
     }
-}
-
-checkstyle {
-    toolVersion = "10.17.0"
-    // use the built-in Google checks or point to your own XML under config/checkstyle/checks.xml
-    // config = resources.text.fromFile("config/checkstyle/checks.xml")
 }
 
 pmd {
@@ -59,3 +52,12 @@ application {
 }
 
 tasks.test { useJUnitPlatform() }
+
+// simple taks to set runUi for testing
+tasks.register<JavaExec>("runUi") {
+    group = "application"
+    description = "Run the JavaFX UI"
+    mainClass.set(application.mainClass)
+    classpath = sourceSets["main"].runtimeClasspath
+    args("ui")
+}

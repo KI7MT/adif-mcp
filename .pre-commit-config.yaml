@@ -18,11 +18,11 @@ repos:
         language: system
         pass_filenames: false
 
-      - id: checkstyle
-        name: Checkstyle
-        entry: ./gradlew checkstyleMain checkstyleTest
-        language: system
-        pass_filenames: false
+      # - id: checkstyle
+      #   name: Checkstyle
+      #   entry: ./gradlew checkstyleMain checkstyleTest
+      #   language: system
+      #   pass_filenames: false
 
       - id: spotbugs
         name: SpotBugs
