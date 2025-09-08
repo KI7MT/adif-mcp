@@ -1,0 +1,15 @@
+{
+  "name": "Club Log",
+  "slug": "clublog",
+  "auth": "username_password",
+  "description": "Clublog Logbook",
+  "fields": [
+    "station_call",
+    "call",
+    "qso_date",
+    "band",
+    "mode",
+    "gridsquare",
+    "freq"
+  ]
+}

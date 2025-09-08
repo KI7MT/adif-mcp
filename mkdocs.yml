@@ -23,6 +23,7 @@ nav:
     - User Credentials: userguide/persona-management.md
     - Award Queries: userguide/awards.md
   - Dev Guide:
+    - API (JavaDoc): api/index.html
     - Dev Env Setup: dev/dev-env-setup.md
     - Provider Shemas: dev/provider-schemas.md
     - Probes: dev/probes.md

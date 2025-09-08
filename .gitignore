@@ -1,9 +1,8 @@
-.pytest_cache/
-.cache/
-data/*.duckdb
+# ------------------------
+# Misc Files and FOlders
+# ------------------------
 *.tar.gz
 .DS_Store
-.cache_history.json
 z-my-notes.md
 pre-release-checklist*
 rubric*
@@ -15,23 +14,14 @@ __pycache__/
 *$py.class
 .venv/
 .smoke-venv
-z-docs*
+z-*
 
 # Local tools for build thin dist files
 z-build*
 z-make-lean*
 
-
 # ADIF & large artifacts
-*.adi
-*.ndjson
-*.jsonl
-/tmp/
 *.log
-
-# local scratch
-full.json
-*.errors.json
 
 # ------------------------
 # MkDocs Local Site Build
@@ -40,7 +30,6 @@ site/
 !mkdocs.yml
 !docs/
 !docs/**
-
 
 # ------------------------
 # OS cruft
@@ -69,21 +58,6 @@ htmlcov/
 .streamlit/secrets.toml
 .env
 .env.*                  # .env.local, etc.
-
-# ------------------------
-# Data / artifacts
-# ------------------------
-data/*.duckdb           # local DB produced by ingest
-data/*.duckdb-wal
-*.tar.gz                # release/packaging artifacts
-*.zip
-
-# WSPR ingest cache tracking (local machine paths)
-.cache_history.json
-
-# Optional: any custom download cache dirs you use
-.cache/
-.cache_wspr/
 
 # ------------------------
 # Notebooks (if you add any later)

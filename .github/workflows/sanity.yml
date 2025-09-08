@@ -2,7 +2,7 @@ name: sanity
 
 on:
   push:
-    branches: [ main ]
+    branches: [ java ]
   pull_request:
 
 jobs:
@@ -13,4 +13,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Say hello
-        run: echo "✅ Hello from GitHub Actions on $(date)"
+        run: echo "Hello from GitHub Actions on $(date)"

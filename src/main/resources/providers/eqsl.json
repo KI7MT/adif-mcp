@@ -1,0 +1,19 @@
+{
+  "name": "eQSL",
+  "slug": "eqsl",
+  "auth": "username_password",
+  "description": "eQSL.cc Logbook",
+  "fields": [
+    "station_call",
+    "call",
+    "qso_date",
+    "time_on",
+    "band",
+    "mode",
+    "rst_sent",
+    "rst_rcvd",
+    "gridsquare",
+    "my_gridsquare",
+    "freq"
+  ]
+}

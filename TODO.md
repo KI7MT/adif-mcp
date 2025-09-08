@@ -1,76 +1,46 @@
 # TODO / Ideas Backlog
 
-This file tracks design ideas and potential refactors.
-Not all items will be implemented — it’s a scratchpad for future work.
+## Migration from Python to Java 21
 
----
+⚠️ Status: Deprecated – Python implementation is frozen
+The Python codebase (≤ v0.3.6) is no longer maintained.
+Future development is moving to Java 21 + JavaFX.
 
-## Centralized Utilities (`utils.py` or `adif_mcp/utils/cli.py`)
+Documentation
+- User & Developer Docs: https://adif-mcp.com
+- Release notes & tags: GitHub Releases
 
-- [ ] **`clear()`** → single clear-screen function for all CLI scripts
-  ```python
-  def clear() -> None:
-      """Clear the terminal for readability."""
-      os.system("cls" if os.name == "nt" else "clear")
-  ```
+Python Legacy
+- The last working Python release: v0.3.6
+- A tombstone branch preserves the Python sources for reference.
+- All new development is happening in Java.
 
-- [ ] **`print_header(title, description)`** → standardized CLI header output
-  ```python
-  def print_header(title: str, description: str) -> None:
-      """Standardized header block for CLI tools."""
-      print(f"{title} - {description}")
-      print()
-  ```
+Migration Plan
+- Existing CLI concepts (personas, providers, creds, sync) will re-emerge in Java.
+- MkDocs remains the user-facing documentation system.
+- Developer API docs will move to Javadoc.
 
-- [ ] Replace per-script copies with imports from `adif_mcp.utils.cli`.
+## Project Ethos
 
----
+ADIF-MCP is a community-driven effort.
+It is not intended to replace or compete with existing ADIF libraries, utilities, or logging applications. Instead, it provides a common foundation that others can build upon.
 
-## Single Source of Truth (SSOT) for Paths
+- Interoperability — a schema-driven, spec-compliant core that makes it easier for tools, logs, and services to talk to each other.
+- Extensibility — a plugin and integration framework for services like LoTW, eQSL, QRZ, and future platforms.
+- Collaboration — designed to complement, not fragment, the ecosystem of ADIF tools already enjoyed by the ham community.
+- Future-facing — introduces safe, typed access to ADIF data in contexts such as AI agents and MCP integrations, opening doors for innovation while preserving compatibility.
 
-- [ ] Store critical paths (`manifest`, `schemas`, `spec`, `providers`) in **`pyproject.toml`**
-- [ ] All scripts should **read paths from SSOT** (via `importlib.metadata` or a helper).
+Our goal is simple: support and enhance the Amateur Radio logging ecosystem while keeping the project open, transparent, and aligned with the spirit of the hobby.
 
----
+## Why ADIF MCP?
 
-## Boilerplate / Consistency
+- Safe, schema-validated access to log data
+- Full ADIF 3.1.5 compatibility (upward-compatible with future ADIF)
+- Extensible plugin system (LoTW, eQSL, …)
+- Designed for AI agents and modern developer workflows
 
-- [ ] Add `DEFAULT_TITLE` and `DEFAULT_DESCRIPTION` to each script.
-- [ ] Optionally centralize common defaults in `utils.cli`.
+## What This Project Provides
 
----
-
-## Docs & Dev Workflow
-
-- [ ] Expand **Contributing** guide with consistent style tips (headers, `~~~` fences).
-- [ ] Move Git Flow notes to **Developer Guide**.
-- [ ] Add section for "Why MCP Matters" (philosophy + operator impact).
-
----
-
-## Testing / CI
-
-- [ ] Add provider coverage check to CI, with configurable threshold.
-- [ ] Smoke tests: validate manifest, run coverage script, confirm CLI basics.
-
----
-
-## Callsign Variants (Prefixes & Suffixes)
-
-- **Context:** Many operators use portable or regional variants of their callsigns, such as `KI7MT/4`, `KI7MT/QRP`, or international prefixes like `ZL/KI7MT`.
-- **Current State:** ADIF spec allows `/` in callsigns, and our parser already handles them as plain strings. No breakage today.
-- **Need:** Users may want to associate these variants with their main persona for log matching and provider queries.
-- **Proposed Approach:**
-  - Extend `Persona` schema with an optional `aliases` list.
-  - Example:
-    ```json
-    {
-      "name": "Primary",
-      "callsign": "KI7MT",
-      "aliases": ["KI7MT/4", "KI7MT/QRP", "ZL/KI7MT"],
-      ...
-    }
-    ```
-  - Update lookup logic to check both `callsign` and any `aliases`.
-- **Priority:** Low (not blocking).
-- **Future Benefit:** Simplifies multi-environment ops (portable, contest, DXpeditions) without duplicating personas.
+- **Core:** ADIF parsing, validation, canonical types, and tool contracts
+- **Plugins:** LoTW and eQSL integrations as separate MCPs
+- **Goals:** portability, safety, testability, and vendor-neutral interfaces

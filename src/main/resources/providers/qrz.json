@@ -1,0 +1,17 @@
+{
+  "name": "QRZ",
+  "slug": "qrz",
+  "auth": "api_key",
+  "description": "QRZ XML Logbook",
+  "fields": [
+    "station_call",
+    "call",
+    "qso_date",
+    "time_on",
+    "band",
+    "mode",
+    "gridsquare",
+    "my_gridsquare",
+    "freq"
+  ]
+}

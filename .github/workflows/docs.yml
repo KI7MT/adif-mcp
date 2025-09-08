@@ -1,59 +1,40 @@
 name: docs
-
 on:
   push:
-    branches: [ main ]
+    branches: [ java ]
     paths:
-      - 'mkdocs.yml'
-      - 'docs/**'
-      - '.github/workflows/docs.yml'
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+      - "docs/**"
+      - "mkdocs.yml"
+      - "requirements.docs"
+      - ".github/workflows/docs.yml"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Sync dev deps (frozen)
-        run: uv sync --group dev --frozen
-
-      - name: Assert mermaid plugin present
-        run: uv run python -c "import mermaid2; print('mermaid2 OK')"
-
-      - name: Build site with MkDocs
-        run: uv run mkdocs build --strict
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Cache pip
+        uses: actions/cache@v4
         with:
-          path: site
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements.docs') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Install MkDocs deps
+        run: pip install -r requirements.docs
+
+      - name: Build docs
+        run: mkdocs build --strict
+
+      # (Optional) publish to gh-pages
+      - uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/java'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site

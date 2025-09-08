@@ -17,94 +17,139 @@ Following this mindset helps keep the project consistent, approachable, and oper
 
 >Contributing Tip: “See [TODO.md]()TODO.md) for backlog ideas. Concrete items should be filed as Issues when ready.”
 
-## Prerequisits
+## Prerequisites
 
-To contribute to ADIF-MCP, you will need a working Python ≥3.11 environment with [UV by Astral](https://docs.astral.sh/uv/) installed.
+To contribute to **ADIF-MCP (Java)**, you will need:
+
+- A working **Java 21 SDK** (OpenJDK or vendor equivalent).
+- **Gradle** (wrapper `./gradlew` is included, so a global install is optional).
+- For documentation: **Python ≥3.11** with [UV](https://docs.astral.sh/uv/) for MkDocs builds.
+
+---
 
 ## Development Setup
 
-The following is a quick start in getting the required environment setup. Details workflows will be outlined in the [Dev Guide](./docs/devguide/).
-
-### Clone the Repo and Install Development Dependencies
+Clone the repository and switch into the project directory:
 
 ~~~bash
 git clone git@github.com:KI7MT/adif-mcp.git
-cd adif-mcpe
+cd adif-mcp
 ~~~
 
-This will create a local .venv with all tools needed for linting, typing, docs, and tests.
+## Base Directory Layout
+```text
+adif-mcp/
+├── build.gradle.kts        # Gradle build script (Kotlin DSL)
+├── settings.gradle.kts     # Gradle settings (project name, etc.)
+├── gradle/                 # Gradle wrapper support files
+│   └── wrapper/
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew                 # Gradle wrapper script (Unix)
+├── gradlew.bat             # Gradle wrapper script (Windows)
+├── src/
+│   ├── main/
+│   │   ├── java/           # All Java source (packages under here)
+│   │   │   └── com/ki7mt/adifmcp/...
+│   │   ├── resources/      # Non-code resources (icons, configs, schema JSON)
+│   │   └── javafx/         # (optional) FXML or UI resources
+│   └── test/
+│       ├── java/           # Unit + integration tests
+│       │   └── com/ki7mt/adifmcp/...
+│       └── resources/      # Test resources (fixtures, ADIF samples, etc.)
+├── docs/                   # MkDocs source
+│   ├── index.md
+│   └── ...
+├── ROADMAP.md
+├── Makefile                # (docs build targets etc.)
+└── .gitignore
+```
+
+
+
+
+---
+
+### Build & Test with Gradle
+
+The project uses **Gradle** as the build tool. All major checks and tasks are wired into Gradle.
+
+~~~bash
+# Clean and build the entire project
+./gradlew clean build
+
+# Run unit tests
+./gradlew test
+
+# Generate Javadocs
+./gradlew javadoc
+
+# Verify code formatting and style (Spotless/Checkstyle if configured)
+./gradlew check
+~~~
+
+---
 
 ### Pre-Commit & PR Checklist
-Before submitting a PR, you must ensure all validations and smoke tests pass locally, if not thebuild hook
-automation will faill after merging the PR.
 
-Minimal Validations
-make gate
-make smoke-all
+Before submitting a PR, ensure:
+
+- All builds and tests pass (`./gradlew clean build`).
+- Javadocs build without errors (`./gradlew javadoc`).
+- Docs site builds cleanly (`make docs-build`).
+- No unformatted code (`./gradlew spotlessApply` if Spotless is enabled).
+
+Minimal validations:
 
 ~~~bash
-# Start fresh
-make clean ; make clean-all ; make clean-pyc
-
-# Linting (PEP8, unused imports, formatting, etc.)
-uv run ruff check src test
-
-# Attempt to auto-fix any issues reported
-uv run ruff check src test --fix
-
-# Attempt to fix formating issues
-uv run ruff format src test
-
-# Type checking (strict mode)
-uv run mypy src test
-
-# Docstring coverage (must be 100%)
-uv run interrogate -v -c pyproject.toml --fail-under=100 --verbose
-
-# MCP manifest validation
-make validate-manifest
-
-# Run Unit tests
-uv run pytest -q
-
-# Auto run most all of the commands above
-make gate
-
-# Run the full smoke test
-make smoke-all
+./gradlew clean build
+make docs-build
 ~~~
+
+---
 
 ### CLI Validation Testing
-Ensure the CLI entry points work as expected.
+
+ADIF-MCP for Java will provide CLI entry points via the `application` plugin or custom launchers.
+Validate locally with:
+
 ~~~bash
-uv run adif-mcp version
-uv run adif-mcp --help
-uv run adif-mcp persona --help
-uv run adif-mcp provider --help
-uv run adif-mcp validate-manifest
+./gradlew run --args="--help"
+./gradlew run --args="version"
+./gradlew run --args="manifest validate"
 ~~~
+
+---
 
 ### Optional but Recommended
 
 ~~~bash
-uv build
+# Build an installable distribution (scripts + libs)
+./gradlew installDist
+
+# Create a standalone fat/uber JAR
+./gradlew shadowJar
 ~~~
+
+---
 
 ## Code Style & Checks
 
-- Code is formatted with **black** and **isort**.
-- **Docstrings** are required (enforced with `interrogate`).
-- Pre-commit hooks run automatically:
-  - Trailing whitespace
-  - EOF fixes
-  - YAML/JSON/TOML validation
-  - Docstring coverage
-  - Artifact blocking (no `site/`, DuckDB, etc. in commits)
+- Code is formatted and linted using Gradle plugins (e.g., **Spotless**, **Checkstyle**, or **PMD**).
+- **Javadocs** are required for all public classes and methods.
+- Pre-commit hooks (if enabled) should be run with:
+
+~~~bash
+pre-commit run --all-files
+~~~
+
+---
 
 ## Documentation Style Tips
 
-When contributing to the docs (/docs):
-	•	Always use ~~~ fences for code/diagram blocks
+When contributing to the docs (`/docs`):
+
+- Always use `~~~` fences for code/diagram blocks.
 
 Example:
 
@@ -113,34 +158,31 @@ graph LR
   A --> B
 ~~~
 
-This avoids issues where triple backticks (```) can be consumed by some editors, automated parsers, or the chat interfaces.
+- **Mermaid Diagrams**
+  - Use `~~~mermaid` fences.
+  - Wrap labels with spaces or HTML in quotes:
 
-	•	Mermaid Diagrams
-	•	Use ~~~mermaid fences.
-	•	Remember: labels containing spaces or HTML (e.g., <br/>) must be wrapped in quotes:
+✅ Correct:
 
-~~~
+~~~mermaid
 flowchart LR
   A["Operator<br/>(Ask in plain English)"] --> B["Agent / LLM<br/>(Chat or Voice)"]
 ~~~
 
-### Mermaid Diagrams — Gotcha
+❌ Incorrect:
 
-Mermaid diagrams will fail silently and render as plain text if labels use `<br/>`, `:`, `{}`, `[]` or other special characters without quotes.
-
-✅ Always wrap labels in double quotes ` "what you want to say""`. The following will render correctly:
-
-~~~bash
-flowchart LR
-  A["Operator<br/>(Ask in plain English)"] --> B["Agent / LLM<br/>(Chat or Voice)"]
-~~~
-
-❌ This Will not render:
-
-~~~bash
+~~~mermaid
 flowchart LR
   A[Operator<br/>(Ask in plain English)] --> B[Agent / LLM (Chat or Voice)]
 ~~~
+
+---
+
+## Summary
+
+- **Gradle (`./gradlew`)** is the single source of truth for builds, tests, and checks.
+- **MkDocs** continues to power the User Guide (`make docs-build`, `make docs-serve`).
+- Keep commits atomic, follow Javadoc conventions, and respect coding standards.
 
 ## 👥 Contributors
 
