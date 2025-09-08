@@ -1,12 +1,14 @@
 name: docs
 on:
   push:
-    branches: [ java ]
+    branches: [ java ]   # docs source branch
     paths:
       - "docs/**"
       - "mkdocs.yml"
-      - "requirements.docs"
       - ".github/workflows/docs.yml"
+
+permissions:
+  contents: write        # <-- allow pushing to gh-pages
 
 jobs:
   build:
@@ -18,23 +20,22 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}-${{ hashFiles('requirements.docs') }}
-          restore-keys: |
-            pip-${{ runner.os }}-
+      - uses: astral-sh/setup-uv@v3
 
-      - name: Install MkDocs deps
-        run: pip install -r requirements.docs
+      - name: Install MkDocs deps (uv)
+        run: |
+          uv pip install \
+            mkdocs mkdocs-material mkdocstrings mkdocstrings-python \
+            mkdocs-autorefs mkdocs-redirects mkdocs-mermaid2-plugin \
+            mkdocs-git-revision-date-localized-plugin
 
       - name: Build docs
-        run: mkdocs build --strict
+        run: uv run mkdocs build --strict
 
-      # (Optional) publish to gh-pages
-      - uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/java'
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
+          publish_branch: gh-pages
+          force_orphan: true      # first deploy: create branch cleanly
