@@ -15,6 +15,7 @@ __pycache__/
 *$py.class
 .venv/
 .smoke-venv
+z-docs*
 
 # Local tools for build thin dist files
 z-build*
