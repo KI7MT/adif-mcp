@@ -1,49 +1,27 @@
 plugins {
-    id("java")
-    id("application")
-    id("org.openjfx.javafxplugin") version "0.1.0"
+    // no plugins at root
 }
 
-group = "com.ki7mt"
-version = "0.4.0-SNAPSHOT"
-
-java {
-    toolchain { languageVersion.set(JavaLanguageVersion.of(21)) }
+allprojects {
+    group = "com.ki7mt"
+    version = "0.4.0-SNAPSHOT"
 }
 
-dependencies {
-    implementation("info.picocli:picocli:4.7.6")
-    annotationProcessor("info.picocli:picocli-codegen:4.7.6")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
-    testImplementation(platform("org.junit:junit-bom:5.10.3"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-}
+subprojects {
+    // Ensure the Java plugin is applied before configuring its extension
+    apply(plugin = "java")
 
-javafx {
-    version = "21"
-    modules = listOf("javafx.controls")
-}
+    // Configure Java toolchain & compiler for each subproject
+    extensions.configure<JavaPluginExtension> {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    }
 
-application {
-    mainClass.set("com.ki7mt.adifmcp.Main")
-    applicationDefaultJvmArgs = listOf("-Dadifmcp.version=${project.version}")
-}
+    tasks.withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        options.release.set(21)
+    }
 
-tasks.test { useJUnitPlatform() }
-
-// TASK: Set runUi alias
-tasks.register<JavaExec>("runUi") {
-    group = "application"
-    description = "Run the JavaFX UI"
-    mainClass.set(application.mainClass)
-    classpath = sourceSets["main"].runtimeClasspath
-    args("ui")
-}
-
-// TASK: Publish JavaDocs docs/javadoc
-tasks.register<Copy>("publishJavadoc") {
-    dependsOn(tasks.javadoc)
-    from(tasks.javadoc)
-    into(layout.projectDirectory.dir("docs/javadoc"))
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
+    }
 }
