@@ -30,7 +30,7 @@ nav:
     - Command Reference: dev/command-reference.md
     - Code Snippets: dev/code-snippets.md
     - Dev Plan: dev/dev-plan.md
-    - Javadocs API: javadocs/index.html
+    - Javadocs API: javadoc/index.html
   - Program-ID: program-id-policy.md
   - Roadmap: roadmap.md
   - '':
@@ -47,6 +47,9 @@ nav:
 
 plugins:
   - search
+  - exclude:
+      glob:
+        - javadoc/legal/*.md
   - mermaid2:
       arguments:
         theme: default
