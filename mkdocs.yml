@@ -24,7 +24,7 @@ nav:
     - Award Queries: userguide/awards.md
   - Dev Guide:
     - Dev Env Setup: dev/dev-env-setup.md
-    - Provider Shemas: dev/provider-schemas.md
+    - Provider Schemas: dev/provider-schemas.md
     - Probes: dev/probes.md
     - Git Commits: dev/git-commits.md
     - Command Reference: dev/command-reference.md

@@ -2,10 +2,14 @@ name: docs
 on:
   push:
     branches: [ java ]   # docs source branch
+    # Include Java sources so Javadoc updates publish even if /docs didn't change
     paths:
       - "docs/**"
       - "mkdocs.yml"
       - ".github/workflows/docs.yml"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "src/**"
 
 permissions:
   contents: read
@@ -25,6 +29,27 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
+      # --- Javadoc build ---
+      - name: Set up Java 21 (Temurin) for Gradle
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Build Javadocs with Gradle
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-configuration-cache javadoc
+
+      - name: Stage Javadocs into docs/
+        run: |
+          rm -rf docs/javadoc
+          mkdir -p docs/javadoc
+          cp -R build/docs/javadoc/* docs/javadoc/
+
+      # --- MkDocs build ---
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - uses: astral-sh/setup-uv@v3
@@ -34,6 +59,7 @@ jobs:
           uv pip install -r requirements.docs
       - name: Build docs
         run: uv run mkdocs build --strict
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
