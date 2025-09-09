@@ -1,5 +1,11 @@
+import org.gradle.api.tasks.Sync
+
 plugins {
-    // no plugins at root
+    id("java")
+}
+
+dependencies {
+    implementation(project(":core"))
 }
 
 allprojects {
@@ -24,4 +30,34 @@ subprojects {
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
     }
+}
+
+// Root build.gradle.kts
+
+// ... your existing allprojects {} and subprojects {} blocks above ...
+
+// Aggregate Javadoc for all subprojects into docs/javadoc (single index.html)
+tasks.register<Javadoc>("javadocAll") {
+    description = "Generate aggregated Javadoc into docs/javadoc"
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+
+    // Collect 'main' source sets from all Java subprojects
+    val mainSourceSets = subprojects.mapNotNull {
+        it.extensions.findByType(JavaPluginExtension::class.java)?.sourceSets?.findByName("main")
+    }
+
+    // Sources: flatten to a single FileTree
+    val allJavaTrees = mainSourceSets.map { it.allJava }
+    source(allJavaTrees)                       // OK: SourceTask.source(...) accepts Iterable<FileTree>
+
+    // Classpath: flatten to a single FileCollection
+    val allClasspaths = mainSourceSets.map { it.compileClasspath }
+    classpath = files(*allClasspaths.toTypedArray())
+
+    // Output where MkDocs expects
+    destinationDir = layout.projectDirectory.dir("docs/javadoc").asFile
+
+    // Optional: don’t fail the whole build on Javadoc warnings
+    (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
+    isFailOnError = false
 }

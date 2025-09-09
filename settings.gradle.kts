@@ -4,10 +4,7 @@ include("core")
 include("cli")
 include("ui")
 include("server")
-include("providers:provider-clublog")
 include("providers:provider-eqsl")
-include("providers:provider-lotw")
-include("providers:provider-qrz")
 
 
 pluginManagement {

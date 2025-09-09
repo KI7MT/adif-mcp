@@ -1,0 +1,13 @@
+{
+  "id": "eqsl",
+  "name": "eQSL.cc",
+  "version": "0.1.0",
+  "api": "1.0",
+  "auth": "USERPASS",
+  "capabilities": [
+    "pull"
+  ],
+  "endpoints": [
+    "https://www.eqsl.cc/qslcard"
+  ]
+}

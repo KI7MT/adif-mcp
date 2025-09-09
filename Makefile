@@ -53,6 +53,24 @@ clean-all: clean ## Deep clean (Gradle + docs caches)
 	@echo "Done"
 	@echo ""
 
+# sanity-check: gate: ## CI-like gate: build, test, check, javadoc
+# 	./gradlew clean build
+# 	./gradlew --no-configuration-cache :cli:run --args="--help"
+# 	./gradlew --no-configuration-cache :cli:run --args="providers"
+# 	./gradlew --no-configuration-cache :ui:run
+# 	$(MAKE) docs-javadoc docs-build
+
+# Sanity Check
+sanity-check: ## Gradle: clean, build, cli, ui, javadoc
+	./gradlew clean build
+	./gradlew --no-configuration-cache :cli:run --args="--help"
+	./gradlew --no-configuration-cache :cli:run --args="providers"
+	./gradlew --no-configuration-cache :ui:run
+	./gradlew javadocAll
+	uv run mkdocs build --strict
+	uv run mkdocs serve
+
+
 # -------- Gate / Smoke --------
 .PHONY: gate smoke-all quick
 gate: ## CI-like gate: build, test, check, javadoc
