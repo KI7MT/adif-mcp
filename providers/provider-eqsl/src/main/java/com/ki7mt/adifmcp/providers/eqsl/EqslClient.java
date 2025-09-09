@@ -15,12 +15,20 @@ import com.ki7mt.adifmcp.providers.UserPassCredentials;
 
 public final class EqslClient implements ProviderClient {
 
-    private final ProviderContext ctx;
     private final ProviderCredentials creds;
 
     public EqslClient(ProviderContext ctx, ProviderCredentials creds) {
-        this.ctx = ctx;
         this.creds = creds;
+    }
+
+    @Override
+    public Health checkHealth() {
+        return null;
+    }
+
+    @Override
+    public AuthStatus checkAuth() {
+        return null;
     }
 
     @Override
@@ -30,9 +38,9 @@ public final class EqslClient implements ProviderClient {
 
     @Override
     public AuthStatus authCheck() {
-        if (creds instanceof UserPassCredentials up
-                && up.username() != null && !up.username().isBlank()
-                && up.password() != null && !up.password().isBlank()) {
+        if (creds instanceof UserPassCredentials(String username, String password)
+                && username != null && !username.isBlank()
+                && password != null && !password.isBlank()) {
             return AuthStatus.OK;
         }
         return AuthStatus.MISSING;
@@ -42,6 +50,11 @@ public final class EqslClient implements ProviderClient {
     public FetchResult fetchSince(Instant since, FetchOptions opt) {
         // stub: return empty; wire real HTTP later
         return FetchResult.empty();
+    }
+
+    @Override
+    public Optional<RateLimit> rateLimit() {
+        return Optional.empty();
     }
 
     @Override
