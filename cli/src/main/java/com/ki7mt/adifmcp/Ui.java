@@ -3,26 +3,35 @@ package com.ki7mt.adifmcp;
 import picocli.CommandLine.Command;
 
 /**
- * The {@code Ui} class serves as a CLI subcommand for launching the JavaFX-based user interface
- * (UI) of the application. It is intended to be executed as part of the command-line interface.
- *
- * This class is designed to dynamically invoke the launch method of the JavaFX UI application
- * (`HelloApp`), provided it is available on the runtime classpath. If the application is not
- * present or any other exception occurs during execution, appropriate error messages are
- * displayed to inform the user.
- *
- * The {@code Ui} command is registered as a subcommand of the main CLI application. It relies on
- * the `picocli.CommandLine` library for command execution and option parsing.
- *
- * Key features:
- * - Dynamically loads the JavaFX UI class and invokes its entry point method.
- * - Provides error handling for cases where the UI is not available on the classpath or an
- *   unexpected error occurs during runtime.
- * - Outputs descriptive error or guidance messages to the console for better user experience.
- *
- * Command name: {@code ui}
- * Command description: Launch the JavaFX UI (if available on the classpath).
- * Implements: {@link Runnable}, making it suitable for execution within the CLI framework.
+ * The {@code Ui} class serves as a command-line subcommand for launching
+ * the JavaFX-based user interface of the application. It is intended to be
+ * executed within the context of a command-line interface (CLI) framework
+ * implemented using the Picocli library.
+ * <p>
+ * Features:
+ * - Attempts to locate and invoke the `HelloApp` class from the package
+ *   {@code com.ki7mt.adifmcp.ui}.
+ * - Calls the `launchUi` method on the `HelloApp` class to initiate the UI.
+ * <p>
+ * Error Handling:
+ * - If the `HelloApp` class cannot be found on the classpath, an error message
+ *   is displayed, explaining how to run the UI using Gradle or a packaged UI
+ *   launcher. The process exits with code 2.
+ * - If any other exception occurs during the invocation of the UI, a stack trace
+ *   is printed to the standard error stream, and the process exits with code 1.
+ * <p>
+ * Usage:
+ * This class should be registered as a subcommand in the Picocli CLI application,
+ * under the name `ui`. It is typically invoked via the command line by users who
+ * wish to launch the graphical user interface for the application.
+ * <p>
+ * Lifecycle:
+ * - On execution, the `run` method is called, which performs the logic to
+ *   locate and launch the JavaFX-based UI.
+ * <p>
+ * Dependencies:
+ * - The UI functionality requires the presence of the `HelloApp` class on the
+ *   application's classpath.
  */
 @Command(
         name = "ui",
@@ -30,27 +39,6 @@ import picocli.CommandLine.Command;
         mixinStandardHelpOptions = true)
 public class Ui implements Runnable {
 
-    /**
-     * Executes the CLI subcommand to launch the JavaFX-based user interface (UI) for the application.
-     *
-     * The method attempts to dynamically load the UI class defined as `com.ki7mt.adifmcp.ui.HelloApp`
-     * and invoke its static method `launchUi`. If the required UI class is not found on the classpath,
-     * it outputs an error message and terminates the application with an exit code of 2. If any other
-     * exceptions occur during execution, the stack trace is printed, and the application terminates
-     * with an exit code of 1.
-     *
-     * Key operations:
-     * - Dynamically loads the `HelloApp` class from the specified package.
-     * - Invokes the `launchUi` method of the `HelloApp` class.
-     * - Handles `ClassNotFoundException` by displaying appropriate error messages suggesting
-     *   how to run the UI.
-     * - Handles general exceptions by printing their stack trace and terminating the program.
-     *
-     * Exit codes:
-     * - 0: Successful execution (implicit based on the application's expected flow).
-     * - 1: Unexpected error occurred during execution (stack trace printed).
-     * - 2: UI class not found on the classpath.
-     */
     @Override
     public void run() {
         try {
@@ -58,11 +46,13 @@ public class Ui implements Runnable {
             app.getMethod("launchUi").invoke(null);
         } catch (ClassNotFoundException e) {
             System.err.println(
-                    "UI is not on the CLI classpath.\n"
-                    + "Run the UI with: ./gradlew :ui:run\n"
-                    + "or use the packaged UI launcher.");
+                    """
+                            UI is not on the CLI classpath.
+                            Run the UI with: ./gradlew :ui:run
+                            or use the packaged UI launcher.""");
             System.exit(2);
         } catch (Throwable t) {
+            //noinspection CallToPrintStackTrace
             t.printStackTrace();
             System.exit(1);
         }
