@@ -49,7 +49,7 @@ clean: ## Remove Gradle artifacts
 
 clean-all: clean ## Deep clean (Gradle + docs caches)
 	@echo "[clean all] - Python and Gradle Artifacts"
-	rm -rf .venv .docs-venv .ruff_cache .mypy_cache .pytest_cache site dist build docs/javadoc
+	rm -rf .venv .docs-venv .ruff_cache .mypy_cache .pytest_cache site dist build docs/javadoc app/
 	@echo "Done"
 	@echo ""
 

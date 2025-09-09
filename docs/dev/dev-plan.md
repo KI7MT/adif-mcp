@@ -78,3 +78,53 @@
 - Unit: POJOs and services without network
 - Integration: provider stubs for offline tests
 - Doctor: every `doctor` command checks creds, provider reachability, state
+
+
+## Current Task — Credentials v1 (Java backend)
+
+First milestone: implement secure credential storage and CLI surfaces.
+Focus on macOS Keychain + portable encrypted fallback. Windows/Linux native stores will come later.
+
+### Scope
+- `com.ki7mt.adifmcp.credentials` (models, interfaces, adapters)
+- `com.ki7mt.adifmcp.cli.creds` (picocli subcommands)
+
+### Checklist
+
+- [ ] **Models**
+    - [ ] `Credentials` POJO (`personaId`, `providerId`, `authType`, fields map)
+    - [ ] `AuthType` enum (`USERPASS`, `API_KEY`)
+
+- [ ] **Service API**
+    - [ ] `CredentialStore` interface: `put`, `get`, `delete`, `list`, `doctor`
+    - [ ] `DoctorReport` and `CredentialRef` helper models
+
+- [ ] **Adapters**
+    - [ ] macOS Keychain adapter via `security` CLI
+    - [ ] Portable encrypted file store under `state/creds/` (AES-GCM + PBKDF2)
+    - [ ] Stubs for Windows Credential Manager / Linux Secret Service
+
+- [ ] **Selection logic**
+    - [ ] Store resolver: explicit `--store`, else OS default, else fallback to portable
+    - [ ] Log which backend is used
+
+- [ ] **CLI commands**
+    - [ ] `adif-mcp creds set`
+    - [ ] `adif-mcp creds get`
+    - [ ] `adif-mcp creds delete`
+    - [ ] `adif-mcp creds list`
+    - [ ] `adif-mcp creds doctor`
+
+- [ ] **Testing**
+    - [ ] Unit: in-memory fake for `CredentialStore`
+    - [ ] Integration: portable store round-trip, bad passphrase, tamper detection
+    - [ ] Integration: macOS Keychain add/get/delete with JSON payload
+    - [ ] CLI: end-to-end set/get/delete/list/doctor (with redaction verified)
+    - [ ] Security: grep logs/artifacts for secrets (must be redacted)
+
+### Acceptance
+- macOS: Keychain round-trip works with JSON payload
+- Portable: encrypt/decrypt works, wrong passphrase rejected
+- CLI: list shows refs only (no secrets), doctor prints a clear checklist
+- Logs: never contain secrets
+- Exit codes: non-zero on failure
