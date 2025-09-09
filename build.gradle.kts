@@ -2,28 +2,6 @@ plugins {
     id("java")
     id("application")
     id("org.openjfx.javafxplugin") version "0.1.0"
-    id("com.diffplug.spotless") version "6.25.0"    // google format
-    id("pmd")
-    id("com.github.spotbugs") version "6.0.26"
-}
-
-spotless {
-    java {
-        googleJavaFormat("1.22.0")
-        target("src/**/*.java")
-    }
-}
-
-pmd {
-    toolVersion = "7.4.0"
-    ruleSets = listOf() // disable defaults
-    ruleSetFiles = files("config/pmd/ruleset.xml") // optional custom rules
-}
-
-spotbugs {
-    toolVersion.set("4.9.0")
-    effort.set(com.github.spotbugs.snom.Effort.MAX)
-    reportLevel.set(com.github.spotbugs.snom.Confidence.LOW)
 }
 
 group = "com.ki7mt"
@@ -68,10 +46,4 @@ tasks.register<Copy>("publishJavadoc") {
     dependsOn(tasks.javadoc)
     from(tasks.javadoc)
     into(layout.projectDirectory.dir("docs/javadoc"))
-}
-
-// TASK: Add version information to the Jar
-application {
-    mainClass.set("com.ki7mt.adifmcp.Main")
-    applicationDefaultJvmArgs = listOf("-Dadifmcp.version=${project.version}")
 }

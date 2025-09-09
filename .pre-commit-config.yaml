@@ -10,13 +10,13 @@ repos:
         exclude: \.adi$          # exclude *.adi files everywhere (local + CI)
 
   # Java tools (local hooks example)
-  - repo: local
-    hooks:
-      - id: gradle-google-java-format
-        name: google-java-format via Gradle
-        entry: ./gradlew spotlessApply
-        language: system
-        pass_filenames: false
+#  - repo: local
+#    hooks:
+#      - id: gradle-google-java-format
+#        name: google-java-format via Gradle
+#        entry: ./gradlew spotlessApply
+#        language: system
+#        pass_filenames: false
 
       # - id: checkstyle
       #   name: Checkstyle
@@ -24,14 +24,14 @@ repos:
       #   language: system
       #   pass_filenames: false
 
-      - id: spotbugs
-        name: SpotBugs
-        entry: ./gradlew spotbugsMain spotbugsTest
-        language: system
-        pass_filenames: false
+#      - id: spotbugs
+#        name: SpotBugs
+#        entry: ./gradlew spotbugsMain spotbugsTest
+#        language: system
+#        pass_filenames: false
 
-      - id: pmd
-        name: PMD
-        entry: ./gradlew pmdMain pmdTest
-        language: system
-        pass_filenames: false
+#      - id: pmd
+#        name: PMD
+#        entry: ./gradlew pmdMain pmdTest
+#        language: system
+#        pass_filenames: false

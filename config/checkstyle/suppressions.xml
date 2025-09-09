@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<suppressions>
-  <!-- Example: suppress Javadoc checks on tests -->
-  <suppress checks="JavadocMethod" files="src/test/java/.*"/>
-</suppressions>

@@ -26,17 +26,13 @@ public class Main implements Runnable {
     System.exit(code);
   }
 
-  static class VersionProvider implements CommandLine.IVersionProvider {
-    @Override
-    public String[] getVersion() {
-      String manifestVersion =
-          Main.class.getPackage().getImplementationVersion(); // null with gradle run
-      String sysPropVersion = System.getProperty("adifmcp.version"); // set by Gradle
-      String version =
-          manifestVersion != null
-              ? manifestVersion
-              : (sysPropVersion != null ? sysPropVersion : "dev");
-      return new String[] {"adif-mcp " + version, "Copyright (c) KI7MT"};
+    static class VersionProvider implements CommandLine.IVersionProvider {
+        @Override
+        public String[] getVersion() {
+            return new String[] {
+                    "adif-mcp 0.4.0-SNAPSHOT",
+                    "Copyright (c) KI7MT"
+            };
+        }
     }
-  }
 }
