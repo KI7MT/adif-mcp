@@ -14,11 +14,17 @@ import java.util.Optional;
  */
 public interface ProviderClient extends AutoCloseable {
 
+    Health checkHealth();
+
+    AuthStatus checkAuth();
+
     Health ping();
 
     AuthStatus authCheck();
 
     FetchResult fetchSince(Instant since, FetchOptions opt);
+
+    Optional<RateLimit> rateLimit();
 
     Optional<RateLimit> rateLimitInfo();
 
