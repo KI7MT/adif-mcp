@@ -47,9 +47,6 @@ nav:
 
 plugins:
   - search
-  - exclude:
-      glob:
-        - javadoc/legal/*.md
   - mermaid2:
       arguments:
         theme: default
