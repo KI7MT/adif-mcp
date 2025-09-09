@@ -59,8 +59,8 @@ sanity-check: ## Gradle: clean, build, cli, ui, javadoc
 	$(GRADLEW) $(GRADLE_NOCACHE) :cli:run --args="--help"
 	$(GRADLEW) $(GRADLE_NOCACHE) :cli:run --args="providers"
 	$(GRADLEW) $(GRADLE_NOCACHE) :ui:run
-	$(GRADLEW) javadocAll
 	uv run mkdocs build --strict
+	$(GRADLEW) javadocAll
 	uv run mkdocs serve
 
 
