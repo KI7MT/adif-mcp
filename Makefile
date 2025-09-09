@@ -59,10 +59,8 @@ sanity-check: ## Gradle: clean, build, cli, ui, javadoc
 	$(GRADLEW) $(GRADLE_NOCACHE) :cli:run --args="--help"
 	$(GRADLEW) $(GRADLE_NOCACHE) :cli:run --args="providers"
 	$(GRADLEW) $(GRADLE_NOCACHE) :ui:run
-	uv run mkdocs build --strict
 	$(GRADLEW) javadocAll
-	uv run mkdocs serve
-
+	uv run mkdocs build --strict
 
 # -------- Gate / Smoke --------
 .PHONY: gate smoke-all quick
@@ -108,12 +106,14 @@ docs-build: docs-install ## Build docs to ./site
 	@echo "site/ built"
 
 docs-serve: docs-install ## Serve docs locally
+	rm -rf docs/javadoc && mkdir -p docs/javadoc
+	$(GRADLEW) javadocAll
 	uv run mkdocs serve -a 127.0.0.1:8000
 
 docs-javadoc: ## Build javadocs docs/javadoc/
 	$(GRADLEW) $(GRADLE_NOCACHE) javadoc
 	rm -rf docs/javadoc && mkdir -p docs/javadoc
-	cp -R build/docs/javadoc/* docs/javadoc/
+	$(GRADLEW) javadocAll
 
 
 # -------- Release helpers (optional) --------

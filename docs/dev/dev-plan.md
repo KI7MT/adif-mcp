@@ -4,7 +4,57 @@
 > It outlines the staged implementation of the new Java backend (v0.4.x),
 > focusing on CLI-first services, provider integration, and sync logic.
 > The JavaFX UI will only be layered on after the backend is fully stable.
+
 ---
+
+## Current Status — v0.4.0-alpha1-java (2025-09-09)
+
+**Modules in place**
+```bash
+- `core/` – ADIF model (QSO), Provider SPI, shared utilities
+- `cli/` – Picocli root app (`adif-mcp`) with subcommands
+- `ui/` – JavaFX HelloApp (OpenJFX plugin, Java 21)
+- `providers/provider-eqsl/` – eQSL provider stub (ServiceLoader registration)
+```
+
+
+**CLI commands available**
+```bash
+- `adif-mcp --help` – shows subcommands
+- `adif-mcp providers` – lists installed providers (via `ServiceLoader`)
+- `adif-mcp ui` – launches JavaFX app (dev: via reflection; packaged: separate launcher)
+- `adif-mcp serve` – server stub (prints placeholder)
+```
+
+**Provider registration**
+```bash
+- eQSL provider **registered and discovered**
+-  Service file: `META-INF/services/com.ki7mt.adifmcp.providers.ProviderFactory`
+- Factory: `com.ki7mt.adifmcp.providers.eqsl.EqslProviderFactory`
+- Current capability: **pull-only** (stub)
+```
+
+**Documentation integrated**
+```bash
+- Aggregated Javadoc built by `./gradlew javadocAll` → output to `docs/javadoc/`
+- MkDocs **strict** build succeeds; nav points to `javadoc/index.html`
+- `make docs-serve` serves site with Javadoc included
+```
+
+**Sanity-check workflow**
+```bash
+# Top-level smoke gate (Makefile target: sanity-check)
+./gradlew clean build
+./gradlew --no-configuration-cache :cli:run --args="--help"
+./gradlew --no-configuration-cache :cli:run --args="providers"
+./gradlew --no-configuration-cache :ui:run
+./gradlew javadocAll
+```
+
+### Notes
+- Gradle toolchain: Java 21; JavaFX via org.openjfx.javafxplugin.
+- During development, :cli depends on :providers:provider-eqsl with implementation(...) for discovery.
+- Next feature target: Credentials v1 (core API + cli creds), then eQSL fetch implementation.
 
 ## 1. Credentials (OS-native + fallback)
 - [ ] Define `Credentials` model (`personaId`, `providerId`, `authType`, fields)
