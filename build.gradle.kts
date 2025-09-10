@@ -3,6 +3,11 @@ import org.gradle.jvm.tasks.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 
+// Root build.gradle.kts
+group = "io.adifmcp"
+group = "io.adifmcp"
+version = providers.gradleProperty("version").getOrElse("0.4.0-SNAPSHOT")
+
 plugins {
     id("java-platform")
 }
@@ -46,6 +51,22 @@ subprojects {
     configurations.all {
         resolutionStrategy.cacheChangingModulesFor(0, "seconds")
     }
+}
+
+subprojects {
+    group = rootProject.group
+    version = rootProject.version
+}
+
+subprojects {
+  tasks.withType<Jar>().configureEach {
+    manifest {
+      attributes(
+        "Implementation-Title" to project.name,
+        "Implementation-Version" to project.version
+      )
+    }
+  }
 }
 
 /**

@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] 2025-09-10
 
+### Changed
+- Centralized version management: subprojects inherit version from root `gradle.properties`.
+- JAR manifests include `Implementation-Version` for accurate `--version` output.
+
 ### Added
 - Aggregate `javadocAll` Gradle task to build combined API docs for all subprojects.
 - Initial CLI baseline (`--help`, `--version`) now functional.
