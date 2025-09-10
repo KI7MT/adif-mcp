@@ -1,12 +1,15 @@
 package com.ki7mt.adifmcp.cli.creds;
 
-import com.ki7mt.adifmcp.credentials.CredentialStore;
-
-import picocli.CommandLine.*;
-
 import java.nio.file.Path;
 
+import com.ki7mt.adifmcp.cli.Ssot;
+import com.ki7mt.adifmcp.credentials.CredentialStore;
+
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ExecutionException;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "delete", description = "Delete credentials for a persona/provider.")
 public class DeleteCmd implements Runnable {

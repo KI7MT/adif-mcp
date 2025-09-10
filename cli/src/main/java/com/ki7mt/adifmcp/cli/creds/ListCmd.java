@@ -2,6 +2,7 @@ package com.ki7mt.adifmcp.cli.creds;
 
 import java.nio.file.Path;
 
+import com.ki7mt.adifmcp.cli.Ssot;
 import com.ki7mt.adifmcp.credentials.CredentialStore;
 
 import picocli.CommandLine.Command;

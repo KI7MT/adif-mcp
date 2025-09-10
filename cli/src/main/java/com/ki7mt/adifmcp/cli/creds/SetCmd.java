@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ki7mt.adifmcp.cli.Ssot;
 import com.ki7mt.adifmcp.credentials.CredentialRecord;
 import com.ki7mt.adifmcp.credentials.CredentialStore;
 

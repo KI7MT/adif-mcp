@@ -1,33 +1,27 @@
 package com.ki7mt.adifmcp.providers;
 
-import java.time.Instant;
-import java.util.Optional;
+import java.nio.file.Path;
 
 /**
- * Represents a client interface for interacting with a data provider.
- *
- * The {@code ProviderClient} interface defines methods for performing essential
- * operations against a data provider, such as checking the provider's health,
- * verifying authentication status, fetching data, and retrieving rate limit
- * information. It extends {@code AutoCloseable} to support resource cleanup when
- * the client is no longer needed.
+ * Common interface for all provider clients (minimal v0).
  */
-public interface ProviderClient extends AutoCloseable {
+public interface ProviderClient {
 
-    Health checkHealth();
+    /**
+     * Unique provider ID, e.g. "eqsl", "qrz".
+     */
+    String id();
 
-    AuthStatus checkAuth();
+    /**
+     * API version string (optional).
+     */
+    default String apiVersion() {
+        return "1.0";
+    }
 
-    Health ping();
-
-    AuthStatus authCheck();
-
-    FetchResult fetchSince(Instant since, FetchOptions opt);
-
-    Optional<RateLimit> rateLimit();
-
-    Optional<RateLimit> rateLimitInfo();
-
-    @Override
-    void close();
+    /**
+     * Validate that credentials for the given persona are usable. No network
+     * I/O; just presence/shape checks.
+     */
+    AuthStatus authCheck(String persona, Path ssotRoot);
 }

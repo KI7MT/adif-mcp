@@ -1,12 +1,14 @@
 package com.ki7mt.adifmcp.cli.creds;
 
-import com.ki7mt.adifmcp.credentials.CredentialStore;
-
-import picocli.CommandLine.*;
-
 import java.nio.file.Path;
 
+import com.ki7mt.adifmcp.cli.Ssot;
+import com.ki7mt.adifmcp.credentials.CredentialStore;
+
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.ExecutionException;
+import picocli.CommandLine.Option;
 
 @Command(name = "doctor", description = "Check credential backend health.")
 public class DoctorCmd implements Runnable {

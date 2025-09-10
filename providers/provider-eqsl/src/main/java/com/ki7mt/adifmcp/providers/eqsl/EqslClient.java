@@ -1,68 +1,60 @@
 package com.ki7mt.adifmcp.providers.eqsl;
 
-import java.time.Instant;
-import java.util.Optional;
-
+import com.ki7mt.adifmcp.credentials.CredentialFields;
+import com.ki7mt.adifmcp.credentials.CredentialStore;
 import com.ki7mt.adifmcp.providers.AuthStatus;
-import com.ki7mt.adifmcp.providers.FetchOptions;
-import com.ki7mt.adifmcp.providers.FetchResult;
-import com.ki7mt.adifmcp.providers.Health;
 import com.ki7mt.adifmcp.providers.ProviderClient;
 import com.ki7mt.adifmcp.providers.ProviderContext;
 import com.ki7mt.adifmcp.providers.ProviderCredentials;
-import com.ki7mt.adifmcp.providers.RateLimit;
-import com.ki7mt.adifmcp.providers.UserPassCredentials;
 
+import java.nio.file.Path;
+
+/**
+ * Minimal eQSL provider client that validates presence/shape of credentials.
+ * Network I/O is deliberately out of scope for this step.
+ */
 public final class EqslClient implements ProviderClient {
 
+    private final ProviderContext ctx;
     private final ProviderCredentials creds;
 
     public EqslClient(ProviderContext ctx, ProviderCredentials creds) {
+        this.ctx = ctx;
         this.creds = creds;
     }
 
     @Override
-    public Health checkHealth() {
-        return null;
+    public String id() {
+        return "eqsl";
     }
 
     @Override
-    public AuthStatus checkAuth() {
-        return null;
+    public String apiVersion() {
+        return "1.0";
     }
 
     @Override
-    public Health ping() {
-        return new Health(true, "eqsl stub");
-    }
+    public AuthStatus authCheck(String persona, Path ssotRoot) {
+        try (var store = CredentialStore.open(ssotRoot)) {
+            var recOpt = store.get(persona, "eqsl");
+            if (recOpt.isEmpty()) {
+                return AuthStatus.MISSING;
+            }
 
-    @Override
-    public AuthStatus authCheck() {
-        if (creds instanceof UserPassCredentials(String username, String password)
-                && username != null && !username.isBlank()
-                && password != null && !password.isBlank()) {
+            var up = CredentialFields.asUserPass(recOpt.get());
+            if (up.isEmpty()) {
+                return AuthStatus.MISSING;
+            }
+
+            var u = up.get().username();
+            var p = up.get().password();
+            if (u == null || u.isBlank() || p == null || p.isBlank()) {
+                return AuthStatus.MISSING;
+            }
+
             return AuthStatus.OK;
+        } catch (Exception e) {
+            return AuthStatus.INVALID;
         }
-        return AuthStatus.MISSING;
     }
-
-    @Override
-    public FetchResult fetchSince(Instant since, FetchOptions opt) {
-        // stub: return empty; wire real HTTP later
-        return FetchResult.empty();
-    }
-
-    @Override
-    public Optional<RateLimit> rateLimit() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<RateLimit> rateLimitInfo() {
-        return Optional.empty();
-    }
-
-    @Override
-    public void close() {
-        /* no-op */ }
 }

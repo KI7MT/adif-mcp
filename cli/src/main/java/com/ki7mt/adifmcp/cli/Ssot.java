@@ -1,16 +1,13 @@
-package com.ki7mt.adifmcp.cli.creds;
+package com.ki7mt.adifmcp.cli;
 
 import java.nio.file.Path;
 
-/**
- * Resolves SSOT root using ADIF_MCP_HOME or defaults to ~/.adif-mcp.
- */
-final class Ssot {
+public final class Ssot {
 
     private Ssot() {
     }
 
-    static Path resolve(Path override) {
+    public static Path resolve(Path override) {
         if (override != null) {
             return override.toAbsolutePath().normalize();
         }
