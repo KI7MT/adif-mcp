@@ -102,3 +102,11 @@ tasks.register<Javadoc>("javadocAll") {
         encoding = "UTF-8"
     }
 }
+
+// root build.gradle.kts
+tasks.register<Copy>("publishJavadoc") {
+    dependsOn("javadocAll")
+    from(layout.buildDirectory.dir("docs/javadoc-all"))
+    into(layout.projectDirectory.dir("docs/javadoc"))
+}
+tasks.named("build").configure { dependsOn("publishJavadoc") }

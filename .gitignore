@@ -15,7 +15,7 @@ __pycache__/
 .venv/
 .smoke-venv
 z-*
-docs/javadoc
+docs/javadoc/**
 
 # Local tools for build thin dist files
 z-build*

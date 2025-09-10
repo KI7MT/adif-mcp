@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 **[ unreleased & untagged ]**
 
+### Added
+- CLI subcommands: `providers`, `serve` (stubs for discovery and local server).
+
 ## [Unreleased] 2025-09-10
 
 ### Changed
