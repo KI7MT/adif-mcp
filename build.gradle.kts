@@ -1,63 +1,83 @@
-import org.gradle.api.tasks.Sync
+// Root build.gradle.kts  — root is a java-platform (BOM) project
+import org.gradle.jvm.tasks.Jar
+import org.gradle.api.tasks.javadoc.Javadoc
+import org.gradle.external.javadoc.StandardJavadocDocletOptions
 
 plugins {
-    id("java")
+    id("java-platform")
+}
+
+javaPlatform {
+    allowDependencies()
 }
 
 dependencies {
-    implementation(project(":core"))
-}
-
-allprojects {
-    group = "com.ki7mt"
-    version = "0.4.0-SNAPSHOT"
+    constraints {
+        api("info.picocli:picocli:4.7.6")
+        api("com.fasterxml.jackson.core:jackson-annotations:2.17.2")
+        api("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+    }
 }
 
 subprojects {
-    // Ensure the Java plugin is applied before configuring its extension
-    apply(plugin = "java")
+    plugins.withType<JavaPlugin> {
+        // Java plugin available → safe to configure
+        the<JavaPluginExtension>().apply {
+            toolchain { languageVersion.set(JavaLanguageVersion.of(21)) }
+            withSourcesJar()
+            withJavadocJar()
+        }
 
-    // Configure Java toolchain & compiler for each subproject
-    extensions.configure<JavaPluginExtension> {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        tasks.withType<JavaCompile>().configureEach {
+            options.encoding = "UTF-8"
+            options.release.set(21)
+        }
+
+        tasks.withType<Javadoc>().configureEach {
+            (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:none", "-quiet")
+            options.encoding = "UTF-8"
+        }
+
+        tasks.withType<Test>().configureEach {
+            useJUnitPlatform()
+        }
     }
 
-    tasks.withType<JavaCompile>().configureEach {
-        options.encoding = "UTF-8"
-        options.release.set(21)
-    }
-
-    tasks.withType<Test>().configureEach {
-        useJUnitPlatform()
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor(0, "seconds")
     }
 }
 
-// Root build.gradle.kts
-
-// ... your existing allprojects {} and subprojects {} blocks above ...
-
-// Aggregate Javadoc for all subprojects into docs/javadoc (single index.html)
+/**
+ * Aggregate Javadoc across all Java subprojects.
+ */
 tasks.register<Javadoc>("javadocAll") {
-    description = "Generate aggregated Javadoc into docs/javadoc"
+    description = "Aggregate Javadoc across all modules"
     group = JavaBasePlugin.DOCUMENTATION_GROUP
 
-    // Collect 'main' source sets from all Java subprojects
-    val mainSourceSets = subprojects.mapNotNull {
-        it.extensions.findByType(JavaPluginExtension::class.java)?.sourceSets?.findByName("main")
+    val allSources = files()
+    val allClasspaths = files()
+
+    subprojects.forEach { sub ->
+        sub.plugins.withId("java") {
+            val javaExt = sub.extensions.getByType(org.gradle.api.plugins.JavaPluginExtension::class.java)
+            val main = javaExt.sourceSets.getByName("main")
+            allSources.from(main.allJava)
+            allClasspaths.from(main.compileClasspath)
+        }
     }
 
-    // Sources: flatten to a single FileTree
-    val allJavaTrees = mainSourceSets.map { it.allJava }
-    source(allJavaTrees)                       // OK: SourceTask.source(...) accepts Iterable<FileTree>
+    setSource(allSources)
+    classpath = allClasspaths
 
-    // Classpath: flatten to a single FileCollection
-    val allClasspaths = mainSourceSets.map { it.compileClasspath }
-    classpath = files(*allClasspaths.toTypedArray())
+    @Suppress("DEPRECATION")
+    destinationDir = file("$buildDir/docs/javadoc-all")
+    // If you prefer using layout, use the next line instead of the one above:
+    // @Suppress("DEPRECATION")
+    // destinationDir = layout.buildDirectory.dir("docs/javadoc-all").get().asFile
 
-    // Output where MkDocs expects
-    destinationDir = layout.projectDirectory.dir("docs/javadoc").asFile
-
-    // Optional: don’t fail the whole build on Javadoc warnings
-    (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
-    isFailOnError = false
+    (options as StandardJavadocDocletOptions).apply {
+        addStringOption("Xdoclint:none", "-quiet")
+        encoding = "UTF-8"
+    }
 }

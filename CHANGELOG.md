@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 **[ unreleased & untagged ]**
 
+## [Unreleased] 2025-09-10
+
+### Added
+- Aggregate `javadocAll` Gradle task to build combined API docs for all subprojects.
+- Initial CLI baseline (`--help`, `--version`) now functional.
+
+### Fixed
+- Gradle build script cleanup: removed unsupported/deprecated plugin usages.
+- Corrected module paths in `settings.gradle.kts` for consistent multi-module layout.
+- SPI and Core Javadoc tasks now run successfully without errors.
+
+---
+
 ## Current Status (v0.4.0-SNAPSHOT)
 - Multi-module Gradle build is stable (:core, :cli, :ui, :providers:provider-eqsl)
 - CLI: root + ui, serve, providers subcommands
