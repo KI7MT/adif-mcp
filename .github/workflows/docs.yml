@@ -60,7 +60,7 @@ jobs:
 
       - name: Install MkDocs deps
         run: |
-          uv venv --python 3.11 -- --upgrade --clear
+          uv venv --python 3.11
           uv pip install -r requirements.docs
 
       - name: Build MkDocs site (strict)
