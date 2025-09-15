@@ -4,6 +4,7 @@ site_url: https://adif-mcp.com/
 repo_url: https://github.com/KI7MT/adif-mcp
 edit_uri: edit/main/docs/
 use_directory_urls: true
+docs_dir: docs
 
 theme:
   name: material
@@ -30,7 +31,10 @@ nav:
     - Command Reference: dev/command-reference.md
     - Code Snippets: dev/code-snippets.md
     - Dev Plan: dev/dev-plan.md
-    - Javadocs API: javadoc/index.html
+  - Java Docs:
+    - 1. SPI API:  dev/api/spi.md
+    - 2. Core API: dev/api/core.md
+    - 3. CLI API:  dev/api/cli.md
   - Program-ID: program-id-policy.md
   - Roadmap: roadmap.md
   - '':

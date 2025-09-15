@@ -1,4 +1,5 @@
 import org.gradle.jvm.tasks.Jar
+import org.gradle.language.jvm.tasks.ProcessResources
 
 plugins {
     id("application")
@@ -29,5 +30,12 @@ tasks.processResources {
     inputs.property("appVersion", ver)
     filesMatching("build-info.properties") {
         expand("appVersion" to ver)
+    }
+}
+
+tasks.named<ProcessResources>("processResources") {
+    inputs.property("version", project.version)
+    filesMatching("build-info.properties") {
+        expand("version" to project.version.toString())
     }
 }

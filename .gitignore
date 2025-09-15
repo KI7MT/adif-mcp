@@ -15,7 +15,15 @@ __pycache__/
 .venv/
 .smoke-venv
 z-*
-docs/javadoc/**
+
+# ------------------------
+# Misc Files and FOlders
+# ------------------------
+docs/javadoc/*
+docs/javadoc/core
+docs/javadoc/spi
+docs/javadoc/cli
+
 
 # Local tools for build thin dist files
 z-build*
