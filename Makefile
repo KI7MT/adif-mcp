@@ -52,7 +52,7 @@ clean: ## Remove Gradle build outputs
 
 clean-local: ## Remove local caches / sites (keeps docs/dev/api wrappers)
 	@echo "[clean-local] removing local caches and site/"
-	rm -rf .venv .docs-venv .ruff_cache .mypy_cache .pytest_cache site build dist
+	rm -rf .venv .docs-venv .ruff_cache .mypy_cache .pytest_cache site build dist docs/javadoc
 	@echo "Done."
 
 clean-all: clean clean-local ## Deep clean
@@ -61,7 +61,7 @@ clean-all: clean clean-local ## Deep clean
 # --------------------------------
 # Javadoc
 # --------------------------------
-.PHONY: javadoc javadoc-all stage-javadoc publish-javadoc
+.PHONY: javadoc javadoc-all stage-javadoc publishJavadoc
 
 javadoc: ## Generate per-module Javadocs (spi, core, cli)
 	$(GRADLEW) $(GRADLE_ARGS) :spi:javadoc :core:javadoc :cli:javadoc
@@ -69,30 +69,34 @@ javadoc: ## Generate per-module Javadocs (spi, core, cli)
 javadoc-all: ## Aggregate all Javadocs to build/docs/javadoc-all
 	$(GRADLEW) $(GRADLE_ARGS) javadocAll
 
-stage-javadoc: javadoc-all ## Copy aggregated Javadocs into docs/javadoc (for MkDocs)
+stage-javadoc: javadoc-all ## Copy aggregated Javadocs to docs/javadoc (for MkDocs)
 	@mkdir -p docs/javadoc
 	@rsync -a --delete build/docs/javadoc-all/ docs/javadoc/
-	@echo "$(COLOR_GREEN)[stage-javadoc] staged to docs/javadoc$(COLOR_RESET)"
+	@echo "$(COLOR_GREEN)Staged Javadoc to docs/javadoc$(COLOR_RESET)"
 
-publish-javadoc: stage-javadoc ## Alias for staging Javadocs
+publishJavadoc: stage-javadoc ## Convenience alias (stage for docs)
 	@true
 
 # --------------------------------
 # Docs (MkDocs via uv)
 # --------------------------------
-.PHONY: docs-venv docs-install docs-build docs-serve
+.PHONY: docs-venv docs-venv-recreate docs-install docs-build docs-serve
 
-docs-venv: ## Ensure a Python $(PY_VER) uv venv for docs
-	uv venv --python $(PY_VER) -- --force
+docs-venv: ## Ensure a Python $(PY_VER) uv venv for docs (no prompt)
+	@test -d .venv || uv venv --python $(PY_VER)
+
+docs-venv-recreate: ## Force-recreate the docs venv
+	@rm -rf .venv
+	uv venv --python $(PY_VER)
 
 docs-install: docs-venv ## Install MkDocs deps into the uv venv
 	uv pip install -r requirements.docs
 
-docs-build: docs-install stage-javadoc ## Build docs site (with Javadocs)
+docs-build: docs-install stage-javadoc ## Build docs to ./site
 	uv run mkdocs build --strict
-	@echo "$(COLOR_GREEN)[docs-build] site/ built$(COLOR_RESET)"
+	@echo "site/ built"
 
-docs-serve: docs-install stage-javadoc ## Serve docs locally (127.0.0.1:8000)
+docs-serve: docs-install stage-javadoc ## Serve docs locally
 	uv run mkdocs serve -a 127.0.0.1:8000
 
 # --------------------------------
