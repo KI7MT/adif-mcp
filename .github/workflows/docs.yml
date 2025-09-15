@@ -1,15 +1,15 @@
 name: docs
+
 on:
   push:
-    branches: [ java ]   # docs source branch
-    # Include Java sources so Javadoc updates publish even if /docs didn't change
+    branches: [ java ]
     paths:
       - "docs/**"
       - "mkdocs.yml"
       - ".github/workflows/docs.yml"
+      - "adif_mcp/**"
       - "build.gradle.kts"
       - "settings.gradle.kts"
-      - "src/**"
 
 permissions:
   contents: read
@@ -23,41 +23,47 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-    permissions:
-      contents: write
+    environment: github-pages
     steps:
       - uses: actions/checkout@v4
 
-      # --- Javadoc build ---
-      - name: Set up Java 21 (Temurin) for Gradle
+      - name: Set up Java 21 (Temurin)
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
           java-version: "21"
-          cache: gradle
+          distribution: "temurin"
 
-      - name: Build Javadocs with Gradle
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Build module Javadocs
         run: |
-          chmod +x ./gradlew
-          ./gradlew --no-configuration-cache javadoc
+          ./gradlew --no-daemon --no-configuration-cache :spi:javadoc :core:javadoc :cli:javadoc
 
-      - name: Build aggregated Javadoc
-        run: ./gradlew javadocAll
+      - name: Aggregate & stage Javadocs into docs/javadoc
+        run: |
+          ./gradlew --no-daemon --no-configuration-cache javadocAll
+          rm -rf docs/javadoc
+          mkdir -p docs/javadoc
+          rsync -a build/docs/javadoc-all/ docs/javadoc/
 
-      - name: Verify javadoc exists
-        run: test -f docs/javadoc/index.html
+      - name: Verify staged Javadocs exist
+        run: |
+          test -f docs/javadoc/cli/index.html
+          test -f docs/javadoc/core/index.html
+          test -f docs/javadoc/spi/index.html
 
-      # --- MkDocs build ---
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - uses: astral-sh/setup-uv@v3
       - name: Install MkDocs deps
         run: |
-          uv venv
+          uv venv --python 3.11 -- --upgrade --clear
           uv pip install -r requirements.docs
-      - name: Build docs
+
+      - name: Build MkDocs site (strict)
         run: uv run mkdocs build --strict
 
       - name: Upload artifact
