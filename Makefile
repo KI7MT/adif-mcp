@@ -83,7 +83,7 @@ publishJavadoc: stage-javadoc ## Convenience alias (stage for docs)
 .PHONY: docs-venv docs-venv-recreate docs-install docs-build docs-serve
 
 docs-venv: ## Ensure a Python $(PY_VER) uv venv for docs (no prompt)
-	@test -d .venv || uv venv --python $(PY_VER)
+	@test -d .venv || uv venv --python $(PY_VER) --force
 
 docs-venv-recreate: ## Force-recreate the docs venv
 	@rm -rf .venv

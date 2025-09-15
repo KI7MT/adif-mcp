@@ -7,16 +7,33 @@
 
 ---
 
-## Current Status — v0.4.0-alpha1-java (2025-09-09)
+## Current Status (0.4.1-SNAPSHOT)
+- **Modules in place**: `spi`, `core`, `cli` (all build & run cleanly).
+- **CLI**: Provides `--help`, `--version`, `providers`, and `serve` stubs.
+- **Persona & Credentials**: Core model present, lint-clean.
+- **Javadoc**: Per-module + aggregate (`javadocAll`) staged to `docs/javadoc/`.
+- **Docs**: MkDocs integrated, Javadocs embedded via iframe pages in `dev/api/`.
+- **Sanity-check workflow**: Runs clean locally (Gradle build, CLI runs, Javadoc).
 
-**Modules in place**
-```bash
-- `core/` – ADIF model (QSO), Provider SPI, shared utilities
-- `cli/` – Picocli root app (`adif-mcp`) with subcommands
-- `ui/` – JavaFX HelloApp (OpenJFX plugin, Java 21)
-- `providers/provider-eqsl/` – eQSL provider stub (ServiceLoader registration)
-```
 
+## Next Steps
+1. **Expand Core**:
+- Implement persona persistence and validation.
+- CredentialStore backends (file/JSON, not only in-memory).
+
+2. **SPI**:
+- Finalize `ProviderClient` contract with fetch/sync semantics.
+- Lock API versioning before publishing.
+
+3. **Providers**:
+- eQSL prototype first, others later.
+
+4. **Sync/Server**:
+- Add module stubs for scheduling + MCP server HTTP API.
+
+5. **CI/CD**:
+- Publish snapshot artifacts.
+- Harden smoke tests with JUnit.
 
 **CLI commands available**
 ```bash
@@ -29,7 +46,7 @@
 **Provider registration**
 ```bash
 - eQSL provider **registered and discovered**
--  Service file: `META-INF/services/com.ki7mt.adifmcp.providers.ProviderFactory`
+- Service file: `META-INF/services/com.ki7mt.adifmcp.providers.ProviderFactory`
 - Factory: `com.ki7mt.adifmcp.providers.eqsl.EqslProviderFactory`
 - Current capability: **pull-only** (stub)
 ```

@@ -1,3 +1,28 @@
+# ADIF-MCP Roadmap
+
+## 0.4.x (Current Series)
+- ✅ Split repo into `spi`, `core`, `cli`
+- ✅ Javadoc aggregation + MkDocs integration
+- ✅ Sanity-check and smoke-all workflows
+- ✅ CI publishing pipeline with docs handoff
+
+## 0.5.x
+- Persona + Credential persistence (file-based SSOT)
+- Initial Provider implementation (eQSL)
+- JUnit smoke test coverage (align with bash sanity script)
+- MCP Server scaffolding (HTTP endpoints)
+
+## 0.6.x
+- Multi-provider integration (LoTW, QRZ, ClubLog)
+- Sync orchestration module
+- Persona-aware CLI commands
+- Documentation expansion (User Guide + Developer API)
+
+## Longer Term
+- UI packaging (optional)
+- Maven Central publishing
+- Provider ecosystem support for third-parties
+
 ## Completed (up through v0.3.4)
 
 ### Core packaging & structure

@@ -2,7 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
-**[ unreleased & untagged ]**
+## [0.4.1-SNAPSHOT] - 2025-09-15
+### Added
+- Aggregate Javadoc task (`javadocAll`) with staging to `docs/javadoc/`.
+- MkDocs integration with embedded Javadocs (`dev/api/{cli,core,spi}.md`).
+- Sanity-check Makefile target: clean, build, CLI runs, Javadoc.
+- Smoke-all workflow: gate build + staged docs.
+
+### Changed
+- Split repo into clean modules (`spi`, `core`, `cli`).
+- Updated Makefile for consistent docs and Gradle tasks.
+- CI updated to verify Javadoc staging + MkDocs build.
+
+### Fixed
+- MkDocs iframe path resolution for Javadoc pages.
+- Removed destructive `rm -rf docs/javadoc` calls; wrappers preserved.
+- CI doc build warnings reduced (added `fetch-depth: 0` for git date plugin).
 
 ### Added
 - CLI subcommands: `providers`, `serve` (stubs for discovery and local server).
