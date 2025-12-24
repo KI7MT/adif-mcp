@@ -36,4 +36,3 @@ Our goal is simple: support and enhance the Amateur Radio logging ecosystem whil
 - **Goals:** portability, safety, testability, and vendor-neutral interfaces
 
 👉 Start with the [User Guide](userguide/persona-management.md) or setup to setup and contrubite code, see the [Dev Guide](dev/dev-env-setup.md).
-
