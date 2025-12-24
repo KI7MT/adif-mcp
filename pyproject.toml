@@ -38,7 +38,7 @@ dev = [
     "jsonschema>=4.25.1",
     "interrogate>=1.7.0",
     "types-click>=7.1.8",
-    "types-requests", # ← add this
+    "types-requests",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.18",
     "mkdocstrings[python]>=0.30.0",

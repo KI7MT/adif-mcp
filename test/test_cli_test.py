@@ -5,18 +5,21 @@ from cli_test_helpers import shell
 
 
 def test_entrypoint_help() -> None:
+    """Test the help message for the main entry point."""
     r = shell("adif-mcp --help")
     assert r.exit_code == 0
     assert "adif-mcp CLI" in r.stdout
 
 
 def test_validate_help() -> None:
+    """Test the help message for the validate-manifest command."""
     r = shell("adif-mcp validate-manifest --help")
     assert r.exit_code == 0
     assert "manifest" in r.stdout.lower()
 
 
 def test_convert_help() -> None:
+    """Test the help message for the convert command."""
     r1 = shell("adif-mcp convert --help")
     r2 = shell("adif-mcp convert-adi --help")
     assert r1.exit_code == 0
