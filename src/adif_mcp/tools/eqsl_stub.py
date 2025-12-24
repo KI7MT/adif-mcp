@@ -37,6 +37,9 @@ def filter_summary(records: Iterable[QSORecord], by: str) -> Dict[str, Dict[str,
     """
     Aggregates counts of records by a specific field (band, mode, etc).
     """
+    if by not in {"band", "mode", "call", "station_call", "qso_date", "time_on"}:
+        raise ValueError(f"Invalid summary field: {by}")
+
     summary: Dict[str, int] = {}
     for rec in records:
         # TypedDict access with variable key requires casting or ignore for strict mypy
