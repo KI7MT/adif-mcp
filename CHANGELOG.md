@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.10] - 2025-12-24
+- Bump the version tag to generate a new PyPi package.
+
 ## [0.3.9] - 2025-12-24
 
 ### Added
