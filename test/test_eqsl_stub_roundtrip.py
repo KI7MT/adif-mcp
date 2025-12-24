@@ -31,3 +31,15 @@ def test_filter_summary_by_invalid_key() -> None:
         pass
     else:
         raise AssertionError("Expected ValueError for invalid 'by' selector")
+
+
+def test_filter_summary_by_valid_keys() -> None:
+    """Verify other valid keys (call, qso_date) work."""
+    out = fetch_inbox("KI7MT")
+    records = out["records"]
+
+    sc = filter_summary(records, by="call")["summary"]
+    sd = filter_summary(records, by="qso_date")["summary"]
+
+    assert sum(sc.values()) == len(records)
+    assert sum(sd.values()) == len(records)
