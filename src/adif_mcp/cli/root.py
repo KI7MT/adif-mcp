@@ -1,14 +1,12 @@
 """Root CLI wiring for adif-mcp.
 
-Builds the top-level argument parser and registers all subcommands
-(`convert`, `convert-adi`, `validate-manifest`, `persona`, `provider`,
-`creds`, `eqsl`). This module is the central dispatcher invoked by the
-`adif-mcp` console script.
+Builds the top-level argument parser and registers all subcommands.
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib.metadata
 import sys
 from typing import Callable, Protocol, cast
 
@@ -27,6 +25,14 @@ class _RegisterCLI(Protocol):
 def build_parser() -> argparse.ArgumentParser:
     """Create and return the root argparse parser with all subcommands."""
     parser = argparse.ArgumentParser(prog="adif-mcp", description="adif-mcp CLI")
+
+    # Dynamic versioning from metadata
+    try:
+        ver = importlib.metadata.version("adif-mcp")
+    except importlib.metadata.PackageNotFoundError:
+        ver = "0.0.0-dev"
+    parser.add_argument("--version", action="version", version=f"%(prog)s {ver}")
+
     subparsers: argparse._SubParsersAction[argparse.ArgumentParser] = parser.add_subparsers(
         dest="command"
     )
@@ -65,7 +71,6 @@ def build_parser() -> argparse.ArgumentParser:
     # --------------------------------------------------------
     # MCP Gateway Subcommand
     # --------------------------------------------------------
-    # Add the MCP Gateway subcommand
     p_mcp = subparsers.add_parser(
         "mcp",
         help="Start the MCP server gateway for AI integration",
@@ -75,7 +80,6 @@ def build_parser() -> argparse.ArgumentParser:
     def handle_mcp(_args: argparse.Namespace) -> int:
         """Entry point for AI agents to start the MCP server."""
         try:
-            # This works globally once the package is installed
             from adif_mcp.mcp.server import run as run_mcp
 
             run_mcp()

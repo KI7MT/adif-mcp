@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.11] - 2025-12-24
+
+### Fixed
+- **CLI Integrity**: Restored root-level `--version` flag support which was shadowed by subparsers.
+- **Import Resolution**: Fixed `ImportError` by switching to absolute imports within the CLI dispatcher.
+- **Linter Compliance**: Re-organized imports to satisfy Ruff `I001` sorting requirements.
+
+### Added
+- **Dynamic Versioning**: Implemented `importlib.metadata` to pull versioning directly from `pyproject.toml`, removing hardcoded version strings.
+- **MCP Subcommand**: Finalized the `adif-mcp mcp` entry point for Stdio-based AI integration.
+
 ## [0.3.10] - 2025-12-24
 - Bump the version tag to generate a new PyPi package.
 
