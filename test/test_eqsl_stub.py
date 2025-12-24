@@ -9,7 +9,8 @@ The tests are lightweight and operate on synthetic data only.
 
 from typing import Callable, List
 
-from adif_mcp.tools.eqsl_stub import QsoRecord, fetch_inbox, filter_summary
+from adif_mcp.parsers.adif_reader import QSORecord
+from adif_mcp.tools.eqsl_stub import fetch_inbox, filter_summary
 
 
 def test_fetch_inbox_shape() -> None:
@@ -24,7 +25,7 @@ def test_fetch_inbox_shape() -> None:
 
 def test_summary_band_mode() -> None:
     """Ensure filter_summary() aggregates counts correctly by band and mode."""
-    recs: List[QsoRecord] = fetch_inbox("KI7MT")["records"]
+    recs: List[QSORecord] = fetch_inbox("KI7MT")["records"]
     sb = filter_summary(recs, by="band")["summary"]
     sm = filter_summary(recs, by="mode")["summary"]
     assert isinstance(sb, dict) and isinstance(sm, dict)
@@ -33,7 +34,7 @@ def test_summary_band_mode() -> None:
 
 
 def test_inbox_factory_variants(
-    inbox_for_callsign: Callable[[str], List[QsoRecord]],
+    inbox_for_callsign: Callable[[str], List[QSORecord]],
 ) -> None:
     """Factory fixture returns plausible data for different calls."""
     a = inbox_for_callsign("KI7MT")

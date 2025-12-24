@@ -103,3 +103,6 @@ data/*.duckdb-wal
 *.log
 tmp/
 temp/
+
+# Local Manifesto
+ADIF_MCP_MANIFEST.md

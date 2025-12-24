@@ -1,6 +1,6 @@
 [project]
 name = "adif-mcp"
-version = "0.3.6"
+version = "0.3.7"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Clublog)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 # Runtime deps only (keep UI optional; Tkinter is stdlib)
 dependencies = [
     "click>=8.1.7",
+    "fastmcp>=2.14.1",
     "keyring>=25.6.0",
     "requests>=2.32.5",
     "typing-extensions>=4.15.0",
@@ -34,7 +35,7 @@ dev = [
     "mypy",
     "ruff",
     "commitizen",
-    "pydantic<2",
+    "pydantic>=2.12.0",
     "jsonschema>=4.25.1",
     "interrogate>=1.7.0",
     "types-click>=7.1.8",

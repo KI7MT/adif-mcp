@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.7] — 2025-12-24
+
+### Added
+- **Core Server**: Initialized `FastMCP` server in `src/adif_mcp/server.py`.
+- **Tools**:
+    - `get_service_metadata`: Returns service version and features.
+    - `validate_qso`: Validates QSO objects against ADIF 3.1.5 Pydantic models.
+    - `calculate_distance`: Computes great-circle distance between Maidenhead locators.
+    - `calculate_heading`: Computes beam heading (azimuth) between locators.
+    - `normalize_band`: Canonicalizes band names (e.g., "20m" -> "20M") and frequencies.
+    - `parse_adif`: Parses raw ADIF text blocks into structured JSON.
+    - `lookup_country`: Resolves callsigns to DXCC entities using a local prefix map.
+- **Integrations (Stubs)**:
+    - `eqsl_query`: Queries eQSL inbox/status.
+    - `lotw_query`: Queries LoTW reports.
+    - `clublog_query`: Queries ClubLog status and propagation.
+    - `qrz_query`: Fetches QRZ bio/station data.
+- **Models**:
+    - `QSO` (Pydantic V2) for strict ADIF validation.
+    - `Entity` for DXCC country data.
+- **Documentation**:
+    - `ADIF_MCP_TOOLS.md` and `docs/tools.md` cataloging all available tools.
+- **Testing**:
+    - `scripts/smoke_test.py` for environment verification (Python 3.11+, Pydantic V2, FastMCP).
+    - Comprehensive unit tests in `test/test_server.py`.
+
+### Changed
+- **Dependencies**: Upgraded `pydantic` to `>=2.12.0` and added `fastmcp`.
+- **Refactoring**: Separated implementation logic from MCP tool decorators in `server.py` for better testability.
+- **Type Safety**: Enforced `mypy --strict` compliance across all new modules, including explicit casting for `TypedDict` returns.
+
 ## [v0.3.6] — 2025-09-05
 
 ### Added
