@@ -4,8 +4,7 @@ from datetime import date, time
 
 import pytest
 
-from adif_mcp.models import QSO
-from adif_mcp.server import (
+from adif_mcp.mcp.server import (
     calculate_distance_impl,
     calculate_heading_impl,
     clublog_query_impl,
@@ -18,6 +17,7 @@ from adif_mcp.server import (
     qrz_query_impl,
     validate_qso_impl,
 )
+from adif_mcp.models import QSO
 
 
 def test_get_service_metadata() -> None:

@@ -5,7 +5,8 @@ import math
 from pathlib import Path
 from typing import Any, Dict, List, cast
 
-from fastmcp import FastMCP
+# Initialize the FastMCP server as per Technical Bedrock
+from mcp.server.fastmcp import FastMCP
 
 from adif_mcp.models import QSO, Entity
 from adif_mcp.parsers.adif_reader import parse_adi_text
@@ -14,7 +15,6 @@ from adif_mcp.tools.eqsl_stub import fetch_inbox
 from adif_mcp.tools.lotw_stub import fetch_report
 from adif_mcp.tools.qrz_stub import fetch_bio
 
-# Initialize the FastMCP server as per Technical Bedrock
 mcp = FastMCP("ADIF-MCP")
 
 
@@ -24,7 +24,7 @@ def get_service_metadata_impl() -> Dict[str, Any]:
     and ADIF specification version.
     """
     # Locate the metadata file relative to this module
-    meta_path = Path(__file__).parent / "adif_meta.json"
+    meta_path = Path(__file__).parent.parent / "adif_meta.json"
 
     if not meta_path.exists():
         return {"error": "Metadata file not found", "path": str(meta_path)}
@@ -322,5 +322,17 @@ def lookup_country(callsign: str) -> Dict[str, Any]:
     return entity.model_dump(mode="json")
 
 
+def run() -> None:
+    """The entry point that starts the Stdio server."""
+    mcp.run()
+
+
+def main() -> None:
+    """Main entry point for the adif-mcp command."""
+    mcp.run()
+
+
 if __name__ == "__main__":
+    # It tells FastMCP to listen on Standard Input/Output (Stdio).
+    # This is the "Zero-Configuration" path for Claude Desktop.
     mcp.run()

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.9] - 2025-12-24
+
+### Added
+- **MCP Gateway Subcommand**: Added `adif-mcp mcp` to start the Model Context Protocol server via Stdio.
+- **AI Tool Discovery**: Enabled automatic tool registration for LLMs (Gemini, Claude) using the FastMCP framework.
+
+### Changed
+- **Architectural Refactor**: Relocated `server.py` to `src/adif_mcp/mcp/` for a cleaner domain-driven structure.
+- **Dispatcher Logic**: Updated `cli/root.py` to handle the `mcp` subcommand and provide lazy-loading of server dependencies.
+- **Path Resolution**: Improved `adif_meta.json` lookup to support namespaced package deployments.
+
+## [v0.3.7] — 2025-12-24
+- Bump version for testing
+
 ## [v0.3.7] — 2025-12-24
 
 ### Added

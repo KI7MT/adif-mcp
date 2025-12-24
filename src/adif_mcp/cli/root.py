@@ -62,6 +62,30 @@ def build_parser() -> argparse.ArgumentParser:
     if hasattr(validate, "register_cli"):
         cast(_RegisterCLI, getattr(validate, "register_cli"))(subparsers)
 
+    # --------------------------------------------------------
+    # MCP Gateway Subcommand
+    # --------------------------------------------------------
+    # Add the MCP Gateway subcommand
+    p_mcp = subparsers.add_parser(
+        "mcp",
+        help="Start the MCP server gateway for AI integration",
+        description="Starts the Stdio-based MCP server for use with Cline, Claude, etc.",
+    )
+
+    def handle_mcp(_args: argparse.Namespace) -> int:
+        """Entry point for AI agents to start the MCP server."""
+        try:
+            # This works globally once the package is installed
+            from adif_mcp.mcp.server import run as run_mcp
+
+            run_mcp()
+            return 0
+        except ImportError as e:
+            print(f"Error: MCP server module not found in the package: {e}")
+            return 1
+
+    p_mcp.set_defaults(func=handle_mcp)
+
     return parser
 
 
