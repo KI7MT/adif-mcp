@@ -82,12 +82,12 @@ uv run adif-mcp persona list
 uv run adif-mcp persona show Primary
 uv run adif-mcp persona show --by callsign KI7MT
 
-# Add / update
-uv run adif-mcp persona add --name Primary --callsign KI7MT
+# Add / update (Note: --start is mandatory)
+uv run adif-mcp persona add --name Primary --callsign KI7MT --start 2020-01-01
 uv run adif-mcp persona add --name ContestW7A --callsign W7A --start 2025-03-01 --end 2025-03-31
 
 # Set credential ( stores ref in index; secret in OS keyring )
-uv run adif-mcp persona set-credential --persona Primary --provider lotw --username ki7mt
+uv run adif-mcp creds set --persona Primary --provider lotw --username ki7mt
 
 # Remove one / all
 uv run adif-mcp persona remove Primary

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.12] - 2025-12-25
+
+### Documentation
+- **Sovereign Overhaul**: Complete restructure of documentation to match implementation.
+- **New Sections**: Added "Operations", "Maintenance", and "Internal API" to `mkdocs.yml`.
+- **Testing Playbook**: Added `docs/dev/testing.md` covering "Unknown State" and "Sovereign Handshake" protocols.
+- **Release Process**: Added `docs/dev/release-process.md` defining the "Gold Standard" gate.
+- **Persona Guide**: Updated to enforce mandatory `--start` date and `creds set` usage.
+
 ## [0.3.11] - 2025-12-24
 
 ### Fixed

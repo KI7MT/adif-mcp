@@ -1,71 +1,47 @@
 # Personas & Credentials
 
-A persona is simply a way to represent an operator’s on-air identity. Most hams use one primary callsign, but many also have contest calls, special-event calls, or past vanity calls that are still linked to their logging accounts. A persona lets you keep these identities separate, with optional start and end dates, so your log queries and confirmations always line up with the right callsign history.
+A persona is a **date-bounded identity** used by the MCP server to fetch authenticated logs. While most operators have a primary callsign, many also manage contest calls, special-event stations, or historical vanity calls.
 
-A keyring is your operating system’s built-in secure storage for secrets like passwords or tokens. Instead of saving provider passwords in plain text, ADIF-MCP only saves the non-sensitive reference in its config file, while the actual secret is handed off to the system keyring. That means credentials are encrypted and protected the same way your browser or email client secures saved logins.
+By defining a persona with a specific `start` date (and optional `end` date), you ensure that log queries and confirmations are routed to the correct credentials for that specific time period.
 
-Personas let you manage multiple operator identities (callsigns and their date ranges) and connect each one to provider credentials (LoTW, eQSL, QRZ, Club Log). This solves real-world cases like:
-- Primary call (no dates)
-- Temporary/special-event/contest calls (date-bounded)
-- Old calls merged into LoTW/eQSL
-- Multiple accounts per provider
+## Architecture
 
-Personas JSON files store `non-secret` metadata on disk; secrets (passwords/tokens) are saved in your OS keyring.
+The system separates **Identity** (Persona) from **Access** (Credentials).
 
-## Where Data Lives
-Index JSON (non-secret):
+### 1. Persona Index (Metadata)
+Stored in `~/.config/adif-mcp/personas.json`. This file contains **non-secret** configuration:
+- Persona Name (e.g., "Primary", "FieldDay2025")
+- Callsign
+- Date Range (Start/End)
+- Provider Usernames (References)
 
-```
-~/.config/adif-mcp/personas.json (default)
+### 2. Secure Keyring (Secrets)
+Passwords and API tokens are **never** stored in plain text. They are injected into your operating system's native keyring (macOS Keychain, Linux Secret Service, Windows Credential Locker).
 
-# This psth is configrable via the project’s pyproject.toml
-
-[tool.adif]
-personas_index = "path/to/personas.json"
-```
-
-Provider Access Credentials ( secrets ) for LoTW, eQSL, Clublog, etc
-
-- Secrets (passwords/tokens) are stored in the system keyring under:
-	- service: adif-mcp
-	- key: {persona}:{provider}:{username}
-
-If keyring isn’t available, the CLI will still save the non-secret reference and tell you the secret was not stored.
-
+- **Service**: `adif-mcp`
+- **Key**: `{persona}:{provider}:{username}`
 
 ## Persona Quick Start
 
-Create a primary persona and a date-bounded special-event persona, then attach credentials:
+Initialize your environment by creating a primary persona and injecting its credentials.
+
+> **Note**: The `--start` date is mandatory to establish the authoritative timeline for the logbook.
 
 ```
-# 1) Fresh list (may show "No personas configured." on first run)
-uv run adif-mcp persona list
-
-# 2) Primary persona (no dates)
-uv run adif-mcp persona add --name Primary --callsign KI7MT
-
-# 3) Special-event / contest persona (date-bounded)
+# 1. Create Primary Persona (Start date required)
 uv run adif-mcp persona add \
-  --name ContestW7A \
-  --callsign W7A \
-  --start 2025-03-01 \
-  --end   2025-03-31
+  --name Primary \
+  --callsign KI7MT \
+  --start 2020-01-01
 
-# 4) Attach provider credentials (prompts for password; stores in keyring)
-uv run adif-mcp persona set-credential \
+# 2. Inject Credentials (Prompts for password securely)
+uv run adif-mcp creds set \
   --persona Primary \
   --provider lotw \
   --username ki7mt
 
-uv run adif-mcp persona set-credential \
-  --persona ContestW7A \
-  --provider lotw \
-  --username w7a_lotw
-
-# 5) Inspect
+# 3. Verify
 uv run adif-mcp persona list
-uv run adif-mcp persona show Primary
-uv run adif-mcp persona show --by callsign W7A
 ```
 
 ## Commands

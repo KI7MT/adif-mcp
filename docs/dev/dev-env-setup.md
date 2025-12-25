@@ -110,6 +110,20 @@ make smoke-all
 
 Expected: probes and CLI run without errors (Clublog probe may return HTTP 403 by design).
 
+### Final Step: The MCP Handshake
+
+Verify the AI Agent interface is responsive (requires a seeded persona):
+
+```bash
+# 1. Seed a test persona
+uv run adif-mcp persona add --name TestUser --callsign N0CALL --start 2025-01-01
+
+# 2. Run the audit agent
+uv run python test_mcp.py
+```
+
+*For the full "Unknown State" testing protocol, see the [Testing Playbook](testing.md).*
+
 ---
 
 ## 7. Useful Commands

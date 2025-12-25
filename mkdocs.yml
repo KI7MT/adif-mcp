@@ -15,31 +15,34 @@ theme:
     - search.highlight
     - content.code.copy
 nav:
-nav:
   - Home: index.md
   - Concepts:
       - Why ADIF-MCP Matters: concepts/why-matters.md
       - Choice of LLMs: concepts/choice-of-llms.md
-  - 'User Guide':
-    - User Credentials: userguide/persona-management.md
-    - Award Queries: userguide/awards.md
+  - Operations:
+      - Personas & Credentials: userguide/persona-management.md
+      - Award Queries: userguide/awards.md
+  - Maintenance:
+      - Testing Playbook: dev/testing.md
+      - Release Process: dev/release-process.md
   - Dev Guide:
     - Dev Env Setup: dev/dev-env-setup.md
-    - Provider Shemas: dev/provider-schemas.md
+    - Provider Schemas: dev/provider-schemas.md
     - Probes: dev/probes.md
     - Git Commits: dev/git-commits.md
     - Command Reference: dev/command-reference.md
     - Code Snippets: dev/code-snippets.md
+    - Internal API: dev/internal-api.md
     - Dev Plan: dev/dev-plan.md
   - Program-ID: program-id-policy.md
   - Roadmap: roadmap.md
-  - '':
-    - Specs: spec/spec.md
-  - '':
+  - Specifications:
+      - Specs: spec/spec.md
+  - Integrations:
     - Overview: integrations/overview.md
     - LoTW: integrations/lotw/index.md
     - eQSL: integrations/eqsl/index.md
-  - '':
+  - MCP:
     - Overview: mcp/overview.md
     - Manifest: mcp/manifest.md
     - Tools: mcp/tools.md
