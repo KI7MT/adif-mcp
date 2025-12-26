@@ -6,6 +6,7 @@ from typing import Any, Dict, List, cast
 
 from mcp.server.fastmcp import FastMCP
 
+import adif_mcp
 from adif_mcp.parsers.adif_reader import parse_adi_text
 from adif_mcp.utils.geography import calculate_distance_impl, calculate_heading_impl
 
@@ -27,6 +28,18 @@ def get_spec_text(filename: str, version: str = "316") -> str:
 
 
 # --- MCP Resources (The "Contract") ---
+
+
+@mcp.resource("adif://system/version")
+async def get_system_version() -> str:
+    """Provides the current service and ADIF specification versions."""
+    return json.dumps(
+        {
+            "service_version": adif_mcp.__version__,
+            "adif_spec_version": adif_mcp.__adif_spec__,
+            "status": "online",
+        }
+    )
 
 
 @mcp.resource("adif://spec/316/all")
@@ -56,6 +69,15 @@ async def get_catalog_resource() -> str:
 
 
 # --- Core Validation & Utility Tools ---
+
+
+@mcp.tool()
+def get_version_info() -> Dict[str, Any]:
+    """Returns the version of the ADIF-MCP server and the ADIF spec it supports."""
+    return {
+        "service_version": adif_mcp.__version__,
+        "adif_spec_version": adif_mcp.__adif_spec__,
+    }
 
 
 @mcp.tool()
@@ -90,6 +112,11 @@ def parse_adif(adif_text: str) -> List[Dict[str, Any]]:
 
 def run() -> None:
     """Entry point for the server to be called by the CLI."""
+    mcp.run()
+
+
+def main() -> None:
+    """Main entry point for the module execution."""
     mcp.run()
 
 

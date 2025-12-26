@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] - 2025-12-25
+
+### Added
+- **Discovery Tools:** Added `get_version_info` tool to allow LLMs to identify the server version and ADIF spec level.
+- **System Resources:** Added `adif://system/version` URI for environment verification.
+- **Package Integration:** Wired server metadata to pull dynamically from `pyproject.toml` via the `adif_mcp` package.
+
+### Fixed
+- **Resource Mapping:** Restored helper logic and explicit routes for all ADIF 3.1.6 specification files.
+- **CLI Entry Points:** Restored `run()` and `main()` functions to ensure compatibility with the `adif-mcp` command-line interface.
+
 ## [0.4.1] - 2025-12-25
 
 ### Fixed
