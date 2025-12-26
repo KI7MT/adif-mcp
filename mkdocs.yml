@@ -46,7 +46,7 @@ nav:
     - Overview: mcp/overview.md
     - Manifest: mcp/manifest.md
     - Tools: mcp/tools.md
-
+    - Validaiton: mcp/validation.md
 
 plugins:
   - search

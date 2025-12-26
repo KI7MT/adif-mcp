@@ -37,8 +37,8 @@ def test_parse_adif_tool() -> None:
     adi = "<CALL:5>KI7MT<QSO_DATE:8>20250101<EOR>"
     recs = parse_adif(adi)
     assert len(recs) == 1
-    assert recs[0]["call"] == "KI7MT"
-    assert recs[0]["qso_date"] == "20250101"
+    assert recs[0]["CALL"] == "KI7MT"
+    assert recs[0]["QSO_DATE"] == "20250101"
 
 
 def test_geography_invalid_locator() -> None:

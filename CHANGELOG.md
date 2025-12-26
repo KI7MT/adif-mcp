@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.3] - 2025-12-26
+
+### Added
+- **Sovereign ADIF 3.1.6 Bridge**: Full local support for the 2025-09-15 specification without external dependencies.
+- **Modular Resource Loading**: "Smart Router" logic to handle large specification files (540KB+) without hitting MCP 1MB limits.
+- **Deep Relational Validation**: Verified logic for cross-referencing DXCC entities, Subdivisions, and Awards (e.g., blocking VUCC on HF bands).
+- **Test Suite**: Added an 18-point functional verification suite covering edge cases like International Code Collisions and Legacy Submodes.
+
+### Fixed
+- **Parser Robustness**: Fixed `parse_adif` regex to correctly handle empty data fields and enforce uppercase keys for spec compliance.
+- **Linting & Typing**: Resolved all Ruff, MyPy, and Interrogate errors; codebase is now strictly typed and fully documented.
+- **API Surface**: Updated documentation to reflect the 11 active tools.
+
 ## [0.4.2] - 2025-12-25
 
 ### Added
