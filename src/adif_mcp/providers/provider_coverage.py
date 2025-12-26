@@ -6,13 +6,13 @@ Reads canonical ADIF fields (catalog) and compares against each provider’s
 declared fields, producing a compact table with coverage % and missing fields.
 
 Order of precedence for paths:
-1) CLI flags (--catalog, --providers)
-2) pyproject.toml [tool.adif] block
-3) Hard-coded repo defaults
+    1) CLI flags (--catalog, --providers)
+    2) pyproject.toml [tool.adif] block
+    3) Hard-coded repo defaults
 
 Usage (from repo root):
-    uv run python scripts/provider_coverage.py
-    uv run python scripts/provider_coverage.py
+    uv run python src/adif_mcp/providers/provider_coverage.py
+    uv run python src/adif_mcp/providers/provider_coverage.py
         --catalog mcp/spec/adif_catalog.json
         --providers mcp/providers
 """

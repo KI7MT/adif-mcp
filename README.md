@@ -1,6 +1,6 @@
 # adif-mcp
 
-Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service for **Amateur Radio Logging**, per [ADIF 3.1.5 specification](https://adif.org.uk/315/ADIF_315.htm)
+Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service for **Amateur Radio Logging**, per [ADIF 3.1.6 specification](https://adif.org.uk/316/ADIF_316.htm)
 
 > **Pretty Code • Pretty Output • Iterative Docs** - A simple mantra: keep the code clean, the output clear, and the docs evolving.
 
@@ -12,7 +12,7 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Core Project Health
-![ADIF](https://img.shields.io/badge/ADIF-3.1.5-blue)
+![ADIF](https://img.shields.io/badge/ADIF-3.1.6-blue)
 [![GitHub release](https://img.shields.io/github/v/release/KI7MT/adif-mcp?display_name=tag)](https://github.com/KI7MT/adif-mcp/releases)
 [![GitHub tag](https://img.shields.io/github/v/tag/KI7MT/adif-mcp?sort=semver)](https://github.com/KI7MT/adif-mcp/tags)
 [![CI](https://github.com/KI7MT/adif-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/ci.yml)
@@ -28,7 +28,7 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) service fo
 [![Manifest Valid](https://github.com/KI7MT/adif-mcp/actions/workflows/validate-manifest.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/validate-manifest.yml)
 
 ## Compliance and Program Registry
-[![ADIF 3.1.5](https://img.shields.io/badge/ADIF-3.1.5-blue?label=Spec)](#-compliance--provenance)
+[![ADIF 3.1.6](https://img.shields.io/badge/ADIF-3.1.6-blue?label=Spec)](#-compliance--provenance)
 [![Program ID](https://img.shields.io/badge/Program%20ID-Registered-success)](https://adif.org.uk/programids.html)
 
 ---
@@ -44,6 +44,18 @@ It is not intended to replace or compete with existing ADIF libraries, utilities
 - Future-facing — introduces safe, typed access to ADIF data in contexts such as AI agents and MCP integrations, opening doors for innovation while preserving compatibility.
 
 Our goal is simple: support and enhance the Amateur Radio logging ecosystem while keeping the project open, transparent, and aligned with the spirit of the hobby.
+
+---
+
+## Specifications & Standards
+
+ADIF-MCP is built upon the official **Amateur Data Interchange Format (ADIF)**.
+
+* **Current Spec Version:** 3.1.6 (Released 2025-09-15)
+* **Source:** All field definitions, data types, and enumerations are derived from the official resources provided by the [ADIF Developers Group](https://adif.org.uk).
+* **Compliance:** This tool aims for 100% compliance with the ADIF 3.1.6 standard, including support for ADI and ADX formats.
+
+*Note: ADIF is a trademark of the ADIF Developers Group. This project is an independent implementation intended to support the amateur radio community.*
 
 ---
 
@@ -84,7 +96,7 @@ Unlike existing ADIF editors and one-off utilities, ADIF-MCP is a shared protoco
 
 ## Compliance & Provenance
 
-ADIF-MCP and its plugins follow the [ADIF Specification](https://adif.org.uk) (currently 3.1.5) and use **registered Program IDs** to identify all exports:
+ADIF-MCP and its plugins follow the [ADIF Specification](https://adif.org.uk) (currently 3.1.6) and use **registered Program IDs** to identify all exports:
 
 - `ADIF-MCP` — Core engine
 - `ADIF-MCP-LOTW` — Plugin for ARRL Logbook of The World

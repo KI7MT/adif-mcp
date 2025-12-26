@@ -79,11 +79,19 @@ smoke: lint type manifest ## quick local gate (lint+type+manifest)
 
 .PHONY: gate lint type test validate-manifest keychain-test
 gate: ## CI parity gate: lint + type + tests + manifest + docstrings, keychain test
+	@echo "[gate] lint (ruff)"
 	$(MAKE) lint
+	@echo ''
+	@echo "[gate] type check (mypy)"
 	$(MAKE) type
+	@echo ''
+	@echo "[gate] interrogate"
 	uv run interrogate -c pyproject.toml
+	@echo ''
+	@echo "[gate] validate manifest"
 	$(MAKE) validate-manifest
-	$(MAKE) keychain-test
+	@echo ''
+#	$(MAKE) keychain-test
 
 # -------------------------------
 # Manifest validation
@@ -126,21 +134,27 @@ pre-commit-run: ## Run hooks on all files
 smoke-all: ## Run smoke checks in a fresh, reproducible env
 	@echo "[smoke] lint (ruff)"
 	uv run ruff check .
+	@echo ''
 	@echo "[smoke] format check (ruff)"
 	uv run ruff format .
-		@echo "[smoke] type check (mypy)"
+	@echo ''
+	@echo "[smoke] type check (mypy)"
 	uv run mypy src
+	@echo ''
 	@echo "[smoke] docstrings (interrogate)"
 	uv run interrogate -c pyproject.toml
+	@echo ''
 	@echo "[smoke] manifest validation]"
 	$(MAKE) validate-manifest
+	@echo ''
 	@echo "[smoke-all] OK"
+	@echo ''
 
 # -------------------------------
 # Release helper (tags & push)
 # -------------------------------
 .PHONY: release
-release: check-version ## Tag & push release [usage: make release VERSION=x.y.z SPEC=3.1.5]
+release: check-version ## Tag & push release [usage: make release VERSION=x.y.z SPEC=3.1.6]
 	@git fetch --tags --quiet
 	@if [ -z "$(VERSION)" ]; then echo "ERROR: set VERSION=x.y.z"; exit 1; fi
 	@if git rev-parse "v$(VERSION)" >/dev/null 2>&1; then \

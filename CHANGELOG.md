@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2025-12-25
+
+### High-Level Pivot
+Shifted project architecture to a **Schema-First** model based on the authoritative ADIF 3.1.6 Specification (Released 2025-09-15). This replaces experimental service stubs with a strictly-typed validation core.
+
+### Added
+- **Official Spec Resources:** Integrated `all.json`, `fields.json`, `enumerations.json`, and `datatypes.json` for ADIF v3.1.6.
+- **Versioned Resource Paths:** Implemented `/resources/spec/316/` to support future specification iterations.
+- **MCP Resource Contract:** Added URI handlers (`adif://spec/316/*`) allowing AI models to read official specifications directly.
+- **Field Catalog:** Added `adif_catalog.json` to define primary fields for AI focus.
+
+### Changed
+- **Server Refactor:** Removed `eqsl`, `lotw`, `qrz`, and `clublog` tool stubs to prevent model hallucinations.
+- **Type Safety:** Updated `server.py` to pass strict `mypy` type checking with `AnyUrl` and `importlib.resources`.
+- **Metadata:** Updated `adif_meta.json` with official ADIF Developers Group attribution.
+
+### Fixed
+- Resolved `ruff`, `mypy`, and `interrogate` linting failures in `server.py`.
+- Corrected CLI entry point mapping for the MCP server.
+
 ## [0.3.12] - 2025-12-25
 
 ### Documentation

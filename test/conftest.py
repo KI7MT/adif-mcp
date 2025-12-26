@@ -21,7 +21,7 @@ def pytest_addoption(parser: Parser) -> None:
         ("personas_index", "personas.json"),
         ("providers_dir", "providers"),
         ("schemas", "adif_catalog.json"),
-        ("spec", "ADIF_315"),
+        ("spec", "ADIF_316"),
     ]:
         parser.addini(name, help=f"adif-mcp setting: {name}", default=default)
 

@@ -1,4 +1,20 @@
-"""Validation CLI for adif-mcp manifests."""
+"""Validation CLI for adif-mcp manifests.
+
+This module implements the `validate-manifest` subcommand to validate
+manifest.json files against the bundled JSON Schema (manifest.v1.json).
+
+Usage:
+    adif-mcp validate-manifest [--path <FILE>]
+
+    # With uv:
+    uv run adif-mcp validate-manifest
+    uv run adif-mcp validate-manifest --path ./my-manifest.json
+
+If --path is not provided, the tool attempts to locate manifest.json in:
+    1. The current working directory.
+    2. The project source tree (src/adif_mcp/mcp/manifest.json).
+    3. The installed package resources.
+"""
 
 from __future__ import annotations
 
@@ -48,6 +64,7 @@ def cmd_validate_manifest(args: argparse.Namespace) -> int:
 
     schema_path = files("adif_mcp.resources.schemas").joinpath("manifest.v1.json")
     manifest_path = _resolve_manifest_path(getattr(args, "path", None))
+
     if manifest_path is None:
         print(
             "manifest.json not found. Pass --path <FILE> or place manifest.json in CWD "
@@ -58,6 +75,7 @@ def cmd_validate_manifest(args: argparse.Namespace) -> int:
 
     with schema_path.open("r", encoding="utf-8") as fh:
         schema = json.load(fh)
+
     with manifest_path.open("r", encoding="utf-8") as fh:
         manifest = json.load(fh)
 

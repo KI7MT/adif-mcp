@@ -1,8 +1,8 @@
 """Secret backends used by the identity manager.
 
 Defines a small protocol plus concrete backends:
-- KeyringSecretStore: uses the `keyring` package (OS keychain)
-- InMemorySecretStore: test/dummy backend for CI or unit tests
+    - KeyringSecretStore: uses the `keyring` package (OS keychain)
+    - InMemorySecretStore: test/dummy backend for CI or unit tests
 """
 
 from __future__ import annotations

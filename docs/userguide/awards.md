@@ -21,7 +21,7 @@ matter for each. While each sponsor has its own rules and requirements, all of
 them build on the same ADIF fields — making MCP an ideal bridge between your
 logbook and the awards you care about.
 
->IMPORTANT - ADIF-MCP does not try to “own” awards. Instead, it provides a **safe, typed backbone** to query QSO data in ways that award sponsors already define. MCP aligns to the [ADIF 3.1.5 spec](https://adif.org.uk/315/ADIF_315.htm), including the official [`SponsoredAward` enumeration](https://adif.org.uk/315/ADIF_315.htm#SponsoredAward_Enumeration).
+>IMPORTANT - ADIF-MCP does not try to “own” awards. Instead, it provides a **safe, typed backbone** to query QSO data in ways that award sponsors already define. MCP aligns to the [ADIF 3.1.6 spec](https://adif.org.uk/316/ADIF_316.htm), including the official [`SponsoredAward` enumeration](https://adif.org.uk/316/ADIF_316.htm#SponsoredAward_Enumeration).
 
 
 ---

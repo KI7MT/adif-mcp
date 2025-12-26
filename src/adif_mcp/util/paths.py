@@ -6,6 +6,7 @@ Features:
 - OS-agnostic per-user config dir
   * Linux/macOS: $XDG_CONFIG_HOME/<project> or ~/.config/<project>
   * Windows: %APPDATA%\\<project>
+
 - Optional overrides via pyproject.toml:
     [tool.adif]
     project_name = "adif-mcp"               # folder name under the user config root

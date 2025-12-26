@@ -66,7 +66,7 @@ def _endpoint_for_print(full_url: str) -> str:
 
 
 def _build_url(base: str, query: Mapping[str, Any]) -> str:
-    """Map Baee URL to target provider"""
+    """Map Base URL to target provider"""
     qs = urllib.parse.urlencode({k: str(v) for k, v in query.items()})
     sep = "&" if urllib.parse.urlparse(base).query else "?"
     return f"{base}{sep}{qs}" if qs else base
