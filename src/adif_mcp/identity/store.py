@@ -14,7 +14,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, TypedDict, cast
 
-from adif_mcp.util.paths import personas_index_path
+from adif_mcp.utils.paths import personas_index_path
 
 from .models import Persona, ProviderRef
 

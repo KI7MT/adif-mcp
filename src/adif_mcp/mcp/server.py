@@ -5,10 +5,9 @@ from importlib import resources
 from typing import Any, Dict, List, cast
 
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Resource
-from pydantic import AnyUrl
 
 from adif_mcp.parsers.adif_reader import parse_adi_text
+from adif_mcp.utils.geography import calculate_distance_impl, calculate_heading_impl
 
 # Initialize the FastMCP server
 mcp = FastMCP("ADIF-MCP")
@@ -18,82 +17,42 @@ mcp = FastMCP("ADIF-MCP")
 
 
 def get_spec_text(filename: str, version: str = "316") -> str:
-    """
-    Reads a specification file from the versioned resource directory.
-
-    Args:
-        filename: The name of the JSON file (without extension).
-        version: The ADIF version directory name.
-
-    Returns:
-        The string content of the JSON resource.
-    """
+    """Reads a specification file from the versioned resource directory."""
     try:
-        # Path: src/adif_mcp/resources/spec/316/{filename}.json
         res = resources.files(f"adif_mcp.resources.spec.{version}")
         resource_path = res.joinpath(f"{filename}.json")
         return resource_path.read_text()
     except Exception as e:
-        return json.dumps(
-            {
-                "error": f"Resource {filename} not found for version {version}",
-                "details": str(e),
-            }
-        )
+        return json.dumps({"error": f"Resource {filename} not found", "details": str(e)})
 
 
 # --- MCP Resources (The "Contract") ---
 
 
-@mcp.list_resources()  # type: ignore[operator]
-async def list_adif_resources() -> List[Resource]:
-    """Exposes the authoritative ADIF 3.1.6 specification to the AI."""
-    return [
-        Resource(
-            uri=AnyUrl("adif://spec/316/all"),
-            name="ADIF 3.1.6 Master Spec",
-            mimeType="application/json",
-        ),
-        Resource(
-            uri=AnyUrl("adif://spec/316/fields"),
-            name="ADIF 3.1.6 Field Definitions",
-            mimeType="application/json",
-        ),
-        Resource(
-            uri=AnyUrl("adif://spec/316/enumerations"),
-            name="ADIF 3.1.6 Enums",
-            mimeType="application/json",
-        ),
-        Resource(
-            uri=AnyUrl("adif://spec/catalog"),
-            name="ADIF Field Catalog",
-            mimeType="application/json",
-        ),
-    ]
+@mcp.resource("adif://spec/316/all")
+async def get_all_spec() -> str:
+    """Provides the ADIF 3.1.6 Master Specification."""
+    return get_spec_text("all")
 
 
-@mcp.read_resource()  # type: ignore[operator]
-async def read_adif_resource(uri: AnyUrl) -> str:
-    """
-    Reads specific ADIF specification data from local storage.
+@mcp.resource("adif://spec/316/fields")
+async def get_fields_spec() -> str:
+    """Provides the ADIF 3.1.6 Field Definitions."""
+    return get_spec_text("fields")
 
-    Args:
-        uri: The unique resource URI.
 
-    Returns:
-        The string content of the requested resource.
-    """
-    uri_str = str(uri)
-    if uri_str == "adif://spec/catalog":
-        res = resources.files("adif_mcp.resources.spec")
-        cat_path = res.joinpath("adif_catalog.json")
-        return cat_path.read_text()
+@mcp.resource("adif://spec/316/enumerations")
+async def get_enums_spec() -> str:
+    """Provides the ADIF 3.1.6 Enumerations."""
+    return get_spec_text("enumerations")
 
-    if uri_str.startswith("adif://spec/316/"):
-        spec_type = uri_str.split("/")[-1]  # e.g., 'all' or 'fields'
-        return get_spec_text(spec_type)
 
-    raise ValueError(f"Resource not found: {uri}")
+@mcp.resource("adif://spec/catalog")
+async def get_catalog_resource() -> str:
+    """Provides the ADIF Field Catalog."""
+    res = resources.files("adif_mcp.resources.spec")
+    cat_path = res.joinpath("adif_catalog.json")
+    return cat_path.read_text()
 
 
 # --- Core Validation & Utility Tools ---
@@ -109,30 +68,20 @@ def get_service_metadata() -> Dict[str, Any]:
 
 
 @mcp.tool()
-def normalize_band(value: str) -> str:
-    """
-    Canonicalizes a frequency or band string using ADIF standards.
+def calculate_distance(start: str, end: str) -> float:
+    """Calculates great-circle distance (km) between Maidenhead locators."""
+    return calculate_distance_impl(start, end)
 
-    Args:
-        value: The raw string input (e.g., '14.074' or '20m').
 
-    Returns:
-        The uppercase ADIF band enumeration.
-    """
-    return str(value).strip().upper()
+@mcp.tool()
+def calculate_heading(start: str, end: str) -> float:
+    """Calculates initial beam heading (azimuth) between Maidenhead locators."""
+    return calculate_heading_impl(start, end)
 
 
 @mcp.tool()
 def parse_adif(adif_text: str) -> List[Dict[str, Any]]:
-    """
-    Parses raw .adi text into structured JSON records.
-
-    Args:
-        adif_text: The string content of an ADIF file.
-
-    Returns:
-        A list of dictionaries representing QSO records.
-    """
+    """Parses raw .adi text into structured JSON records."""
     return cast(List[Dict[str, Any]], parse_adi_text(adif_text))
 
 
@@ -141,11 +90,6 @@ def parse_adif(adif_text: str) -> List[Dict[str, Any]]:
 
 def run() -> None:
     """Entry point for the server to be called by the CLI."""
-    mcp.run()
-
-
-def main() -> None:
-    """Main entry point for the module execution."""
     mcp.run()
 
 

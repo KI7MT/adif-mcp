@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2025-12-25
+
+### Fixed
+- **Structural Integrity:** Decoupled radio mathematics from `server.py` into `adif_mcp.utils.geography`.
+- **Typing & Linting:** Resolved Mypy export errors and Ruff import-sorting conflicts.
+- **CLI Entry Point:** Restored `run()` function in `server.py` to fix CLI execution.
+
+### Changed
+- **Testing Strategy:** Unit tests now target logic modules directly rather than through the server interface.
+- **Standardization:** Enforced strict PEP 8 import grouping and line-length compliance.
+
 ## [0.4.0] - 2025-12-25
 
 ### High-Level Pivot
