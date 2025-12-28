@@ -91,7 +91,7 @@ all = [
 adif-mcp = "adif_mcp.cli.__main__:main"
 
 # --------------------------------------------------------------------
-# ADIF tool config (OS-agnostic & SSOT-ish; your helpers interpret it)
+# ADIF tool config (OS-agnostic & SSOT-ish; helpers interpret it)
 # --------------------------------------------------------------------
 [tool.adif]
 spec_version = "3.1.6"
