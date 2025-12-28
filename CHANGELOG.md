@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] - 2025-12-28
+
+### **Added**
+
+* **Surgical ADIF Parser**: Implemented a length-aware internal parser (`parse_adif_internal`) that accurately extracts data based on ADIF tag length headers, improving reliability over standard regex splits.
+* **ADIF 3.1.6 Authority**: Added tool-based access to authoritative 3.1.6 specification resources, including field definitions and enumerations.
+* **Resource Bundling**: Updated build configuration to explicitly include ADIF specification JSON files within the package wheel.
+
+### **Changed**
+
+* **Async Migration**: Refactored core server tools to `async` to support high-performance I/O operations and compatibility with `aiofiles`.
+* **Test Suite Modernization**: Migrated the test suite to `pytest-asyncio` with explicit loop scope configuration to ensure stability in CI/CD environments.
+* **MCP Content Handling**: Updated tests to correctly index and verify `TextContent` objects returned by the FastMCP tool wrapper.
+
+### **Fixed**
+
+* **Linting & Type Safety**: Resolved 16 high-priority **Ruff** and **mypy** errors, including unused imports (`F401`), module-level import positioning (`E402`), and redundant type casts.
+* **Undefined Name**: Replaced the undefined `is_numeric` helper with a robust regex-based number validator for field specification checks.
+* **CI/CD Configuration**: Fixed a critical `INTERNALERROR` (Exit Code 3) in GitHub Actions caused by unset `asyncio_default_fixture_loop_scope`.
+* **Path Resolution**: Fixed relative path logic in `get_spec_text` to ensure resources are findable regardless of the installation directory.
+
+---
+
 ## [0.4.3] - 2025-12-26
 
 ### Added
