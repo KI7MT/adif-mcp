@@ -1,6 +1,6 @@
 [project]
 name = "adif-mcp"
-version = "0.4.3"
+version = "0.4.4"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Clublog)"
 readme = "README.md"
 license = { text = "MIT" }
@@ -10,6 +10,7 @@ requires-python = ">=3.11"
 
 # Runtime deps only (keep UI optional; Tkinter is stdlib)
 dependencies = [
+    "aiofiles>=25.1.0",
     "click>=8.1.7",
     "fastmcp>=2.14.1",
     "keyring>=25.6.0",
@@ -49,6 +50,8 @@ dev = [
     "mkdocs-mermaid2-plugin>=1.2.2",
     "mkdocs-git-revision-date-localized-plugin>=1.4.7",
     "cli-test-helpers>=4.1.0",
+    "types-aiofiles>=25.1.0.20251011",
+    "pytest-asyncio>=1.3.0",
 ]
 
 # Optional extras (reserved for future use)
@@ -106,6 +109,10 @@ spec = "ADIF_316"
 [tool.pytest.ini_options]
 testpaths = ["test"]
 pythonpath = ["src"]
+asyncio_mode = "auto"
+markers = [
+    "asyncio: mark test as async"
+]
 #addopts = "-q"
 
 # Paths below are *logical* (not absolute). Your util code should:

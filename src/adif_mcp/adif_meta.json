@@ -1,5 +1,5 @@
 {
-  "build_flavor": "editable",
+  "build_flavor": "standard",
   "features": [
     "core QSO model",
     "band/mode/QSL_RCVD enums"

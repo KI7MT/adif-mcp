@@ -1,46 +1,31 @@
-"""ADIF-MCP Server: Authoritative 3.1.6 Specification Server."""
+"""
+ADIF-MCP Server: Authoritative 3.1.6 Specification Server.
+
+Provides tools for parsing, streaming, and validating ADIF data.
+"""
 
 import json
 import os
 import re
-from importlib import resources
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List
 
+import aiofiles
+import mcp.types as types
 from mcp.server.fastmcp import FastMCP
 
 import adif_mcp
-from adif_mcp.utils.geography import (
-    calculate_distance_impl,
-    calculate_heading_impl,
-)
+from adif_mcp.utils.geography import calculate_distance_impl, calculate_heading_impl
 
 # Initialize the FastMCP server
 mcp = FastMCP("ADIF-MCP")
 
 
-# --- Helper Logic for Versioned Resources ---
-
-
 def get_spec_text(filename: str, version: str = "316") -> str:
-    """
-    Directly reads JSON files from the disk to avoid 'module not found' crashes.
-
-    Args:
-        filename: Name of the resource file.
-        version: ADIF version folder name.
-
-    Returns:
-        String content of the JSON resource.
-    """
-    # 1. Get the path to where this server.py file is sitting
+    """Retrieve raw text of a 3.1.6 specification JSON file."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # 2. Build the path to your 316 folder
-    json_dir = os.path.abspath(os.path.join(current_dir, "..", "resources", "spec", "316"))
-
+    json_dir = os.path.abspath(os.path.join(current_dir, "..", "resources", "spec", version))
     name = filename.lower().strip()
 
-    # 3. List of files to check in order of priority
     targets = [
         os.path.join(json_dir, f"enumerations_{name}.json"),
         os.path.join(json_dir, f"{name}.json"),
@@ -54,36 +39,10 @@ def get_spec_text(filename: str, version: str = "316") -> str:
                     return f.read()
             except Exception:
                 continue
-
-    # If nothing works, return a JSON string so the parser doesn't break
     return json.dumps({"error": f"Resource {name} not found in {json_dir}"})
 
 
-def parse_adif_internal(text: str) -> Dict[str, str]:
-    """Internal regex-based parser for ADIF tags."""
-    results: Dict[str, str] = {}
-
-    # This regex captures the name, length, and type
-    # It stops exactly at the closing '>'
-    tag_pattern = re.compile(
-        r"<(?P<name>[^:>]+):(?P<len>\d+)(?::(?P<type>[^>]+))?>", re.IGNORECASE
-    )
-
-    for match in tag_pattern.finditer(text):
-        name = match.group("name").upper()
-        length = int(match.group("len"))
-
-        # The data starts immediately after the match ends
-        start_pos = match.end()
-        end_pos = start_pos + length
-
-        # Slice the string to get exactly the specified length
-        results[name] = text[start_pos:end_pos]
-
-    return results
-
-
-# --- MCP Resources (The "Contract") ---
+# --- MCP Resources ---
 
 
 @mcp.resource("adif://system/version")
@@ -98,38 +57,32 @@ async def get_system_version() -> str:
     )
 
 
-@mcp.resource("adif://spec/316/all")
-async def get_all_spec() -> str:
-    """Provides the ADIF 3.1.6 Master Specification."""
-    return get_spec_text("all")
+# --- Internal Logic ---
 
 
-@mcp.resource("adif://spec/316/fields")
-async def get_fields_spec() -> str:
-    """Provides the ADIF 3.1.6 Field Definitions."""
-    return get_spec_text("fields")
+def parse_adif_internal(text: str) -> Dict[str, str]:
+    """Surgically extracts ADIF tags and their data by length."""
+    tag_pattern = re.compile(
+        r"<(?P<name>[^:>]+):(?P<len>\d+)(?::(?P<type>[^>]+))?>", re.IGNORECASE
+    )
+    results: Dict[str, str] = {}
+
+    for match in tag_pattern.finditer(text):
+        name = match.group("name").upper()
+        length = int(match.group("len"))
+        start_of_data = match.end()
+        data = text[start_of_data : start_of_data + length]
+        results[name] = data
+
+    return results
 
 
-@mcp.resource("adif://spec/316/enumerations")
-async def get_enums_spec() -> str:
-    """Provides the ADIF 3.1.6 Enumerations."""
-    return get_spec_text("enumerations")
-
-
-@mcp.resource("adif://spec/catalog")
-async def get_catalog_resource() -> str:
-    """Provides the ADIF Field Catalog."""
-    res = resources.files("adif_mcp.resources.spec")
-    cat_path = res.joinpath("adif_catalog.json")
-    return cat_path.read_text()
-
-
-# --- Core Validation & Utility Tools ---
+# --- Core Tools ---
 
 
 @mcp.tool()
 def get_version_info() -> Dict[str, Any]:
-    """Returns the version of the ADIF-MCP server and the ADIF spec it supports."""
+    """Returns the version of the ADIF-MCP server and spec."""
     return {
         "service_version": adif_mcp.__version__,
         "adif_spec_version": adif_mcp.__adif_spec__,
@@ -137,139 +90,103 @@ def get_version_info() -> Dict[str, Any]:
 
 
 @mcp.tool()
-def get_service_metadata() -> Dict[str, Any]:
-    """Retrieves ADIF-MCP metadata, including the 3.1.6 spec status."""
-    res = resources.files("adif_mcp.resources.spec")
-    meta_path = res.joinpath("adif_meta.json")
-    with open(str(meta_path), "r") as f:
-        return cast(Dict[str, Any], json.load(f))
+def calculate_distance(start: str, end: str) -> float:
+    """Calculates distance (km) between Maidenhead locators."""
+    return calculate_distance_impl(start, end)
+
+
+@mcp.tool()
+def calculate_heading(start: str, end: str) -> float:
+    """Calculates heading (azimuth) between Maidenhead locators."""
+    return calculate_heading_impl(start, end)
+
+
+@mcp.tool()
+async def parse_adif(
+    file_path: str, start_at: int = 1, limit: int = 20
+) -> List[types.TextContent]:
+    """Streaming parser for large ADIF files with record seeking."""
+    record_pattern = re.compile(r"(.*?)<EOR>", re.IGNORECASE | re.DOTALL)
+
+    try:
+        if not os.path.exists(file_path):
+            err_msg = f"ERROR: File not found at {file_path}"
+            return [types.TextContent(type="text", text=err_msg)]
+
+        async with aiofiles.open(file_path, mode="r") as f:
+            content = await f.read()
+            matches = list(record_pattern.finditer(content))
+            total_count = len(matches)
+
+            start_idx = max(0, start_at - 1)
+            end_idx = start_idx + limit
+            requested = matches[start_idx:end_idx]
+
+            output_text = f"FILE: {file_path}\nTOTAL RECORDS: {total_count}\n"
+            current_max = min(start_at + len(requested) - 1, total_count)
+            output_text += f"DISPLAYING: {start_at} to {current_max}\n\n"
+
+            for i, match in enumerate(requested):
+                current_num = start_at + i
+                output_text += f"--- RECORD {current_num} ---\n"
+                output_text += f"{match.group(0).strip()}\n\n"
+
+            return [types.TextContent(type="text", text=output_text)]
+
+    except Exception as e:
+        return [types.TextContent(type="text", text=f"STREAM ERROR: {str(e)}")]
 
 
 @mcp.tool()
 def read_specification_resource(resource_name: str) -> str:
-    """
-    Reads a specific ADIF 3.1.6 specification resource.
-
-    Supports modular files like 'mode', 'band', and 'submode'.
-    """
-    # Special case for the root catalog which sits one level up
-    if resource_name.lower() == "catalog":
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        cat_path = os.path.join(current_dir, "..", "resources", "spec", "adif_catalog.json")
-        if os.path.exists(cat_path):
-            with open(cat_path, "r", encoding="utf-8") as f:
-                return f.read()
-
-    # Everything else (mode, band, fields, etc.) goes through smart path logic
+    """Reads an ADIF 3.1.6 specification resource (e.g., 'mode')."""
     return get_spec_text(resource_name)
 
 
 @mcp.tool()
 def search_enumerations(search_term: str) -> Dict[str, Any]:
-    """Surgically searches local enumeration files using 3.1.6 Records format."""
+    """Surgically searches local enumeration files."""
     target = "primary_administrative_subdivision"
     raw_data = get_spec_text(target)
 
     try:
-        data = json.loads(raw_data)
-
-        # 1. Surgical Drill-down to the Records object
+        data: Any = json.loads(raw_data)
         if isinstance(data, dict):
-            if "Adif" in data:
-                data = data["Adif"]
-            if "Enumerations" in data:
-                data = data["Enumerations"]
-
-            # Handle the specific case-sensitive key from your JSON
-            sub_key = "Primary_Administrative_Subdivision"
-            if sub_key in data:
-                data = data[sub_key]
-
-            if isinstance(data, dict) and "Records" in data:
-                data = data["Records"]
+            data = data.get("Adif", data)
+            data = data.get("Enumerations", data)
+            data = data.get("Primary_Administrative_Subdivision", data)
+            if isinstance(data, dict):
+                data = data.get("Records", data)
 
         results: Dict[str, Any] = {}
         term = search_term.upper().strip()
 
-        # 2. Search within the Records
         if isinstance(data, dict):
             for rec_id, fields in data.items():
                 code = str(fields.get("Code", "")).upper()
-                p_sub = "Primary Administrative Subdivision"
-                name = str(fields.get(p_sub, "")).upper()
-
+                sub_key = "Primary Administrative Subdivision"
+                name = str(fields.get(sub_key, "")).upper()
                 if term == code or term in name:
                     results[rec_id] = fields
 
-        return (
-            results if results else {"message": f"'{search_term}' not found in local records."}
-        )
+        if not results:
+            msg = f"'{search_term}' not found in local records."
+            return {"message": msg}
+        return results
     except Exception as e:
         return {"error": f"Search failed: {str(e)}"}
 
 
 @mcp.tool()
-def list_enumeration_groups() -> List[str]:
-    """Returns a list of all available ADIF 3.1.6 enumeration group names."""
-    raw_data = get_spec_text("enumerations")
-    data = json.loads(raw_data)
-
-    # Unwrap if there's a top-level "Adif" key
-    if "Adif" in data and len(data) == 1:
-        data = data["Adif"]
-
-    return sorted(list(data.keys()))
-
-
-@mcp.tool()
-def search_adif_spec(search_term: str) -> Dict[str, Any]:
-    """Searches across ALL ADIF 3.1.6 spec files."""
-    results: Dict[str, Any] = {}
-    term = search_term.upper()
-    files_to_search = ["fields", "datatypes", "enumerations"]
-
-    for file_key in files_to_search:
-        try:
-            data = json.loads(get_spec_text(file_key))
-            for key, value in data.items():
-                str_val = str(value).upper()
-                if term in key.upper() or term in str_val:
-                    results[f"{file_key} -> {key}"] = str(value)[:500]
-        except Exception:
-            continue
-
-    return (
-        results
-        if results
-        else {"message": f"'{search_term}' not found in any 3.1.6 resource."}
-    )
-
-
-@mcp.tool()
-def get_enumeration_values(group_name: str) -> List[str]:
-    """Returns the values for a specific group, handling nested 'Adif' keys."""
-    raw_data = get_spec_text("enumerations")
-    data = json.loads(raw_data)
-
-    if "Adif" in data and len(data) == 1:
-        data = data["Adif"]
-
-    # Case-insensitive lookup
-    for key in data.keys():
-        if key.lower() == group_name.lower():
-            return cast(List[str], data[key])
-
-    return [f"Group '{group_name}' not found. Available: {list(data.keys())[:5]}..."]
-
-
-@mcp.tool()
 def validate_adif_record(adif_string: str) -> Dict[str, Any]:
-    """Parses and validates a single ADIF record against 3.1.6 rules."""
-    # 1. Parse the record using internal logic
+    """Validates an ADIF record against 3.1.6 rules."""
     parsed = parse_adif_internal(adif_string)
 
-    # 2. Load the Master Spec
-    fields_spec = json.loads(get_spec_text("fields"))["Adif"]["Fields"]["Records"]
+    try:
+        raw_fields = get_spec_text("fields")
+        fields_spec = json.loads(raw_fields)["Adif"]["Fields"]["Records"]
+    except Exception as e:
+        return {"status": "error", "message": f"Could not load spec: {str(e)}"}
 
     report: Dict[str, Any] = {
         "status": "success",
@@ -281,59 +198,34 @@ def validate_adif_record(adif_string: str) -> Dict[str, Any]:
     for field_name, value in parsed.items():
         upper_field = field_name.upper()
 
-        # Check if field exists in 3.1.6
         if upper_field not in fields_spec:
-            report["warnings"].append(f"Field '{upper_field}' is not in the ADIF 3.1.6 spec.")
+            msg = f"Field '{upper_field}' is not in spec."
+            report["warnings"].append(msg)
             continue
 
-        # Check Data Type
         spec_info = fields_spec[upper_field]
         data_type = spec_info.get("Data Type")
 
-        if data_type == "Number" and not str(value).isdigit():
-            report["errors"].append(f"Field '{upper_field}' expects a Number, got '{value}'.")
-            report["status"] = "invalid"
+        if data_type == "Number":
+            # Validates integers and decimals
+            if not re.match(r"^-?\d*\.?\d+$", str(value).strip()):
+                msg = f"Field '{upper_field}' expects Number, got '{value}'."
+                report["errors"].append(msg)
+                report["status"] = "invalid"
 
     return report
-
-
-@mcp.tool()
-def calculate_distance(start: str, end: str) -> float:
-    """Calculates great-circle distance (km) between Maidenhead locators."""
-    return float(calculate_distance_impl(start, end))
-
-
-@mcp.tool()
-def calculate_heading(start: str, end: str) -> float:
-    """Calculates initial beam heading (azimuth) between Maidenhead locators."""
-    return float(calculate_heading_impl(start, end))
-
-
-@mcp.tool()
-def parse_adif(adif_text: str) -> List[Dict[str, Any]]:
-    """The main tool Claude calls. Handles multiple records."""
-    records = adif_text.split("<EOR>")
-    parsed_results = []
-
-    for r in records:
-        if r.strip():
-            data = parse_adif_internal(r)
-            if data:
-                parsed_results.append(data)
-
-    return parsed_results
 
 
 # --- Entry Points ---
 
 
 def run() -> None:
-    """Entry point for the server to be called by the CLI."""
+    """Entry point for the server."""
     mcp.run()
 
 
 def main() -> None:
-    """Main entry point for the module execution."""
+    """Main entry point."""
     mcp.run()
 
 
