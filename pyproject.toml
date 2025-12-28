@@ -113,6 +113,7 @@ asyncio_mode = "auto"
 markers = [
     "asyncio: mark test as async"
 ]
+asyncio_default_fixture_loop_scope = "function"
 #addopts = "-q"
 
 # Paths below are *logical* (not absolute). Your util code should:
