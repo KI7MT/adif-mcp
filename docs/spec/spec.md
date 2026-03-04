@@ -40,7 +40,7 @@ Many fields use controlled vocabularies (enumerations):
 - `DXCC_Entity_Code` -- country/entity codes
 - `QSL_Rcvd` / `QSL_Sent` -- confirmation status flags
 
-Use the `list_enumeration_groups` and `get_enumeration_values` MCP tools to explore enumerations programmatically.
+Use the `read_specification_resource` and `search_enumerations` MCP tools to explore enumerations programmatically.
 
 ### APP_ Fields
 
@@ -48,6 +48,6 @@ Applications can define custom fields using the `APP_` prefix (e.g., `APP_ADIF-M
 
 ## Spec Coverage
 
-adif-mcp bundles the complete ADIF 3.1.6 specification as structured JSON, including all fields, data types, and enumerations. The `search_adif_spec` and `read_specification_resource` MCP tools provide full programmatic access.
+adif-mcp bundles the complete ADIF 3.1.6 specification as structured JSON, including all fields, data types, and enumerations. The `read_specification_resource` and `search_enumerations` MCP tools provide full programmatic access.
 
 *ADIF is a trademark of the ADIF Developers Group. This project is an independent implementation.*

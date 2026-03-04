@@ -28,4 +28,4 @@ These fields are optional but recommended when the engine or plugins modify or c
 - **Exports from plugins**: set `PROGRAMID=ADIF-MCP-LOTW` or `ADIF-MCP-EQSL`
 - **Augmenting existing logs**: preserve original `PROGRAMID` and add `APP_` provenance fields
 
-All ADIF files produced are upward-compatible with the ADIF 3.1.5 specification and future revisions.
+All ADIF files produced are upward-compatible with the ADIF 3.1.6 specification and future revisions.

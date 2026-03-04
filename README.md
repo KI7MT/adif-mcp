@@ -109,21 +109,17 @@ Add to `~/.gemini/settings.json` (global) or `.gemini/settings.json` (project):
 
 ## Tools
 
-adif-mcp exposes **11 verified tools** via the Model Context Protocol:
+adif-mcp exposes **7 tools** via the Model Context Protocol:
 
 | Category | Tool | Description |
 |----------|------|-------------|
 | **Validation** | `validate_adif_record` | Validate a raw ADIF string against the 3.1.6 spec |
-| **Validation** | `parse_adif` | Parse ADIF text into normalized JSON records |
-| **Spec** | `search_enumerations` | Search within ADIF enumeration records |
+| **Validation** | `parse_adif` | Streaming parser for large ADIF files with pagination |
 | **Spec** | `read_specification_resource` | Retrieve raw JSON for any spec module (band, mode, fields) |
-| **Spec** | `search_adif_spec` | Global search across fields, datatypes, and enumerations |
-| **Spec** | `list_enumeration_groups` | List all enumeration categories (DXCC, Submode, etc.) |
-| **Spec** | `get_enumeration_values` | Return valid values for a specific enumeration group |
+| **Spec** | `search_enumerations` | Search administrative subdivision records |
 | **Geospatial** | `calculate_distance` | Great Circle distance (km) between two Maidenhead locators |
 | **Geospatial** | `calculate_heading` | Initial beam heading (azimuth) between two locators |
 | **System** | `get_version_info` | Active service version and ADIF spec version |
-| **System** | `get_service_metadata` | Build timestamps and maintainer details |
 
 ## ADIF-MCP Engines
 

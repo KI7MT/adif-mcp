@@ -46,7 +46,7 @@ ADIF defines several data types:
 
 ## Enumerations
 
-Many fields are constrained to specific values defined by the spec. For example, `BAND` must be one of `2190m`, `630m`, `560m`, `160m`, `80m`, ... through to `submm`. Use the `list_enumeration_groups` MCP tool to see all available enumerations.
+Many fields are constrained to specific values defined by the spec. For example, `BAND` must be one of `2190m`, `630m`, `560m`, `160m`, `80m`, ... through to `submm`. Use the `read_specification_resource` MCP tool to explore enumerations programmatically.
 
 ## Validation
 

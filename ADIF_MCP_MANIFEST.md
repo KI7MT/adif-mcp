@@ -14,7 +14,7 @@
 ## 3. The "Sovereign" Guardrails
 - **No Hallucinations:** Always refer to the validated Pydantic models in `src/adif_mcp/models/` for ADIF field definitions.
 - **No Java:** The Java branch is archived noise. Do not suggest or implement Java logic.
-- **Protocol Integrity:** Maintain strict compliance with ADIF 3.1.5+ specifications.
+- **Protocol Integrity:** Maintain strict compliance with ADIF 3.1.6 specifications.
 - **Human-in-the-Loop:** Tools are assistants for the Operator (KI7MT), not autonomous replacements.
 
 ## 4. Operational Context

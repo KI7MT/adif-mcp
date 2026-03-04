@@ -4,34 +4,69 @@
 
 The [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) is an open standard that lets AI agents discover and call tools exposed by external servers. Instead of hardcoding API integrations, agents connect to MCP servers that advertise typed tool contracts -- inputs, outputs, and descriptions -- so the agent can invoke them safely.
 
-## How adif-mcp Uses MCP
+## How ADIF-MCP Uses MCP
 
-adif-mcp is an MCP server that exposes Amateur Radio logging operations as tools. When an AI agent (Claude, ChatGPT, Copilot, Gemini, etc.) connects to adif-mcp, it automatically discovers 11 tools for:
+ADIF-MCP is an MCP server built with [FastMCP](https://github.com/jlowin/fastmcp) that exposes Amateur Radio logging operations as tools. When an AI agent (Claude, ChatGPT, Copilot, Gemini, etc.) connects to ADIF-MCP, it automatically discovers 7 tools for:
 
 - **Validating and parsing** ADIF records against the 3.1.6 specification
-- **Searching** the full ADIF spec -- fields, enumerations, data types
+- **Searching** the full ADIF spec -- fields, enumerations, data types, subdivisions
 - **Computing** Great Circle distance and beam headings between Maidenhead grids
-- **Querying** service metadata and version information
+- **Querying** service version and specification metadata
 
 ## Architecture
 
 ```
 AI Agent  <-->  MCP Protocol (stdio)  <-->  adif-mcp server
                                               |
-                                              +-- ADIF 3.1.6 spec (bundled JSON)
+                                              +-- ADIF 3.1.6 spec (30 bundled JSON modules)
                                               +-- Plugin system (LoTW, eQSL, QRZ, Club Log)
                                               +-- Persona & credential management
 ```
 
-The server runs locally via `stdio` transport (default) or `streamable-http` for debugging with MCP Inspector. All ADIF specification data is bundled -- no network calls required for core operations.
+The server runs locally via `stdio` transport (default) or `streamable-http` for debugging. All ADIF specification data is bundled -- no network calls required for core operations.
 
 ## Tool Categories
 
 | Category | Tools | Purpose |
 |----------|-------|---------|
 | Validation | 2 | Parse and validate ADIF records |
-| Spec Intelligence | 5 | Search fields, enumerations, data types |
+| Spec Intelligence | 2 | Search fields, enumerations, subdivisions |
 | Geospatial | 2 | Distance and heading between grids |
-| System | 2 | Version and metadata |
+| System | 1 | Version and metadata |
 
-See the [Tools](tools.md) page for the complete tool reference.
+Plus 1 MCP resource (`adif://system/version`) for agent-discoverable version info.
+
+See the [Tools Reference](tools.md) for the complete tool catalog with input/output examples.
+
+## Transport Modes
+
+ADIF-MCP supports two transport modes:
+
+**stdio (default)** -- The standard transport for MCP clients. The agent launches `adif-mcp` as a subprocess and communicates over stdin/stdout. This is what Claude Desktop, Claude Code, Cursor, and VS Code use.
+
+```bash
+adif-mcp           # starts in stdio mode
+```
+
+**streamable-http** -- For debugging with [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector) or other HTTP-based clients. Starts an HTTP server that accepts MCP requests.
+
+```bash
+adif-mcp --transport streamable-http
+```
+
+## Manifest
+
+The MCP manifest declares the server's available tools and their JSON schemas. It lives inside the package at `src/adif_mcp/mcp/manifest.json` so it ships with every install.
+
+The manifest is validated on every build via `make manifest`. Tool schemas mirror the ADIF field semantics -- dates, callsigns, enumerations, and grid locators are all typed correctly.
+
+## How FastMCP Works
+
+ADIF-MCP uses [FastMCP](https://github.com/jlowin/fastmcp) as its MCP runtime. FastMCP handles:
+
+- **Tool registration** via `@mcp.tool()` decorators -- each Python function becomes an MCP tool
+- **Resource registration** via `@mcp.resource()` -- read-only endpoints agents can discover
+- **Schema generation** -- Python type hints are automatically converted to JSON Schema for tool inputs
+- **Transport management** -- stdio and HTTP transports are handled transparently
+
+This means adding a new tool is as simple as writing a decorated Python function with type annotations. FastMCP generates the MCP-compliant schema automatically.

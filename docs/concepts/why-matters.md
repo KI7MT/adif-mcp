@@ -4,7 +4,7 @@ Many operators just want quick answers regarding their logs:
 
 - *“Did I work that station on 30m last month?”*
 - *“Which QSOs are still unconfirmed on LoTW?”*
-- *"Am I in the Log for X.Y.Z Dxepdition"*
+- *"Am I in the Log for X.Y.Z DXpedition"*
 
 Traditionally, getting those answers means exporting ADIF, writing scripts, logging into one or more sites. That is a barrier — especially if you don’t code, or you're not sitting in front of your shack computer.
 

@@ -1,6 +1,6 @@
 # MCP Validation and Test Cases
 
-## ADIF-MCP v0.4.3 Sovereign Test Suite
+## ADIF-MCP v0.6.1 Sovereign Test Suite
 - **Build Status:** Verified Stable
 - **Spec Build Date:** 2025-09-15
 - **Validation Engine:** 3.1.6 Sovereign
@@ -53,7 +53,7 @@ This test suite confirms that the ADIF-MCP server successfully handles the compl
 
 ---
 
-### **ADIF-MCP v0.4.3 Test Suite Prompts**
+### **ADIF-MCP v0.6.1 Test Suite Prompts**
 
 #### **Phase 1: Scale & Performance**
 

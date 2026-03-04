@@ -4,7 +4,7 @@
 
 ### Core Engine
 - `src/adif_mcp/` canonical layout with identity namespace
-- 11 MCP tools: validation, parsing, spec search, geospatial, metadata
+- 7 MCP tools: validation, parsing, spec search, geospatial, metadata
 - FastMCP integration for multi-client MCP support
 - ADIF 3.1.6 specification bundled as structured JSON
 - Persona and credential management (system keyring)

@@ -5,7 +5,7 @@ Thanks for using **adif-mcp**!
 If you run into issues or have questions, here’s how you can get help:
 
 ## Documentation
-- [Project Documentation](https://ki7mt.github.io/adif-mcp/)
+- [Project Documentation](https://adif-mcp.com/)
 
 ## Community Support
 - Please use [GitHub Discussions](https://github.com/KI7MT/adif-mcp/discussions) for:

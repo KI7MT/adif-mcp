@@ -71,6 +71,6 @@ uv run python test_mcp.py
 
 **Checklist:**
 - [ ] **Connection**: "ADIF Audit Agent: Connecting to Sovereign Node..."
-- [ ] **Capabilities**: Lists tools like `get_service_metadata`, `lookup_country`, etc.
+- [ ] **Capabilities**: Lists tools like `get_version_info`, `validate_adif_record`, etc.
 - [ ] **Execution**: Tools return valid JSON results (not stack traces).
 - [ ] **Exit**: The script completes without hanging.

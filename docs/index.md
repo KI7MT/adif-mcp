@@ -1,39 +1,50 @@
 # ADIF MCP
 
-**ADIF MCP** is a set of Model Context Protocol tools that give AI agents safe, typed access to Amateur Radio logging data using the ADIF standard.
+**ADIF-MCP** gives AI agents safe, typed access to Amateur Radio logging data using the ADIF 3.1.6 specification.
 
-## Core Project Health
-[![ADIF 3.1.6](https://img.shields.io/badge/ADIF-3.1.6-blue?label=Spec)](https://github.com/KI7MT/adif-mcp/spec)
+[![ADIF 3.1.6](https://img.shields.io/badge/ADIF-3.1.6-blue?label=Spec)](https://adif-mcp.com/spec/spec/)
 [![GitHub release](https://img.shields.io/github/v/release/KI7MT/adif-mcp)](https://github.com/KI7MT/adif-mcp/releases)
-[![GitHub tag](https://img.shields.io/github/v/tag/KI7MT/adif-mcp?sort=semver)](https://github.com/KI7MT/adif-mcp/tags)
-[![Docs](https://img.shields.io/badge/docs-github_pages-blue)](https://adif-mcp.com/)
+[![PyPI](https://img.shields.io/pypi/v/adif-mcp)](https://pypi.org/project/adif-mcp/)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://github.com/KI7MT/adif-mcp/blob/main/LICENSE)
 
+## Install
+
+```bash
+pip install adif-mcp
+```
+
+## What It Does
+
+ADIF-MCP is a [Model Context Protocol](https://modelcontextprotocol.io/) server that exposes 7 tools for working with ADIF data. Connect it to Claude, ChatGPT, Copilot, Cursor, Gemini, or any MCP-compatible agent and ask questions in plain language:
+
+- **Validate** ADIF records against the full 3.1.6 specification
+- **Parse** large ADIF log files with streaming pagination
+- **Search** the complete spec -- fields, enumerations, data types, subdivisions
+- **Compute** Great Circle distance and beam headings between Maidenhead grids
+- **Query** LoTW and eQSL confirmations via integration plugins
+
+## Key Features
+
+- **Spec-compliant** -- full ADIF 3.1.6 bundled as structured JSON (30 modules)
+- **Sovereign** -- runs entirely on your machine, no cloud dependencies
+- **Extensible** -- plugin framework for LoTW, eQSL, QRZ, and Club Log
+- **Secure** -- credentials stored in your system keyring, never logged
 
 ## Project Ethos
 
-ADIF-MCP is a community-driven effort.
-It is not intended to replace or compete with existing ADIF libraries, utilities, or logging applications. Instead, it provides a common foundation that others can build upon.
+ADIF-MCP is a community-driven effort. It does not replace or compete with existing ADIF libraries, logging applications, or services. Instead, it provides a common foundation that others can build upon:
 
-- Interoperability — a schema-driven, spec-compliant core that makes it easier for tools, logs, and services to talk to each other.
-- Extensibility — a plugin and integration framework for services like LoTW, eQSL, QRZ, and future platforms.
-- Collaboration — designed to complement, not fragment, the ecosystem of ADIF tools already enjoyed by the ham community.
-- Future-facing — introduces safe, typed access to ADIF data in contexts such as AI agents and MCP integrations, opening doors for innovation while preserving compatibility.
+- **Interoperability** -- schema-driven, spec-compliant core for tools and services to talk to each other
+- **Extensibility** -- plugin and integration framework for LoTW, eQSL, QRZ, and future platforms
+- **Collaboration** -- designed to complement, not fragment, the ecosystem of ADIF tools
+- **Future-facing** -- safe, typed access to ADIF data for AI agents and modern workflows
 
-Our goal is simple: support and enhance the Amateur Radio logging ecosystem while keeping the project open, transparent, and aligned with the spirit of the hobby.
+## Quick Links
 
-## Why ADIF MCP?
-
-- Safe, schema-validated access to log data
-- Full ADIF 3.1.6 compatibility (upward-compatible with future ADIF)
-- Extensible plugin system (LoTW, eQSL, …)
-- Designed for AI agents and modern developer workflows
-
-## What This Project Provides
-
-- **Core:** ADIF parsing, validation, canonical types, and tool contracts
-- **Plugins:** LoTW and eQSL integrations as separate MCPs
-- **Goals:** portability, safety, testability, and vendor-neutral interfaces
-- **Tools:** A comprehensive [Tool Catalog](tools.md) of all available MCP functions.
-
-👉 Start with the [User Guide](userguide/persona-management.md), or to set up and contribute code, see the [Dev Guide](dev/dev-env-setup.md).
+| | |
+|---|---|
+| [Quick Start](getting-started.md) | Install and configure in 5 minutes |
+| [Tools Reference](mcp/tools.md) | All 7 tools with input/output examples |
+| [User Guide](userguide/persona-management.md) | Personas, credentials, and award queries |
+| [Integrations](integrations/overview.md) | LoTW, eQSL, and more |
+| [Developer Guide](dev/dev-env-setup.md) | Set up a dev environment and contribute |
