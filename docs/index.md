@@ -21,7 +21,6 @@ ADIF-MCP is a [Model Context Protocol](https://modelcontextprotocol.io/) server 
 - **Parse** large ADIF log files with streaming pagination
 - **Search** the complete spec -- fields, enumerations, data types, subdivisions
 - **Compute** Great Circle distance and beam headings between Maidenhead grids
-- **Query** LoTW and eQSL confirmations via integration plugins
 
 ## Key Features
 
@@ -45,6 +44,5 @@ ADIF-MCP is a community-driven effort. It does not replace or compete with exist
 |---|---|
 | [Quick Start](getting-started.md) | Install and configure in 5 minutes |
 | [Tools Reference](mcp/tools.md) | All 7 tools with input/output examples |
-| [User Guide](userguide/persona-management.md) | Personas, credentials, and award queries |
-| [Integrations](integrations/overview.md) | LoTW, eQSL, and more |
-| [Developer Guide](dev/dev-env-setup.md) | Set up a dev environment and contribute |
+| [MCP Architecture](mcp/overview.md) | How it works under the hood |
+| [ADIF 3.1.6 Spec](spec/spec.md) | Specification coverage and details |

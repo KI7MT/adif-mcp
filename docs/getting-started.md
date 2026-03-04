@@ -103,6 +103,5 @@ Here are some conversation starters to try with your agent:
 ## What's Next
 
 - [Tools Reference](mcp/tools.md) -- full details on all 7 tools with input/output examples
-- [Personas & Credentials](userguide/persona-management.md) -- set up LoTW/eQSL credentials
-- [Award Queries](userguide/awards.md) -- track DXCC, WAS, and other awards
-- [Integrations](integrations/overview.md) -- connect to LoTW, eQSL, and more
+- [MCP Architecture](mcp/overview.md) -- how the server works under the hood
+- [ADIF 3.1.6 Spec](spec/spec.md) -- specification coverage and details

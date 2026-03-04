@@ -21,32 +21,33 @@ nav:
       - ADIF Basics: concepts/adif-basics.md
       - Quick Start: getting-started.md
   - Tools Reference: mcp/tools.md
-  - User Guide:
-      - Personas & Credentials: userguide/persona-management.md
-      - Award Queries: userguide/awards.md
-      - Choosing an LLM: concepts/choice-of-llms.md
-  - Integrations:
-      - Overview: integrations/overview.md
-      - LoTW: integrations/lotw/index.md
-      - eQSL: integrations/eqsl/index.md
   - MCP Architecture:
       - Overview: mcp/overview.md
       - Validation Test Suite: mcp/validation.md
   - Specifications:
       - ADIF 3.1.6: spec/spec.md
       - Program IDs: program-id-policy.md
-  - Developer Guide:
-      - Dev Env Setup: dev/dev-env-setup.md
-      - Testing Playbook: dev/testing.md
-      - Release Process: dev/release-process.md
-      - Command Reference: dev/command-reference.md
-      - Provider Schemas: dev/provider-schemas.md
-      - Code Snippets: dev/code-snippets.md
-      - Git Commits: dev/git-commits.md
-      - Internal API: dev/internal-api.md
-      - Probes: dev/probes.md
-      - Troubleshooting: dev/troubleshooting.md
-  - Roadmap: roadmap.md
+  # Hidden until implemented:
+  # - User Guide:
+  #     - Personas & Credentials: userguide/persona-management.md
+  #     - Award Queries: userguide/awards.md
+  #     - Choosing an LLM: concepts/choice-of-llms.md
+  # - Integrations:
+  #     - Overview: integrations/overview.md
+  #     - LoTW: integrations/lotw/index.md
+  #     - eQSL: integrations/eqsl/index.md
+  # - Developer Guide:
+  #     - Dev Env Setup: dev/dev-env-setup.md
+  #     - Testing Playbook: dev/testing.md
+  #     - Release Process: dev/release-process.md
+  #     - Command Reference: dev/command-reference.md
+  #     - Provider Schemas: dev/provider-schemas.md
+  #     - Code Snippets: dev/code-snippets.md
+  #     - Git Commits: dev/git-commits.md
+  #     - Internal API: dev/internal-api.md
+  #     - Probes: dev/probes.md
+  #     - Troubleshooting: dev/troubleshooting.md
+  # - Roadmap: roadmap.md
 
 plugins:
   - search
