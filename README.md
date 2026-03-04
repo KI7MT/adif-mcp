@@ -89,6 +89,96 @@ Unlike existing ADIF editors and one-off utilities, ADIF-MCP is a shared protoco
 
 ---
 
+## Configure Your MCP Client
+
+adif-mcp works with any MCP-compatible client. Add the server config and restart — tools appear automatically.
+
+### Claude Desktop
+
+Add to `claude_desktop_config.json` (`~/Library/Application Support/Claude/` on macOS, `%APPDATA%\Claude\` on Windows):
+
+```json
+{
+  "mcpServers": {
+    "adif": {
+      "command": "adif-mcp"
+    }
+  }
+}
+```
+
+### Claude Code
+
+Add to `.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "adif": {
+      "command": "adif-mcp"
+    }
+  }
+}
+```
+
+### ChatGPT Desktop
+
+Configure via Settings > Apps & Connectors, or in your agent definition:
+
+```json
+{
+  "mcpServers": {
+    "adif": {
+      "command": "adif-mcp"
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to `.cursor/mcp.json` (project-level) or `~/.cursor/mcp.json` (global):
+
+```json
+{
+  "mcpServers": {
+    "adif": {
+      "command": "adif-mcp"
+    }
+  }
+}
+```
+
+### VS Code / GitHub Copilot
+
+Add to `.vscode/mcp.json` in your workspace:
+
+```json
+{
+  "servers": {
+    "adif": {
+      "command": "adif-mcp"
+    }
+  }
+}
+```
+
+### Gemini CLI
+
+Add to `~/.gemini/settings.json` (global) or `.gemini/settings.json` (project):
+
+```json
+{
+  "mcpServers": {
+    "adif": {
+      "command": "adif-mcp"
+    }
+  }
+}
+```
+
+---
+
 ## Next Steps
 - Build `adif-mcp-lotw` and `adif-mcp-eqsl` adapters
 - Expose MCP tools for validation, award tracking, and service sync

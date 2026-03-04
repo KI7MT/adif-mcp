@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 
 import aiofiles
 import mcp.types as types
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
 import adif_mcp
 from adif_mcp.utils.geography import calculate_distance_impl, calculate_heading_impl
