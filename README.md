@@ -121,16 +121,19 @@ adif-mcp exposes **7 tools** via the Model Context Protocol:
 | **Geospatial** | `calculate_heading` | Initial beam heading (azimuth) between two locators |
 | **System** | `get_version_info` | Active service version and ADIF spec version |
 
-## ADIF-MCP Engines
+## Architecture
 
-This package defines the ADIF MCP core engine, with plugins for:
+adif-mcp is the **foundation package** -- ADIF spec tools, persona management, and credential storage. Service integrations are separate MCP servers that depend on adif-mcp for identity and auth:
 
-- **LoTW** (`adif-mcp-lotw`) -- ARRL Logbook of The World: confirmations, awards tracking, uploads
-- **eQSL** (`adif-mcp-eqsl`) -- eQSL.cc: electronic QSL confirmations and awards
-- **QRZ** (`adif-mcp-qrz`) -- QRZ.com: callsign lookup and logbook integration
-- **Club Log** (`adif-mcp-clublog`) -- Club Log: DXCC matching, OQRS, expedition logs
+| Package | Status | What It Does |
+|---------|--------|-------------|
+| `adif-mcp` | Published | ADIF 3.1.6 spec tools + persona/credential management |
+| `lotw-mcp` | Planned | LoTW confirmations, award tracking |
+| `eqsl-mcp` | Planned | eQSL inbox, confirmation status |
+| `qrz-mcp` | Planned | Callsign lookup, logbook queries |
+| `clublog-mcp` | Planned | DXCC matching, OQRS, expedition logs |
 
-MCP doesn't replace LoTW, eQSL, Club Log, QRZ, or any award/logging program. Instead, it gives operators visibility and accessibility into their award progress, across sponsors, without needing to export, filter, or code.
+Each integration MCP uses `adif-mcp` for persona lookup and keyring-backed credentials. Operators install only the servers they need. This keeps each server focused, independently versioned, and free of unnecessary dependencies.
 
 ## Compliance & Provenance
 
