@@ -1,10 +1,14 @@
 [project]
 name = "adif-mcp"
-version = "0.5.1"
+version = "0.5.2"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Clublog)"
 readme = "README.md"
-license = { text = "MIT" }
+license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "KI7MT" }]
+keywords = [
+    "amateur-radio", "ham-radio", "adif", "mcp", "model-context-protocol",
+    "lotw", "eqsl", "qrz", "clublog", "qso-logging", "ai-agents",
+]
 # Support modern CPython, develop on 3.13, run on 3.11+
 requires-python = ">=3.11"
 
@@ -20,7 +24,7 @@ dependencies = [
 
 # Classifiers help downstream tooling/users
 classifiers = [
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -79,13 +83,10 @@ all = [
 
 [project.urls]
 "Homepage" = "https://adif-mcp.com"
-"Repository" = "https://github.com/your-org/adif-mcp"
-"Issues" = "https://github.com/your-org/adif-mcp/issues"
+"Repository" = "https://github.com/KI7MT/adif-mcp"
+"Issues" = "https://github.com/KI7MT/adif-mcp/issues"
+"Documentation" = "https://adif-mcp.com/"
 "ADIF Spec" = "https://adif.org.uk/316/ADIF_316.htm"
-"LoTW" = "https://lotw.arrl.org/"
-"eQSL" = "https://www.eqsl.cc/"
-"Club Log" = "https://clublog.org/"
-"QRZ" = "https://www.qrz.com/"
 
 [project.scripts]
 adif-mcp = "adif_mcp.cli.__main__:main"

@@ -1,8 +1,8 @@
 # Code Snippets & Helpers
 
 Code snippets handy for rendering commonly used items quickly. While this is a subjective topic on how one sets up their environment, these we have found helpful.
-For linux anmd Mac users, add them to your `.bashrc`, `.bash_profile` or create `.bash_functions` and `.bash_aliases` and sounce them how you wish. For windows users,
-we'll get the Poweshell commands done when time allows.
+For Linux and Mac users, add them to your `.bashrc`, `.bash_profile` or create `.bash_functions` and `.bash_aliases` and source them how you wish. For Windows users,
+we'll get the PowerShell commands done when time allows.
 
 ## 1. Print available providers
 ```bash
@@ -40,13 +40,13 @@ manifest-check() {
 
 ## 2. Recreate Your Persona Mappings
 
-This example is for my own scallsign history. I have one callsign change that was merged into my primary eQSL and LoTW logbooks. You can add as many as needed.
+This example is for my own callsign history. I have one callsign change that was merged into my primary eQSL and LoTW logbooks. You can add as many as needed.
 
-**Important Overlap Note** - when chaing call signs, either via vanity call, or licenense upgrades, stop the old call one day short of the new call start date. That avoids any
+**Important Overlap Note** - when changing call signs, either via vanity call, or license upgrades, stop the old call one day short of the new call start date. That avoids any
 potential collisions with dates when making queries. Also note, this applies to your Primary Lincese callsign, but could also apply to club calls.
 
-**Important Security Note** - There are no credentials leaked here. Export your Password as ENV variables for the current session. The fucntion will pick them up for entry.
-You should never ( as a standrd security practice, *never* write down or save passowrds in files ; use exported ENV variables as they ephemerial )
+**Important Security Note** - There are no credentials leaked here. Export your password as ENV variables for the current session. The function will pick them up for entry.
+You should never ( as a standard security practice, *never* write down or save passwords in files ; use exported ENV variables as they are ephemeral )
 
 
 **Real Example** - The Example below is how I re-create my personans. KI7MT is my primary callsign. KE1HA was my previous call. Both call signs are

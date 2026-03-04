@@ -1,7 +1,7 @@
 # Security Policy
 
 ## Supported Versions
-Only the latest release of **wspr-ai-lite** is actively supported.
+Only the latest release of **adif-mcp** is actively supported.
 
 ## Reporting Vulnerabilities
 Please report security issues **privately**:

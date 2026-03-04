@@ -1,61 +1,52 @@
-## Completed (up through v0.3.4)
+# Roadmap
 
-### Core packaging & structure
-- src/adif_mcp/ canonical layout
-- identity/ namespace (models, store, secrets, manager, errors)
-- Resources bundled under resources/ (spec, schemas, providers, mapping/usage)
-- Manifests moved into src/adif_mcp/mcp/manifest.json
+## Completed (v0.1.0 -- v0.5.x)
 
-### Provider probes
-- provider index-check (no network)
-- provider probe (GET-only, safe, redacting secrets)
-- CI/make targets: probe-index, probe-get, probe-all
+### Core Engine
+- `src/adif_mcp/` canonical layout with identity namespace
+- 11 MCP tools: validation, parsing, spec search, geospatial, metadata
+- FastMCP integration for multi-client MCP support
+- ADIF 3.1.6 specification bundled as structured JSON
+- Persona and credential management (system keyring)
+- Plugin framework for service integrations
 
-### Quality gates
-- ruff, mypy --strict, interrogate integrated with pre-commit
-- CI workflows fixed for uv + pre-commit + manifest validation
-- All checks green in CI/CD
+### Quality & CI
+- ruff, mypy --strict, interrogate (100% docstring coverage)
+- Pre-commit hooks, manifest validation
+- Tag-driven PyPI publishing via trusted publisher (OIDC)
+- CI workflow (lint, type check, test)
 
-### Docs
-- Developer setup for Linux/macOS ✅
-- Command reference (incl. make help merged) ✅
-- Persona management documented (stub + keyring) ✅
-- Roadmap and dev plan unified ✅
+### Documentation
+- MkDocs Material site at [adif-mcp.com](https://adif-mcp.com/)
+- Developer setup, command reference, code snippets
+- Persona management and award query guides
+- MCP tools reference, manifest docs
 
-### Releases
-- v0.3.0 → v0.3.4, all tagged, CHANGELOG updated
+### Packaging
+- PyPI: `pip install adif-mcp`
+- CLI entry point: `adif-mcp`
+- Registered ADIF Program IDs (ADIF-MCP, ADIF-MCP-LOTW, ADIF-MCP-EQSL, ADIF-MCP-QRZ, ADIF-MCP-CLUBLOG)
 
-⸻
+## Current Focus
 
-## In Progress / Next Milestone (v0.3.5 → v0.4.0)
+### Integration Plugins
+- LoTW adapter: confirmation queries, award tracking
+- eQSL adapter: inbox queries, confirmation status
+- QRZ adapter: callsign lookup, logbook queries
+- Club Log adapter: DXCC matching, OQRS status
 
-### Demo tools (eQSL)
-- eqsl.fetch_inbox → mock + real mode (still stubbed)
-- eqsl.filter_summary → analytics (band/mode/date/confirmed)
+### ADIF Models
+- Pydantic models for typed QSO records
+- Normalization helpers (callsign, grid, dates, RST, frequency)
+- Enumeration loaders from bundled JSON
 
-### Validation / normalization
-- Expand models.py into proper ADIF Pydantic models
-- Add normalize.py helpers (callsign, grid, dates, times, rst, freq, power)
-- Add enums/ JSON + loader (bands, modes, qsl flags)
+## Future
 
-### CLI
-- Align naming: validate-manifest pattern
-- Move dev/test stubs under adif-mcp dev … group
+### Expanded Tool Surface
+- Award progress queries (DXCC, WAS, VUCC by band/mode)
+- Cross-provider log comparison and merge
+- Batch validation for ADIF file imports
 
-### Docs
-- Integrations pages: start with eQSL quickstart
-- Add “useful code snippets” section (bash helpers, persona reset, etc.)
-- CI smoke doc (how probes run in CI without network)
-
-### CI
-- Add make probe-index smoke to CI (non-network)
-- Ensure manifest validation runs once (not duplicated across jobs)
-
-⸻
-
-## Near-Term Roadmap (what’s left before calling 0.4.0)
-1. Finish eQSL demo tools (real + mock).
-2. Normalize ADIF models (basic fields).
-3. Expose enums + validation tools (list_enums, validate_adif).
-4. Docs polish (CLI help dumps, quickstarts, troubleshooting).
-5. Refactor stubs into dev/ CLI group.
+### Community
+- Contribution guide and plugin development docs
+- Example notebooks for common award tracking workflows

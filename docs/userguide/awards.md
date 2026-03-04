@@ -28,7 +28,7 @@ logbook and the awards you care about.
 
 ## Core Sponsors in ADIF
 
-This matrix captures **who sponsors what** and how MCP can expose it to operators through Integrations. As we all kknow, this is just a "small" sampling of whats available.
+This matrix captures **who sponsors what** and how MCP can expose it to operators through Integrations. As we all know, this is just a "small" sampling of whats available.
 
 | Sponsor | Focus | Notes |
 |---------|-------|-------|

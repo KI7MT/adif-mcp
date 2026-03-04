@@ -1,70 +1,63 @@
 # Release Process
 
-This document outlines the "Gold Standard" protocol for releasing new versions of `adif-mcp`. We use a strict gating process to ensure that every release is stable, documented, and compliant with the ADIF specification.
+adif-mcp uses a tag-driven release workflow. Push a semver tag and GitHub Actions handles the rest.
 
-## 1. Pre-Flight Validation (The Gate)
+## 1. Pre-Flight Validation
 
-Before attempting a release, the codebase must pass the full quality gate in a clean environment.
+Before releasing, the codebase must pass the full quality gate:
 
 ```bash
-# 1. Clean everything
+# Clean and run all checks
 make clean-all
-
-# 2. Bootstrap
-make init
-
-# 3. Run the Quality Gate
 make gate
 ```
 
-**Stop if:**
-- Any linting or type errors occur.
-- Unit tests fail.
-- Manifest validation fails.
-- Docstring coverage drops below 100%.
+**Stop if** any linting, type, test, manifest, or docstring coverage errors occur.
 
-## 2. The Release Command
+## 2. Bump the Version
 
-We use a unified Makefile target to handle version bumping, tagging, and pushing. This ensures consistency between `pyproject.toml` and git tags.
+Update the version in `pyproject.toml`:
 
-### Syntax
-```bash
-make release VERSION=<x.y.z> SPEC=<spec_version>
+```toml
+version = "0.5.2"
 ```
 
-- **VERSION**: The new semantic version for the package (e.g., `0.3.12`).
-- **SPEC**: The ADIF specification version supported (e.g., `3.1.5`).
-
-### Example
-To release version `0.4.0` targeting ADIF spec `3.1.5`:
+Commit the version bump:
 
 ```bash
-make release VERSION=0.4.0 SPEC=3.1.5
+git add pyproject.toml
+git commit -m "bump: version 0.5.2"
 ```
 
-### What Happens Automatically
-1.  **Validation**: Runs `make gate` one last time.
-2.  **Bump**: Updates `version` in `pyproject.toml` and `CHANGELOG.md`.
-3.  **Spec Update**: Updates `tool.adif.spec_version` in `pyproject.toml`.
-4.  **Commit**: Creates a release commit (`bump: version 0.4.0`).
-5.  **Tag**: Creates a git tag (`v0.4.0`).
-6.  **Push**: Pushes the commit and tag to `origin`.
+## 3. Tag and Push
 
-## 3. Post-Release Verification
-
-Once the tag is pushed, the CI/CD pipeline (GitHub Actions) takes over to build and publish the package.
-
-### Manual Smoke Test
-After the package is published, verify it in a fresh environment:
+Create a semver tag and push:
 
 ```bash
-# 1. Install from PyPI (or test index)
-uv tool install adif-mcp --force
+git tag v0.5.2
+git push origin main --tags
+```
 
-# 2. Verify Version
+## 4. Automated Publishing
+
+The `.github/workflows/publish.yml` workflow triggers on any `v*` tag push:
+
+1. Checks out the tagged commit
+2. Builds the package with `uv build`
+3. Publishes to PyPI via trusted publisher (OIDC -- no API tokens)
+
+The `pypi` environment in GitHub repo settings provides the OIDC trust relationship.
+
+## 5. Post-Release Verification
+
+After the workflow completes, verify the release:
+
+```bash
+# Install from PyPI
+pip install adif-mcp --upgrade
+
+# Verify version
 adif-mcp --version
-
-# 3. Verify Spec Compliance
-uv run adif-mcp mcp
-# (Check that get_service_metadata returns the correct spec version)
 ```
+
+Check the [PyPI project page](https://pypi.org/project/adif-mcp/) to confirm the new version is live.

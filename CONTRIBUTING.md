@@ -15,9 +15,9 @@ It’s a simple rule of thumb:
 
 Following this mindset helps keep the project consistent, approachable, and operator-friendly.
 
->Contributing Tip: “See [TODO.md]()TODO.md) for backlog ideas. Concrete items should be filed as Issues when ready.”
+>Contributing Tip: “See [TODO.md](TODO.md) for backlog ideas. Concrete items should be filed as Issues when ready.”
 
-## Prerequisits
+## Prerequisites
 
 To contribute to ADIF-MCP, you will need a working Python ≥3.11 environment with [UV by Astral](https://docs.astral.sh/uv/) installed.
 
@@ -29,7 +29,7 @@ The following is a quick start in getting the required environment setup. Detail
 
 ~~~bash
 git clone git@github.com:KI7MT/adif-mcp.git
-cd adif-mcpe
+cd adif-mcp
 ~~~
 
 This will create a local .venv with all tools needed for linting, typing, docs, and tests.
@@ -92,7 +92,7 @@ uv build
 
 ## Code Style & Checks
 
-- Code is formatted with **black** and **isort**.
+- Code is formatted with **ruff**.
 - **Docstrings** are required (enforced with `interrogate`).
 - Pre-commit hooks run automatically:
   - Trailing whitespace

@@ -50,7 +50,7 @@ uv --version
 ## 3. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-org>/adif-mcp.git
+git clone https://github.com/KI7MT/adif-mcp.git
 cd adif-mcp
 ```
 

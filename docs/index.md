@@ -7,7 +7,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/KI7MT/adif-mcp)](https://github.com/KI7MT/adif-mcp/releases)
 [![GitHub tag](https://img.shields.io/github/v/tag/KI7MT/adif-mcp?sort=semver)](https://github.com/KI7MT/adif-mcp/tags)
 [![Docs](https://img.shields.io/badge/docs-github_pages-blue)](https://adif-mcp.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/KI7MT/adif-mcp/blob/main/LICENSE)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://github.com/KI7MT/adif-mcp/blob/main/LICENSE)
 
 
 ## Project Ethos
@@ -36,4 +36,4 @@ Our goal is simple: support and enhance the Amateur Radio logging ecosystem whil
 - **Goals:** portability, safety, testability, and vendor-neutral interfaces
 - **Tools:** A comprehensive [Tool Catalog](tools.md) of all available MCP functions.
 
-👉 Start with the [User Guide](userguide/persona-management.md) or setup to setup and contrubite code, see the [Dev Guide](dev/dev-env-setup.md).
+👉 Start with the [User Guide](userguide/persona-management.md), or to set up and contribute code, see the [Dev Guide](dev/dev-env-setup.md).
