@@ -4,10 +4,11 @@ ADIF-MCP Server: Authoritative 3.1.6 Specification Server.
 Provides tools for parsing, streaming, and validating ADIF data.
 """
 
+import datetime
 import json
 import os
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import aiofiles
 import mcp.types as types
@@ -31,6 +32,7 @@ ENUMERATION_FIELDS: Dict[str, List[str]] = {
     "Band": ["Band"],
     "Contest_ID": ["Contest-ID", "Description"],
     "Continent": ["Abbreviation", "Continent"],
+    "Country": ["Country Name", "DXCC Entity Code"],
     "Credit": ["Credit For", "Sponsor", "Award"],
     "DXCC_Entity_Code": ["Entity Code", "Entity Name"],
     "EQSL_AG": ["Status", "Description"],
@@ -62,6 +64,7 @@ ENUM_VALIDATION_KEY: Dict[str, str] = {
     "Band": "Band",
     "Contest_ID": "Contest-ID",
     "Continent": "Abbreviation",
+    "Country": "Country Name",
     "Credit": "Credit For",
     "DXCC_Entity_Code": "Entity Code",
     "EQSL_AG": "Status",
@@ -131,7 +134,7 @@ FIELD_ENUM_MAP: Dict[str, str] = {
 }
 
 # Enumerations that have no shipped JSON file — skip gracefully
-_MISSING_ENUM_FILES = {"Country", "Sponsored_Award"}
+_MISSING_ENUM_FILES = {"Sponsored_Award"}
 
 # Fields with incomplete enum data — skip validation (warn only in future)
 # SAS ships only 58 Alaska records; full US county data is ~3,200 entries
@@ -172,6 +175,10 @@ def _validate_enum_field(
     """
     errors: List[str] = []
     warnings: List[str] = []
+
+    # Sponsored_Award: validate sponsor prefix only (no full enum file)
+    if enum_spec == "Sponsored_Award":
+        return _validate_sponsored_award(field_name, value)
 
     # Skip enumerations with no shipped JSON file
     if enum_spec in _MISSING_ENUM_FILES:
@@ -288,6 +295,118 @@ def _validate_enum_field(
         f"{enum_spec}."
     )
     return errors, warnings
+
+
+def _validate_sponsored_award(
+    field_name: str, value: str,
+) -> Tuple[List[str], List[str]]:
+    """Validate Sponsored_Award fields by checking sponsor prefix.
+
+    Format: SPONSOR_AWARDNAME (e.g., ARRL_DXCC). Comma-separated list.
+    Validates the sponsor prefix against Award_Sponsor enumeration.
+    """
+    errors: List[str] = []
+    warnings: List[str] = []
+
+    sponsor_records = _load_enum_records("Award_Sponsor")
+    sponsor_key = ENUM_VALIDATION_KEY.get("Award_Sponsor", "Sponsor")
+    valid_prefixes = {
+        str(rec.get(sponsor_key, "")).upper()
+        for rec in sponsor_records.values()
+    }
+
+    elements = [v.strip() for v in value.split(",") if v.strip()]
+    for element in elements:
+        # Find matching sponsor prefix (sponsors end with _)
+        matched = False
+        upper_elem = element.upper()
+        for prefix in valid_prefixes:
+            if upper_elem.startswith(prefix):
+                matched = True
+                break
+        if not matched:
+            warnings.append(
+                f"Field '{field_name}': award '{element}' has an "
+                f"unrecognized sponsor prefix."
+            )
+
+    return errors, warnings
+
+
+# Cache for DXCC → PAS code reverse map
+_dxcc_pas_map: Optional[Dict[str, Set[str]]] = None
+
+
+def _build_dxcc_pas_map() -> Dict[str, Set[str]]:
+    """Build reverse lookup: DXCC entity code → set of valid PAS codes."""
+    global _dxcc_pas_map
+    if _dxcc_pas_map is not None:
+        return _dxcc_pas_map
+
+    records = _load_enum_records("Primary_Administrative_Subdivision")
+    result: Dict[str, Set[str]] = {}
+    for rec in records.values():
+        dxcc_code = str(rec.get("DXCC Entity Code", ""))
+        pas_code = str(rec.get("Code", ""))
+        if dxcc_code and pas_code:
+            if dxcc_code not in result:
+                result[dxcc_code] = set()
+            result[dxcc_code].add(pas_code.upper())
+
+    _dxcc_pas_map = result
+    return result
+
+
+def _validate_date(field_name: str, value: str) -> List[str]:
+    """Validate ADIF Date field: YYYYMMDD, 8 digits, calendar-valid."""
+    errors: List[str] = []
+    if not re.match(r"^\d{8}$", value):
+        errors.append(
+            f"Field '{field_name}': date '{value}' must be exactly "
+            f"8 digits (YYYYMMDD)."
+        )
+        return errors
+
+    year = int(value[0:4])
+    month = int(value[4:6])
+    day = int(value[6:8])
+    try:
+        datetime.date(year, month, day)
+    except ValueError:
+        errors.append(
+            f"Field '{field_name}': date '{value}' is not a valid "
+            f"calendar date."
+        )
+    return errors
+
+
+def _validate_time(field_name: str, value: str) -> List[str]:
+    """Validate ADIF Time field: HHMM or HHMMSS."""
+    errors: List[str] = []
+    if not re.match(r"^\d{4}(\d{2})?$", value):
+        errors.append(
+            f"Field '{field_name}': time '{value}' must be 4 or 6 "
+            f"digits (HHMM or HHMMSS)."
+        )
+        return errors
+
+    hh = int(value[0:2])
+    mm = int(value[2:4])
+    if hh > 23 or mm > 59:
+        errors.append(
+            f"Field '{field_name}': time '{value}' has invalid "
+            f"hour/minute (HH 00-23, MM 00-59)."
+        )
+        return errors
+
+    if len(value) == 6:
+        ss = int(value[4:6])
+        if ss > 59:
+            errors.append(
+                f"Field '{field_name}': time '{value}' has invalid "
+                f"seconds (SS 00-59)."
+            )
+    return errors
 
 
 # --- Spec File Loader ---
@@ -525,14 +644,58 @@ def validate_adif_record(adif_string: str) -> Dict[str, Any]:
         spec_info = fields_spec[upper_field]
         data_type = spec_info.get("Data Type")
 
-        # Number validation (existing)
-        if data_type == "Number":
-            if not re.match(r"^-?\d*\.?\d+$", str(value).strip()):
-                msg = f"Field '{upper_field}' expects Number, got '{value}'."
+        # Number/Integer/PositiveInteger validation + bounds
+        if data_type in ("Number", "Integer", "PositiveInteger"):
+            stripped = str(value).strip()
+            if data_type == "Number":
+                valid_fmt = bool(re.match(r"^-?\d*\.?\d+$", stripped))
+            elif data_type == "Integer":
+                valid_fmt = bool(re.match(r"^-?\d+$", stripped))
+            else:  # PositiveInteger
+                valid_fmt = bool(re.match(r"^\d+$", stripped))
+
+            if not valid_fmt:
+                msg = (
+                    f"Field '{upper_field}' expects {data_type}, "
+                    f"got '{value}'."
+                )
                 report["errors"].append(msg)
                 report["status"] = "invalid"
+            else:
+                # Bounds checking from fields.json
+                num_val = float(stripped)
+                min_val = spec_info.get("Minimum Value")
+                max_val = spec_info.get("Maximum Value")
+                if min_val is not None:
+                    if num_val < float(min_val):
+                        report["errors"].append(
+                            f"Field '{upper_field}': value {stripped} "
+                            f"is below minimum {min_val}."
+                        )
+                        report["status"] = "invalid"
+                if max_val is not None:
+                    if num_val > float(max_val):
+                        report["errors"].append(
+                            f"Field '{upper_field}': value {stripped} "
+                            f"is above maximum {max_val}."
+                        )
+                        report["status"] = "invalid"
 
-        # Enumeration validation (new)
+        # Date validation
+        if data_type == "Date":
+            date_errors = _validate_date(upper_field, str(value).strip())
+            report["errors"].extend(date_errors)
+            if date_errors:
+                report["status"] = "invalid"
+
+        # Time validation
+        if data_type == "Time":
+            time_errors = _validate_time(upper_field, str(value).strip())
+            report["errors"].extend(time_errors)
+            if time_errors:
+                report["status"] = "invalid"
+
+        # Enumeration validation
         enum_spec_str = FIELD_ENUM_MAP.get(upper_field)
         if enum_spec_str:
             if not value.strip():
@@ -549,7 +712,38 @@ def validate_adif_record(adif_string: str) -> Dict[str, Any]:
                 if errs:
                     report["status"] = "invalid"
 
+    # DXCC cross-validation: STATE must be valid for DXCC entity
+    _cross_validate_dxcc_state(parsed, report, "STATE", "DXCC")
+    _cross_validate_dxcc_state(parsed, report, "MY_STATE", "MY_DXCC")
+
     return report
+
+
+def _cross_validate_dxcc_state(
+    parsed: Dict[str, str],
+    report: Dict[str, Any],
+    state_field: str,
+    dxcc_field: str,
+) -> None:
+    """Cross-validate STATE against DXCC — warn if STATE is invalid for DXCC."""
+    state_val = parsed.get(state_field, "").strip()
+    dxcc_val = parsed.get(dxcc_field, "").strip()
+
+    if not state_val or not dxcc_val:
+        return
+
+    dxcc_pas = _build_dxcc_pas_map()
+    valid_codes = dxcc_pas.get(dxcc_val)
+
+    if valid_codes is None:
+        # No PAS data for this DXCC — skip
+        return
+
+    if state_val.upper() not in valid_codes:
+        report["warnings"].append(
+            f"Field '{state_field}': value '{state_val}' is not a valid "
+            f"subdivision for {dxcc_field}={dxcc_val}."
+        )
 
 
 # --- Entry Points ---

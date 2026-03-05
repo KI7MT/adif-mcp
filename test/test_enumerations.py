@@ -15,10 +15,10 @@ _TEST_DATA = os.path.join(os.path.dirname(__file__), "data")
 
 
 def test_list_enumerations_count() -> None:
-    """Returns exactly 25 enumerations."""
+    """Returns exactly 26 enumerations (25 spec + Country derived)."""
     result = list_enumerations()
-    assert result["enumeration_count"] == 25
-    assert len(result["enumerations"]) == 25
+    assert result["enumeration_count"] == 26
+    assert len(result["enumerations"]) == 26
 
 
 def test_list_enumerations_has_mode() -> None:
@@ -332,3 +332,228 @@ def test_official_adif_test_file_warning_categories() -> None:
     assert 30 <= total_warnings <= 50, (
         f"Expected ~39 warnings, got {total_warnings}"
     )
+
+
+# --- Country validation (v0.9.0) ---
+
+
+def test_country_enum_exists() -> None:
+    """Country enum loaded with 400 records (340 active, 60 deleted)."""
+    result = list_enumerations()
+    country = result["enumerations"]["Country"]
+    assert country["record_count"] == 400
+    assert country["import_only_count"] == 60
+
+
+def test_country_valid() -> None:
+    """MY_COUNTRY=CANADA passes validation."""
+    adif = "<MY_COUNTRY:6>CANADA<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_country_invalid() -> None:
+    """MY_COUNTRY=FAKELAND errors."""
+    adif = "<MY_COUNTRY:8>FAKELAND<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("FAKELAND" in e for e in result["errors"])
+
+
+def test_country_case_insensitive() -> None:
+    """MY_COUNTRY=canada passes (case-insensitive)."""
+    adif = "<MY_COUNTRY:6>canada<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_country_deleted_warns() -> None:
+    """MY_COUNTRY with deleted DXCC entity → import-only warning."""
+    adif = "<MY_COUNTRY:11>ABU AIL IS.<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert any("import-only" in w for w in result["warnings"])
+    assert not result["errors"]
+
+
+# --- Sponsored_Award prefix validation (v0.9.0) ---
+
+
+def test_sponsored_award_valid_prefix() -> None:
+    """AWARD_SUBMITTED=ARRL_DXCC passes (known sponsor)."""
+    adif = "<AWARD_SUBMITTED:9>ARRL_DXCC<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["warnings"]
+
+
+def test_sponsored_award_bad_prefix() -> None:
+    """AWARD_SUBMITTED=FAKE_THING warns (unknown sponsor)."""
+    adif = "<AWARD_SUBMITTED:10>FAKE_THING<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"  # warning, not error
+    assert any("sponsor" in w.lower() for w in result["warnings"])
+
+
+def test_sponsored_award_comma_list() -> None:
+    """AWARD_SUBMITTED=ARRL_DXCC,CQ_WAZ passes (comma list, both valid)."""
+    adif = "<AWARD_SUBMITTED:16>ARRL_DXCC,CQ_WAZ<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["warnings"]
+
+
+# --- DXCC cross-validation (v0.9.0) ---
+
+
+def test_dxcc_state_match() -> None:
+    """DXCC=291 + STATE=ID passes (Idaho is in US)."""
+    adif = "<DXCC:3>291<STATE:2>ID<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    dxcc_warns = [w for w in result["warnings"] if "subdivision" in w.lower()]
+    assert not dxcc_warns
+
+
+def test_dxcc_state_mismatch() -> None:
+    """DXCC=1 + STATE=ID warns (Idaho is not in Canada)."""
+    adif = "<DXCC:1>1<STATE:2>ID<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"  # warning, not error
+    assert any("subdivision" in w.lower() for w in result["warnings"])
+
+
+def test_dxcc_state_no_dxcc() -> None:
+    """STATE=ID without DXCC → no cross-validation warning."""
+    adif = "<STATE:2>ID<EOR>"
+    result = validate_adif_record(adif)
+    dxcc_warns = [w for w in result["warnings"] if "subdivision" in w.lower()]
+    assert not dxcc_warns
+
+
+# --- Date/time format validation (v0.9.0) ---
+
+
+def test_date_valid() -> None:
+    """QSO_DATE=20260305 passes."""
+    adif = "<QSO_DATE:8>20260305<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_date_invalid_format() -> None:
+    """QSO_DATE=2026-03-05 errors (hyphens not allowed)."""
+    adif = "<QSO_DATE:10>2026-03-05<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("QSO_DATE" in e for e in result["errors"])
+
+
+def test_date_impossible() -> None:
+    """QSO_DATE=20260230 errors (Feb 30 doesn't exist)."""
+    adif = "<QSO_DATE:8>20260230<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("calendar" in e.lower() for e in result["errors"])
+
+
+def test_date_short() -> None:
+    """QSO_DATE=202603 errors (too short)."""
+    adif = "<QSO_DATE:6>202603<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("8 digits" in e for e in result["errors"])
+
+
+def test_time_valid_4digit() -> None:
+    """TIME_ON=1430 passes."""
+    adif = "<TIME_ON:4>1430<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_time_valid_6digit() -> None:
+    """TIME_ON=143022 passes."""
+    adif = "<TIME_ON:6>143022<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_time_invalid_hour() -> None:
+    """TIME_ON=2500 errors (hour > 23)."""
+    adif = "<TIME_ON:4>2500<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("TIME_ON" in e for e in result["errors"])
+
+
+def test_time_invalid_format() -> None:
+    """TIME_ON=14:30 errors (colon not allowed)."""
+    adif = "<TIME_ON:5>14:30<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("TIME_ON" in e for e in result["errors"])
+
+
+# --- Min/max numeric bounds (v0.9.0) ---
+
+
+def test_bounds_age_valid() -> None:
+    """AGE=45 passes (within 0-120)."""
+    adif = "<AGE:2>45<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_bounds_age_over() -> None:
+    """AGE=150 errors (above max 120)."""
+    adif = "<AGE:3>150<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("above maximum" in e for e in result["errors"])
+
+
+def test_bounds_cqz_under() -> None:
+    """CQZ=0 errors (below min 1)."""
+    adif = "<CQZ:1>0<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("below minimum" in e for e in result["errors"])
+
+
+def test_bounds_sfi_valid() -> None:
+    """SFI=150 passes (within 0-300)."""
+    adif = "<SFI:3>150<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_bounds_ant_el_negative() -> None:
+    """ANT_EL=-45 passes (min is -90)."""
+    adif = "<ANT_EL:3>-45<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_bounds_age_exact_min() -> None:
+    """AGE=0 passes (boundary: exact minimum)."""
+    adif = "<AGE:1>0<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
+
+
+def test_bounds_age_exact_max() -> None:
+    """AGE=3>120 passes (boundary: exact maximum)."""
+    adif = "<AGE:3>120<EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "success"
+    assert not result["errors"]
