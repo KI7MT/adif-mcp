@@ -7,7 +7,7 @@ Provides tools for parsing, streaming, and validating ADIF data.
 import json
 import os
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 import aiofiles
 import mcp.types as types
@@ -20,10 +20,284 @@ from adif_mcp.utils.geography import calculate_distance_impl, calculate_heading_
 mcp = FastMCP("ADIF-MCP")
 
 
+# --- Enumeration Infrastructure ---
+
+# Searchable fields per enumeration (hardcoded per Patton requirement)
+ENUMERATION_FIELDS: Dict[str, List[str]] = {
+    "Ant_Path": ["Abbreviation", "Meaning"],
+    "ARRL_Section": ["Abbreviation", "Section Name"],
+    "Award": ["Award"],
+    "Award_Sponsor": ["Sponsor", "Sponsoring Organization"],
+    "Band": ["Band"],
+    "Contest_ID": ["Contest-ID", "Description"],
+    "Continent": ["Abbreviation", "Continent"],
+    "Credit": ["Credit For", "Sponsor", "Award"],
+    "DXCC_Entity_Code": ["Entity Code", "Entity Name"],
+    "EQSL_AG": ["Status", "Description"],
+    "Mode": ["Mode"],
+    "Morse_Key_Type": ["Abbreviation", "Meaning"],
+    "Primary_Administrative_Subdivision": ["Code", "Primary Administrative Subdivision"],
+    "Propagation_Mode": ["Enumeration", "Description"],
+    "QSL_Medium": ["Medium", "Description"],
+    "QSL_Rcvd": ["Status", "Meaning"],
+    "QSL_Sent": ["Status", "Meaning"],
+    "QSL_Via": ["Via", "Description"],
+    "QSO_Complete": ["Abbreviation", "Meaning"],
+    "QSO_Download_Status": ["Status", "Description"],
+    "QSO_Upload_Status": ["Status", "Description"],
+    "Region": ["Region Entity Code", "Region"],
+    "Secondary_Administrative_Subdivision": [
+        "Code", "Secondary Administrative Subdivision",
+    ],
+    "Secondary_Administrative_Subdivision_Alt": ["Code", "Region", "District"],
+    "Submode": ["Submode", "Mode"],
+}
+
+# Primary key field for membership validation per enumeration
+ENUM_VALIDATION_KEY: Dict[str, str] = {
+    "Ant_Path": "Abbreviation",
+    "ARRL_Section": "Abbreviation",
+    "Award": "Award",
+    "Award_Sponsor": "Sponsor",
+    "Band": "Band",
+    "Contest_ID": "Contest-ID",
+    "Continent": "Abbreviation",
+    "Credit": "Credit For",
+    "DXCC_Entity_Code": "Entity Code",
+    "EQSL_AG": "Status",
+    "Mode": "Mode",
+    "Morse_Key_Type": "Abbreviation",
+    "Primary_Administrative_Subdivision": "Code",
+    "Propagation_Mode": "Enumeration",
+    "QSL_Medium": "Medium",
+    "QSL_Rcvd": "Status",
+    "QSL_Sent": "Status",
+    "QSL_Via": "Via",
+    "QSO_Complete": "Abbreviation",
+    "QSO_Download_Status": "Status",
+    "QSO_Upload_Status": "Status",
+    "Region": "Region Entity Code",
+    "Secondary_Administrative_Subdivision": "Code",
+    "Secondary_Administrative_Subdivision_Alt": "Code",
+    "Submode": "Submode",
+}
+
+# ADIF field name -> enumeration spec string (from fields.json)
+# Covers all 43 enum-typed fields. Parameterized enums use [PARAM] suffix.
+FIELD_ENUM_MAP: Dict[str, str] = {
+    "ANT_PATH": "Ant_Path",
+    "ARRL_SECT": "ARRL_Section",
+    "AWARD_GRANTED": "Sponsored_Award",
+    "AWARD_SUBMITTED": "Sponsored_Award",
+    "BAND": "Band",
+    "BAND_RX": "Band",
+    "CLUBLOG_QSO_UPLOAD_STATUS": "QSO_Upload_Status",
+    "CNTY": "Secondary_Administrative_Subdivision",
+    "CONT": "Continent",
+    "CONTEST_ID": "Contest_ID",
+    "CREDIT_GRANTED": "Credit,Award",
+    "CREDIT_SUBMITTED": "Credit,Award",
+    "DCL_QSL_RCVD": "QSL_Rcvd",
+    "DCL_QSL_SENT": "QSL_Sent",
+    "DXCC": "DXCC_Entity_Code",
+    "EQSL_AG": "EQSL_AG",
+    "EQSL_QSL_RCVD": "QSL_Rcvd",
+    "EQSL_QSL_SENT": "QSL_Sent",
+    "HAMLOGEU_QSO_UPLOAD_STATUS": "QSO_Upload_Status",
+    "HAMQTH_QSO_UPLOAD_STATUS": "QSO_Upload_Status",
+    "HRDLOG_QSO_UPLOAD_STATUS": "QSO_Upload_Status",
+    "LOTW_QSL_RCVD": "QSL_Rcvd",
+    "LOTW_QSL_SENT": "QSL_Sent",
+    "MODE": "Mode",
+    "MORSE_KEY_TYPE": "Morse_Key_Type",
+    "MY_ARRL_SECT": "ARRL_Section",
+    "MY_CNTY": "Secondary_Administrative_Subdivision",
+    "MY_COUNTRY": "Country",
+    "MY_COUNTRY_INTL": "Country",
+    "MY_DXCC": "DXCC_Entity_Code",
+    "MY_MORSE_KEY_TYPE": "Morse_Key_Type",
+    "MY_STATE": "Primary_Administrative_Subdivision",
+    "PROP_MODE": "Propagation_Mode",
+    "QRZCOM_QSO_DOWNLOAD_STATUS": "QSO_Download_Status",
+    "QRZCOM_QSO_UPLOAD_STATUS": "QSO_Upload_Status",
+    "QSL_RCVD": "QSL_Rcvd",
+    "QSL_RCVD_VIA": "QSL_Via",
+    "QSL_SENT": "QSL_Sent",
+    "QSL_SENT_VIA": "QSL_Via",
+    "QSO_COMPLETE": "QSO_Complete",
+    "REGION": "Region",
+    "STATE": "Primary_Administrative_Subdivision",
+    "SUBMODE": "Submode",
+}
+
+# Enumerations that have no shipped JSON file — skip gracefully
+_MISSING_ENUM_FILES = {"Country", "Sponsored_Award"}
+
+# Fields with incomplete enum data — skip validation (warn only in future)
+# SAS ships only 58 Alaska records; full US county data is ~3,200 entries
+_INCOMPLETE_ENUM_FIELDS = {"CNTY", "MY_CNTY"}
+
+# In-memory cache for loaded enumeration records
+_enum_cache: Dict[str, Dict[str, Any]] = {}
+
+
+def _load_enum_records(enum_name: str) -> Dict[str, Any]:
+    """Load enumeration records from JSON, with in-memory caching."""
+    if enum_name in _enum_cache:
+        return _enum_cache[enum_name]
+
+    raw = get_spec_text(enum_name.lower())
+    try:
+        data = json.loads(raw)
+        records = data["Adif"]["Enumerations"][enum_name]["Records"]
+    except (json.JSONDecodeError, KeyError, TypeError):
+        records = {}
+
+    _enum_cache[enum_name] = records
+    return records
+
+
+def _validate_enum_field(
+    field_name: str,
+    value: str,
+    enum_spec: str,
+    parsed: Dict[str, str],
+) -> Tuple[List[str], List[str]]:
+    """Validate a field value against its enumeration.
+
+    Returns (errors, warnings).
+    Handles: simple, compound (Credit,Award), conditional (Submode[MODE]),
+    parameterized (PAS[DXCC]), import-only, and missing enum files.
+    """
+    errors: List[str] = []
+    warnings: List[str] = []
+
+    # Skip enumerations with no shipped JSON file
+    if enum_spec in _MISSING_ENUM_FILES:
+        return errors, warnings
+
+    # Compound enumerations: "Credit,Award" — ADIF CreditList format.
+    # Value is comma-separated elements. Each element may be:
+    #   "CREDIT_NAME" (plain) or "CREDIT_NAME:QSL_MEDIUM" or
+    #   "CREDIT_NAME:MEDIUM1&MEDIUM2" (multiple mediums with &)
+    # The credit name must exist in Credit OR Award enum.
+    # The medium (if present) must exist in QSL_Medium enum.
+    if "," in enum_spec:
+        enum_names = [e.strip() for e in enum_spec.split(",")]
+        elements = [v.strip() for v in value.split(",") if v.strip()]
+        for element in elements:
+            # Split credit:medium if colon present
+            if ":" in element:
+                credit_part, medium_part = element.split(":", 1)
+            else:
+                credit_part = element
+                medium_part = ""
+
+            # Validate credit name against Credit/Award enums
+            found = False
+            for en in enum_names:
+                if en in _MISSING_ENUM_FILES:
+                    found = True
+                    break
+                records = _load_enum_records(en)
+                key_field = ENUM_VALIDATION_KEY.get(en, "")
+                upper_credit = credit_part.upper()
+                for rec in records.values():
+                    if str(rec.get(key_field, "")).upper() == upper_credit:
+                        found = True
+                        if rec.get("Import-only", "") == "true":
+                            warnings.append(
+                                f"Field '{field_name}': value '{credit_part}' "
+                                f"is import-only in {en}."
+                            )
+                        break
+                if found:
+                    break
+            if not found:
+                errors.append(
+                    f"Field '{field_name}': credit '{credit_part}' is not a "
+                    f"valid member of {'/'.join(enum_names)}."
+                )
+
+            # Validate QSL medium(s) if present (& separates multiple)
+            if medium_part:
+                mediums = [m.strip() for m in medium_part.split("&")]
+                medium_records = _load_enum_records("QSL_Medium")
+                medium_key = ENUM_VALIDATION_KEY.get("QSL_Medium", "")
+                for med in mediums:
+                    med_found = False
+                    for rec in medium_records.values():
+                        if str(rec.get(medium_key, "")).upper() == med.upper():
+                            med_found = True
+                            break
+                    if not med_found:
+                        errors.append(
+                            f"Field '{field_name}': QSL medium '{med}' is "
+                            f"not a valid QSL_Medium."
+                        )
+        return errors, warnings
+
+    # Conditional: Submode[MODE] — check submode exists, warn on parent mismatch
+    if enum_spec == "Submode":
+        records = _load_enum_records("Submode")
+        key_field = ENUM_VALIDATION_KEY["Submode"]
+        upper_val = value.upper()
+        matched_rec = None
+        for rec in records.values():
+            if str(rec.get(key_field, "")).upper() == upper_val:
+                matched_rec = rec
+                break
+        if matched_rec is None:
+            errors.append(
+                f"Field '{field_name}': value '{value}' is not a valid Submode."
+            )
+        else:
+            # Check parent mode match
+            record_mode = parsed.get("MODE", "")
+            parent_mode = str(matched_rec.get("Mode", ""))
+            if record_mode and parent_mode:
+                if record_mode.upper() != parent_mode.upper():
+                    warnings.append(
+                        f"Field '{field_name}': submode '{value}' belongs to "
+                        f"mode '{parent_mode}', but record MODE is "
+                        f"'{record_mode}'."
+                    )
+        return errors, warnings
+
+    # Simple enumeration lookup
+    records = _load_enum_records(enum_spec)
+    if not records:
+        # File didn't load — skip silently
+        return errors, warnings
+
+    key_field = ENUM_VALIDATION_KEY.get(enum_spec, "")
+    upper_val = value.upper()
+
+    for rec in records.values():
+        if str(rec.get(key_field, "")).upper() == upper_val:
+            if rec.get("Import-only", "") == "true":
+                warnings.append(
+                    f"Field '{field_name}': value '{value}' is import-only "
+                    f"in {enum_spec}."
+                )
+            return errors, warnings
+
+    errors.append(
+        f"Field '{field_name}': value '{value}' is not a valid member of "
+        f"{enum_spec}."
+    )
+    return errors, warnings
+
+
+# --- Spec File Loader ---
+
+
 def get_spec_text(filename: str, version: str = "316") -> str:
     """Retrieve raw text of a 3.1.6 specification JSON file."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    json_dir = os.path.abspath(os.path.join(current_dir, "..", "resources", "spec", version))
+    json_dir = os.path.abspath(
+        os.path.join(current_dir, "..", "resources", "spec", version)
+    )
     name = filename.lower().strip()
 
     targets = [
@@ -144,42 +418,82 @@ def read_specification_resource(resource_name: str) -> str:
 
 
 @mcp.tool()
-def search_enumerations(search_term: str) -> Dict[str, Any]:
-    """Surgically searches local enumeration files."""
-    target = "primary_administrative_subdivision"
-    raw_data = get_spec_text(target)
+def list_enumerations() -> Dict[str, Any]:
+    """Lists all 25 ADIF 3.1.6 enumerations with record counts and fields."""
+    result: Dict[str, Any] = {}
+    for enum_name, fields in ENUMERATION_FIELDS.items():
+        records = _load_enum_records(enum_name)
+        import_only_count = sum(
+            1 for rec in records.values()
+            if rec.get("Import-only", "") == "true"
+        )
+        result[enum_name] = {
+            "record_count": len(records),
+            "import_only_count": import_only_count,
+            "searchable_fields": fields,
+        }
+    return {"enumeration_count": len(result), "enumerations": result}
 
-    try:
-        data: Any = json.loads(raw_data)
-        if isinstance(data, dict):
-            data = data.get("Adif", data)
-            data = data.get("Enumerations", data)
-            data = data.get("Primary_Administrative_Subdivision", data)
-            if isinstance(data, dict):
-                data = data.get("Records", data)
 
-        results: Dict[str, Any] = {}
-        term = search_term.upper().strip()
+@mcp.tool()
+def search_enumerations(
+    search_term: str,
+    enumeration: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Searches ADIF 3.1.6 enumerations. Optionally filter by enumeration name."""
+    term = search_term.upper().strip()
+    if not term:
+        return {"error": "Search term must not be empty."}
 
-        if isinstance(data, dict):
-            for rec_id, fields in data.items():
-                code = str(fields.get("Code", "")).upper()
-                sub_key = "Primary Administrative Subdivision"
-                name = str(fields.get(sub_key, "")).upper()
-                if term == code or term in name:
-                    results[rec_id] = fields
+    # Determine which enumerations to search
+    if enumeration:
+        # Case-insensitive match against known enum names
+        matched_enum = None
+        for name in ENUMERATION_FIELDS:
+            if name.upper() == enumeration.upper().strip():
+                matched_enum = name
+                break
+        if not matched_enum:
+            return {
+                "error": f"Unknown enumeration '{enumeration}'. Use "
+                f"list_enumerations to see valid names.",
+            }
+        enums_to_search = {matched_enum: ENUMERATION_FIELDS[matched_enum]}
+    else:
+        enums_to_search = ENUMERATION_FIELDS
 
-        if not results:
-            msg = f"'{search_term}' not found in local records."
-            return {"message": msg}
-        return results
-    except Exception as e:
-        return {"error": f"Search failed: {str(e)}"}
+    all_results: Dict[str, Any] = {}
+
+    for enum_name, search_fields in enums_to_search.items():
+        records = _load_enum_records(enum_name)
+        matches: Dict[str, Any] = {}
+
+        for rec_id, rec in records.items():
+            for field in search_fields:
+                field_val = str(rec.get(field, "")).upper()
+                if term in field_val:
+                    matches[rec_id] = rec
+                    break
+
+        if matches:
+            all_results[enum_name] = {
+                "match_count": len(matches),
+                "records": matches,
+            }
+
+    if not all_results:
+        return {"message": f"'{search_term}' not found in any enumeration."}
+
+    return {
+        "search_term": search_term,
+        "enumerations_matched": len(all_results),
+        "results": all_results,
+    }
 
 
 @mcp.tool()
 def validate_adif_record(adif_string: str) -> Dict[str, Any]:
-    """Validates an ADIF record against 3.1.6 rules."""
+    """Validates an ADIF record against 3.1.6 rules including enum membership."""
     parsed = parse_adif_internal(adif_string)
 
     try:
@@ -206,11 +520,25 @@ def validate_adif_record(adif_string: str) -> Dict[str, Any]:
         spec_info = fields_spec[upper_field]
         data_type = spec_info.get("Data Type")
 
+        # Number validation (existing)
         if data_type == "Number":
-            # Validates integers and decimals
             if not re.match(r"^-?\d*\.?\d+$", str(value).strip()):
                 msg = f"Field '{upper_field}' expects Number, got '{value}'."
                 report["errors"].append(msg)
+                report["status"] = "invalid"
+
+        # Enumeration validation (new)
+        enum_spec_str = FIELD_ENUM_MAP.get(upper_field)
+        if enum_spec_str and value.strip():
+            # Skip fields with incomplete shipped enum data
+            if upper_field in _INCOMPLETE_ENUM_FIELDS:
+                continue
+            errs, warns = _validate_enum_field(
+                upper_field, value.strip(), enum_spec_str, parsed
+            )
+            report["errors"].extend(errs)
+            report["warnings"].extend(warns)
+            if errs:
                 report["status"] = "invalid"
 
     return report
