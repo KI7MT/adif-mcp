@@ -1,5 +1,7 @@
 """Unit tests for the ADIF-MCP server and its internal logic."""
 
+import tempfile
+
 import pytest
 
 from adif_mcp.mcp.server import parse_adif
@@ -32,22 +34,25 @@ def test_calculate_heading() -> None:
 @pytest.mark.asyncio
 async def test_parse_adif_tool() -> None:
     """
-    Verify the parse_adif tool decodes a simple ADIF string.
+    Verify the parse_adif tool actually parses an ADIF file from disk.
     """
-    adi = "<CALL:5>KI7MT<QSO_DATE:8>20250101<EOR>"
+    adi_content = "<CALL:5>KI7MT<QSO_DATE:8>20250101<BAND:3>20m<EOR>\n"
 
-    # FastMCP wraps the result in a List of Content objects
-    recs = await parse_adif(adi)
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".adi", delete=False
+    ) as tmp:
+        tmp.write(adi_content)
+        tmp_path = tmp.name
+
+    recs = await parse_adif(tmp_path)
 
     assert len(recs) == 1
-
-    # Look at the raw text content
     raw_output = recs[0].text
 
-    # Check if the expected data is present in the string
-    # Since it might be a string representation of a list: "[{'CALL': 'KI7MT'...}]"
+    # Verify parsed output (not error text)
+    assert "TOTAL RECORDS: 1" in raw_output
+    assert "RECORD 1" in raw_output
     assert "KI7MT" in raw_output
-    assert "CALL" in raw_output
     assert "20250101" in raw_output
 
 

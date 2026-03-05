@@ -1,6 +1,6 @@
 [project]
 name = "adif-mcp"
-version = "0.9.0"
+version = "0.9.1"
 description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Clublog)"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
@@ -83,8 +83,8 @@ all = [
 
 [project.urls]
 "Homepage" = "https://adif-mcp.com"
-"Repository" = "https://github.com/KI7MT/adif-mcp"
-"Issues" = "https://github.com/KI7MT/adif-mcp/issues"
+"Repository" = "https://github.com/qso-graph/adif-mcp"
+"Issues" = "https://github.com/qso-graph/adif-mcp/issues"
 "Documentation" = "https://adif-mcp.com/"
 "ADIF Spec" = "https://adif.org.uk/316/ADIF_316.htm"
 

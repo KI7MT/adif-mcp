@@ -6,12 +6,12 @@
     "url": "https://github.com/qso-graph/adif-mcp",
     "source": "github"
   },
-  "version": "0.9.0",
+  "version": "0.9.1",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "adif-mcp",
-      "version": "0.9.0",
+      "version": "0.9.1",
       "transport": { "type": "stdio" }
     }
   ],
