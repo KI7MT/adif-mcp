@@ -6,8 +6,32 @@ on:
       - "v*"
 
 jobs:
+  security:
+    name: Security gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e ".[test]"
+
+      - name: Security tests
+        run: python -m pytest test/test_security.py -v
+
+      - name: Static security checks
+        run: |
+          ! grep -rn "subprocess\|shell=True" src/ --include="*.py"
+          ! grep -rn 'http://[^l]' src/ --include="*.py"
+          ! grep -rni "print.*password\|print.*secret" src/ --include="*.py"
+          echo "Static checks passed"
+
   publish:
     name: Build and publish to PyPI
+    needs: security
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
