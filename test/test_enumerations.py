@@ -253,7 +253,7 @@ def test_official_adif_test_file_zero_errors() -> None:
     Gate: If our validator rejects an official record, our validator is wrong.
     """
     test_file = os.path.join(
-        _TEST_DATA, "ADIF_316_test_QSOs_2025_09_15.adi"
+        _TEST_DATA, "ADIF_316_test_QSOs_2025_08_27.adi"
     )
     if not os.path.exists(test_file):
         return  # Skip if test file not present (CI without data)
@@ -288,7 +288,7 @@ def test_official_adif_test_file_warning_categories() -> None:
     Both are correct validator behavior, not false positives.
     """
     test_file = os.path.join(
-        _TEST_DATA, "ADIF_316_test_QSOs_2025_09_15.adi"
+        _TEST_DATA, "ADIF_316_test_QSOs_2025_08_27.adi"
     )
     if not os.path.exists(test_file):
         return

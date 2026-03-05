@@ -338,7 +338,7 @@ cd adif-mcp
 | **Name** | Zero false errors on official ADIF 3.1.6 test QSOs |
 | **Tool** | `validate_adif_record` (iterated over 6,191 records) |
 | **Purpose** | The official test file from adif.org.uk exercises every enumeration value in the spec. If our validator rejects any official record, **our validator is wrong**. |
-| **Source** | `https://adif.org.uk/316/resources` — `ADIF_316_test_QSOs_2025_09_15.adi` |
+| **Source** | `https://adif.org.uk/316/resources` — `ADIF_316_test_QSOs_2025_08_27.adi` |
 | **Generator** | G3ZOD `CreateADIFTestFiles` v3.1.6.1 |
 | **Records** | 6,191 QSOs covering all 25 enumerations, all field types, user-defined fields, app-defined fields |
 | **Expected** | Zero errors across all 6,191 records |
