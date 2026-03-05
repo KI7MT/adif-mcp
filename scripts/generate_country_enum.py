@@ -71,7 +71,8 @@ def main() -> None:
         1 for r in country_records.values() if r.get("Import-only") == "true"
     )
     print(f"Generated {out_path}")
-    print(f"  Total: {total} countries ({total - deleted} active, {deleted} deleted/import-only)")
+    active = total - deleted
+    print(f"  Total: {total} countries ({active} active, {deleted} import-only)")
 
 
 if __name__ == "__main__":
