@@ -241,6 +241,22 @@ def test_validate_number_unchanged() -> None:
     assert any("AGE" in e and "Number" in e for e in result["errors"])
 
 
+def test_validate_empty_mode_errors() -> None:
+    """Empty MODE value produces an error (Patton finding #2)."""
+    adif = "<MODE:0><EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("MODE" in e and "empty" in e for e in result["errors"])
+
+
+def test_validate_whitespace_band_errors() -> None:
+    """Whitespace-only BAND value produces an error (Patton finding #2)."""
+    adif = "<BAND:1> <EOR>"
+    result = validate_adif_record(adif)
+    assert result["status"] == "invalid"
+    assert any("BAND" in e and "empty" in e for e in result["errors"])
+
+
 # --- Official ADIF 3.1.6 Test File (G3ZOD / adif.org.uk) ---
 
 

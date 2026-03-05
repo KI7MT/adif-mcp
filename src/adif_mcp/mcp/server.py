@@ -379,7 +379,11 @@ def calculate_heading(start: str, end: str) -> float:
 async def parse_adif(
     file_path: str, start_at: int = 1, limit: int = 20
 ) -> List[types.TextContent]:
-    """Streaming parser for large ADIF files with record seeking."""
+    """Streaming parser for large ADIF files with record seeking.
+
+    SECURITY NOTE: This tool reads files from the local filesystem using
+    the provided path. Only pass paths to ADIF log files you own.
+    """
     record_pattern = re.compile(r"(.*?)<EOR>", re.IGNORECASE | re.DOTALL)
 
     try:
@@ -529,17 +533,20 @@ def validate_adif_record(adif_string: str) -> Dict[str, Any]:
 
         # Enumeration validation (new)
         enum_spec_str = FIELD_ENUM_MAP.get(upper_field)
-        if enum_spec_str and value.strip():
-            # Skip fields with incomplete shipped enum data
-            if upper_field in _INCOMPLETE_ENUM_FIELDS:
-                continue
-            errs, warns = _validate_enum_field(
-                upper_field, value.strip(), enum_spec_str, parsed
-            )
-            report["errors"].extend(errs)
-            report["warnings"].extend(warns)
-            if errs:
+        if enum_spec_str:
+            if not value.strip():
+                report["errors"].append(
+                    f"Field '{upper_field}': value is empty."
+                )
                 report["status"] = "invalid"
+            elif upper_field not in _INCOMPLETE_ENUM_FIELDS:
+                errs, warns = _validate_enum_field(
+                    upper_field, value.strip(), enum_spec_str, parsed
+                )
+                report["errors"].extend(errs)
+                report["warnings"].extend(warns)
+                if errs:
+                    report["status"] = "invalid"
 
     return report
 

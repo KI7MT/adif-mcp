@@ -16,6 +16,11 @@ Provide:
 
 We acknowledge within 7 days, patch within 30 days.
 
+## Known Limitations
+
+- `parse_adif` reads arbitrary local file paths provided by the caller.
+  Restrict to `.adi`/`.adif` files in v0.8.0.
+
 ## Disclosure
 Once fixed, we will:
 - Publish a patched release
