@@ -154,7 +154,8 @@ def _load_enum_records(enum_name: str) -> Dict[str, Any]:
         records = {}
 
     _enum_cache[enum_name] = records
-    return records
+    result: Dict[str, Any] = records
+    return result
 
 
 def _validate_enum_field(
