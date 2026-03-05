@@ -1,0 +1,24 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.qso-graph/adif-mcp",
+  "description": "ADIF 3.1.6 MCP core engine. Parse, validate, and stream amateur radio QSO log files. Authoritative enumeration validation for 43 field types across 25 enumerations.",
+  "repository": {
+    "url": "https://github.com/qso-graph/adif-mcp",
+    "source": "github"
+  },
+  "version": "0.7.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "adif-mcp",
+      "version": "0.7.1",
+      "transport": { "type": "stdio" }
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "tool": "mcp-publisher",
+      "version": "2.0.0"
+    }
+  }
+}

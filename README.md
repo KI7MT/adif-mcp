@@ -1,3 +1,4 @@
+<!-- mcp-name: io.github.qso-graph/adif-mcp -->
 # adif-mcp
 
 Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server for **Amateur Radio Logging**, built on the [ADIF 3.1.6 specification](https://adif.org.uk/316/ADIF_316.htm).
