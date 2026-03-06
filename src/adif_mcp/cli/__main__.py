@@ -25,7 +25,10 @@ def main(argv: list[str] | None = None) -> int:
     if func is not None:
         return func(args)
 
-    parser.print_help()
+    # Default to MCP server if no subcommand was provided
+    from adif_mcp.mcp.server import run as run_mcp
+
+    run_mcp()
     return 0
 
 

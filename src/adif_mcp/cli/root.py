@@ -98,9 +98,12 @@ def main(argv: list[str] | None = None) -> int:
     args_in = sys.argv[1:] if argv is None else argv
     parser = build_parser()
 
-    # Default to `convert` if no subcommand was provided
+    # Default to MCP server if no subcommand was provided
     if not args_in:
-        return convert_adi.main([])
+        from adif_mcp.mcp.server import run as run_mcp
+
+        run_mcp()
+        return 0
 
     args = parser.parse_args(args_in)
     func = cast(Callable[[argparse.Namespace], int] | None, getattr(args, "func", None))
