@@ -184,3 +184,15 @@ class PersonaStore:
         p.providers[key] = {"username": username}
         self._save()
         return p
+
+    def remove_provider_ref(self, *, persona: str, provider: str) -> bool:
+        """Remove a provider reference. Returns True if removed."""
+        p = self._personas.get(persona)
+        if not p:
+            raise KeyError(f"Persona not found: {persona}")
+        key = provider.lower()
+        if key in p.providers:
+            del p.providers[key]
+            self._save()
+            return True
+        return False

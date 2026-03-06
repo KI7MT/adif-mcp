@@ -1,4 +1,4 @@
-"""PersonaManager façade for identity operations."""
+"""PersonaManager facade for identity operations."""
 
 from __future__ import annotations
 
@@ -6,23 +6,15 @@ from adif_mcp.credentials import get_creds
 
 from .errors import PersonaNotFound, ProviderRefMissing, SecretMissing
 from .models import Persona, ProviderRef
-from .secrets import KeyringSecretStore, SecretStore
 from .store import PersonaStore
-
-_SERVICE = "adif-mcp"  # keyring service name
 
 
 class PersonaManager:
-    """High-level API for personas  secrets (no network I/O)."""
+    """High-level API for personas + credentials (no network I/O)."""
 
-    def __init__(
-        self,
-        store: PersonaStore | None = None,
-        secrets: SecretStore | None = None,
-    ) -> None:
-        """Create a new manager with a persona store and secret backend."""
+    def __init__(self, store: PersonaStore | None = None) -> None:
+        """Create a new manager with a persona store."""
         self.store: PersonaStore = store or PersonaStore()
-        self.secrets: SecretStore = secrets or KeyringSecretStore()
 
     # -------- Persona lookups --------
 
@@ -40,33 +32,6 @@ class PersonaManager:
             return None
         user = ref.get("username")
         return user if user else None
-
-    # -------- Secrets --------
-
-    def _secret_key(self, persona: str, provider: str, username: str) -> str:
-        """TODO: Add vlaid docstring for PersonaManager: _secret_key
-
-        Args:
-            persona (str): _description_
-            provider (str): _description_
-            username (str): _description_
-
-        Returns:
-            str: _description_
-        """
-        return f"{persona}:{provider}:{username}"
-
-    def get_secret(self, persona: str, provider: str) -> str | None:
-        """Return secret/password for personaprovider from secrets backend."""
-        username = self.get_provider_username(persona, provider)
-        if not username:
-            return None
-        key = self._secret_key(persona, provider, username)
-        return self.secrets.get(_SERVICE, key)
-
-    def has_secret(self, persona: str, provider: str) -> bool:
-        """True if a secret exists for personaprovider."""
-        return self.get_secret(persona, provider) is not None
 
     # -------- Strict API --------
 

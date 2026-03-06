@@ -10,8 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, cast
 
 from adif_mcp.credentials import get_creds
-
-from .persona import resolve_home
+from adif_mcp.identity.store import PersonaStore
 
 # ---------- Provider metadata (resources/providers/*.json) ----------
 
@@ -20,14 +19,7 @@ PROVIDERS_DIR: Path = Path(files("adif_mcp.resources") / "providers")  # type: i
 
 
 def _provider_path(slug: str) -> Path:
-    """_summary_
-
-    Args:
-        slug (str): _description_
-
-    Returns:
-        Path: _description_
-    """
+    """Return path to provider JSON metadata file."""
     return Path(PROVIDERS_DIR) / f"{slug}.json"
 
 
@@ -59,88 +51,8 @@ def auth_type(slug: str) -> str:
     return str(meta.get("auth", "none")).lower()
 
 
-# ---------- YAML IO for persona configs ----------
-
-
-def _cfg_dir(home: Path) -> Path:
-    """_summary_
-
-    Args:
-        home (Path): _description_
-
-    Returns:
-        Path: _description_
-    """
-    return home / "config"
-
-
-def _persona_path(home: Path, name: str) -> Path:
-    """_summary_
-
-    Args:
-        home (Path): _description_
-        name (str): _description_
-
-    Returns:
-        Path: _description_
-    """
-    return _cfg_dir(home) / f"{name}.yaml"
-
-
-def _load_yaml(path: Path) -> Dict[str, Any]:
-    """_summary_
-
-    Args:
-        path (Path): _description_
-
-    Raises:
-        RuntimeError: _description_
-
-    Returns:
-        Dict[str, Any]: _description_
-    """
-    try:
-        import yaml  # type: ignore
-    except Exception as exc:  # pragma: no cover
-        raise RuntimeError("PyYAML required. Install: uv pip install pyyaml") from exc
-    if not path.exists():
-        return {}
-    with path.open("r", encoding="utf-8") as fh:
-        data = yaml.safe_load(fh)
-        return cast(Dict[str, Any], data or {})
-
-
-def _save_yaml(path: Path, data: Dict[str, Any]) -> None:
-    """_summary_
-
-    Args:
-        path (Path): _description_
-        data (Dict[str, Any]): _description_
-
-    Raises:
-        RuntimeError: _description_
-    """
-    try:
-        import yaml
-    except Exception as exc:  # pragma: no cover
-        raise RuntimeError("PyYAML required. Install: uv pip install pyyaml") from exc
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as fh:
-        yaml.safe_dump(data, fh, sort_keys=False)
-
-
 def _require_supported(provider: str) -> str:
-    """_summary_
-
-    Args:
-        provider (str): _description_
-
-    Raises:
-        SystemExit: _description_
-
-    Returns:
-        str: _description_
-    """
+    """Validate provider slug against supported list."""
     p = provider.lower()
     supported = set(list_supported())
     if p not in supported:
@@ -155,55 +67,37 @@ def _require_supported(provider: str) -> str:
 
 def cmd_list(args: argparse.Namespace) -> int:
     """Print supported providers and which personas enable them."""
-    home = resolve_home(args.home)
-    cfg = _cfg_dir(home)
-
     providers = list_supported()
     print("Supported providers: " + ", ".join(providers or ["(none found)"]))
 
-    if not cfg.exists():
-        print("(no personas discovered)")
-        return 0
-
-    # discover personas
-    personas: List[Dict[str, Any]] = []
-    for f in sorted(cfg.glob("*.yaml")):
-        data = _load_yaml(f)
-        if data:
-            personas.append(data)
-
+    store = PersonaStore()
+    personas = store.list()
     if not personas:
         print("(no personas discovered)")
         return 0
 
     print("\nEnabled per persona:")
-    for pdata in personas:
-        name = str(pdata.get("persona") or "(unnamed)")
-        enabled = [str(p).lower() for p in (pdata.get("enabled_providers") or [])]
-        enabled = [p for p in enabled if p in providers]
-        print(f"  {name:15s} -> {', '.join(enabled) or '(none)'}")
+    for p in personas:
+        enabled = [k for k in sorted(p.providers.keys()) if k in providers]
+        print(f"  {p.name:15s} -> {', '.join(enabled) or '(none)'}")
     return 0
 
 
 def cmd_enable(args: argparse.Namespace) -> int:
     """Enable a provider for a persona, warn if creds missing."""
-    home = resolve_home(args.home)
     persona = args.persona
     provider = _require_supported(args.provider)
 
-    path = _persona_path(home, persona)
-    data = _load_yaml(path)
-    if not data:
-        print(f"Persona '{persona}' not found at {path}")
+    store = PersonaStore()
+    p = store.get(persona)
+    if not p:
+        print(f"Persona '{persona}' not found")
         return 1
 
-    enabled: List[str] = [str(p).lower() for p in (data.get("enabled_providers") or [])]
-    if provider in enabled:
+    if provider in p.providers:
         print(f"{provider} already enabled for {persona}")
     else:
-        enabled.append(provider)
-        data["enabled_providers"] = sorted(enabled)
-        _save_yaml(path, data)
+        store.set_provider_ref(persona=persona, provider=provider, username="")
         print(f"Enabled {provider} for {persona}")
 
     # warn if creds missing for this persona/provider
@@ -229,25 +123,25 @@ def cmd_enable(args: argparse.Namespace) -> int:
 
 def cmd_disable(args: argparse.Namespace) -> int:
     """Disable a provider for a persona."""
-    home = resolve_home(args.home)
     persona = args.persona
     provider = _require_supported(args.provider)
 
-    path = _persona_path(home, persona)
-    data = _load_yaml(path)
-    if not data:
-        print(f"Persona '{persona}' not found at {path}")
+    store = PersonaStore()
+    p = store.get(persona)
+    if not p:
+        print(f"Persona '{persona}' not found")
         return 1
 
-    enabled: List[str] = [str(p).lower() for p in (data.get("enabled_providers") or [])]
-    if provider not in enabled:
-        print(f"{provider} already disabled for {persona}")
-        return 0
+    try:
+        removed = store.remove_provider_ref(persona=persona, provider=provider)
+    except KeyError:
+        print(f"Persona '{persona}' not found")
+        return 1
 
-    enabled = [p for p in enabled if p != provider]
-    data["enabled_providers"] = sorted(enabled)
-    _save_yaml(path, data)
-    print(f"Disabled {provider} for {persona}")
+    if not removed:
+        print(f"{provider} already disabled for {persona}")
+    else:
+        print(f"Disabled {provider} for {persona}")
     return 0
 
 
@@ -264,7 +158,6 @@ def register_cli(
         description="Enable/disable providers on persona profiles.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("--home", help="Override SSOT home directory.")
     sp: argparse._SubParsersAction[argparse.ArgumentParser] = p.add_subparsers(
         dest="provider_cmd", required=True
     )

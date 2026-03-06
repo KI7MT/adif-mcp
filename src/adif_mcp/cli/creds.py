@@ -7,9 +7,6 @@ import getpass
 import json
 from typing import Optional
 
-import keyring
-
-from adif_mcp.cli.persona import discover_personas, resolve_home
 from adif_mcp.cli.provider import auth_type, list_supported
 from adif_mcp.credentials import (
     SERVICE,
@@ -18,6 +15,7 @@ from adif_mcp.credentials import (
     get_creds,
     set_creds,
 )
+from adif_mcp.identity.store import PersonaStore
 
 # ---------- Import Keyring ---------
 
@@ -31,14 +29,7 @@ except Exception:
 
 
 def _redacted(c: Credentials) -> dict[str, str]:
-    """_summary_
-
-    Args:
-        c (Credentials): _description_
-
-    Returns:
-        dict[str, str]: _description_
-    """
+    """Return credential fields with secrets masked."""
 
     def mask(v: str) -> str:
         return (v[:2] + "…") if len(v) > 4 else "•••"
@@ -53,18 +44,8 @@ def _redacted(c: Credentials) -> dict[str, str]:
     return out
 
 
-# creds.py
-
-
 def cmd_set(args: argparse.Namespace) -> int:
-    """_summary_
-
-    Args:
-        args (argparse.Namespace): _description_
-
-    Returns:
-        int: _description_
-    """
+    """Set credentials for a persona/provider in the OS keyring."""
     if keyring is None:
         print("Install keyring: uv pip install keyring")
         return 2
@@ -109,14 +90,7 @@ def cmd_set(args: argparse.Namespace) -> int:
 
 
 def cmd_get(args: argparse.Namespace) -> int:
-    """_summary_
-
-    Args:
-        args (argparse.Namespace): _description_
-
-    Returns:
-        int: _description_
-    """
+    """Show redacted credentials from the OS keyring."""
     if keyring is None:
         print("Install keyring: uv pip install keyring")
         return 2
@@ -125,7 +99,7 @@ def cmd_get(args: argparse.Namespace) -> int:
         print("No credentials stored.")
         return 1
     if getattr(args, "raw", False):
-        # raw JSON of what’s in the keyring (no masking)
+        # raw JSON of what's in the keyring (no masking)
         print(c.to_json())
     else:
         # redacted, omitting null/empty fields
@@ -134,14 +108,7 @@ def cmd_get(args: argparse.Namespace) -> int:
 
 
 def cmd_delete(args: argparse.Namespace) -> int:
-    """_summary_
-
-    Args:
-        args (argparse.Namespace): _description_
-
-    Returns:
-        int: _description_
-    """
+    """Delete stored credentials from the OS keyring."""
     if keyring is None:
         print("Install keyring: uv pip install keyring")
         return 2
@@ -151,14 +118,7 @@ def cmd_delete(args: argparse.Namespace) -> int:
 
 
 def cmd_list(args: argparse.Namespace) -> int:
-    """_summary_
-
-    Args:
-        args (argparse.Namespace): _description_
-
-    Returns:
-        int: _description_
-    """
+    """Explain where keyring entries live."""
     if keyring is None:
         print("Install keyring: uv pip install keyring")
         return 2
@@ -170,19 +130,8 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
-# ADD near other commands
-
-
 def _has_required_fields(c: Optional[Credentials], a: str) -> bool:
-    """_summary_
-
-    Args:
-        c (Optional[Credentials]): _description_
-        a (str): _description_
-
-    Returns:
-        bool: _description_
-    """
+    """Check if credentials have the required fields for auth type."""
     a = a.lower()
     if a == "username_password":
         return bool(c and c.username and c.password)
@@ -193,45 +142,39 @@ def _has_required_fields(c: Optional[Credentials], a: str) -> bool:
 
 
 def cmd_doctor(args: argparse.Namespace) -> int:
-    """_summary_
-
-    Args:
-        args (argparse.Namespace): _description_
-
-    Returns:
-        int: _description_
-    """
-    home = resolve_home(args.home)
-    personas = discover_personas(home)
+    """Check credential health across personas and providers."""
+    store = PersonaStore()
+    personas = store.list()
     if not personas:
-        print(f"(no personas) — create one under {home}/config/*.yaml")
+        print("(no personas) — create one with: adif-mcp persona add --name NAME …")
         return 0
 
     target = (args.persona or "").lower() if hasattr(args, "persona") else ""
     ok = missing = 0
 
-    for pdata in personas:
-        name = str(pdata.get("persona") or "").strip()
-        if not name or (target and name.lower() != target):
+    for p in personas:
+        if not p.name or (target and p.name.lower() != target):
             continue
 
-        enabled = [str(p).lower() for p in (pdata.get("enabled_providers") or [])]
         for prov in list_supported():
-            if prov not in enabled:
+            if prov not in p.providers:
                 continue
             a = auth_type(prov)
-            c = get_creds(name, prov)
+            c = get_creds(p.name, prov)
             if _has_required_fields(c, a):
-                print(f"✓ {name}:{prov} — stored ({a})")
+                print(f"✓ {p.name}:{prov} — stored ({a})")
                 ok += 1
             else:
                 need = (
                     "username+password"
                     if a == "username_password"
-                    else ("username+api_key" if a == "api_key" else "some secret")
+                    else (
+                        "username+api_key" if a == "api_key" else "some secret"
+                    )
                 )
                 print(
-                    f"✗ {name}:{prov} — missing {need} (run: adif-mcp creds set {name} {prov})"
+                    f"✗ {p.name}:{prov} — missing {need} "
+                    f"(run: adif-mcp creds set {p.name} {prov})"
                 )
                 missing += 1
 
@@ -243,6 +186,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
 
 
 def register_cli(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+    """Register credentials subcommands."""
     p = subparsers.add_parser(
         "creds",
         help="Manage credentials in the OS keyring.",
@@ -250,7 +194,6 @@ def register_cli(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    p.add_argument("--home", help="Override SSOT home directory.")
     sp: argparse._SubParsersAction[argparse.ArgumentParser] = p.add_subparsers(
         dest="creds_cmd", required=True
     )
