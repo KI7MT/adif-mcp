@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from adif_mcp.credentials import get_creds
+
 from .errors import PersonaNotFound, ProviderRefMissing, SecretMissing
 from .models import Persona, ProviderRef
 from .secrets import KeyringSecretStore, SecretStore
@@ -87,12 +89,21 @@ class PersonaManager:
                 f"Persona '{persona}' has empty username for '{provider}'"
             )
 
-        key = self._secret_key(persona, provider, username)
-        secret = self.secrets.get(_SERVICE, key)
+        # Use the credentials module (same key format as CLI)
+        creds = get_creds(persona, provider)
+        if not creds:
+            raise SecretMissing(
+                persona, provider,
+                f"Missing credentials for {provider} on persona '{persona}' "
+                f"(run: adif-mcp creds set {persona} {provider})"
+            )
+
+        # Return password or api_key depending on what's stored
+        secret = creds.password or creds.api_key
         if not secret:
             raise SecretMissing(
                 persona, provider,
-                f"Missing secret for {provider} on persona '{persona}' (keyring empty?)"
+                f"No password/api_key for {provider} on persona '{persona}'"
             )
         return username, secret
 

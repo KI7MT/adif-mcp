@@ -1,0 +1,12 @@
+{
+  "name": "HamQTH",
+  "slug": "hamqth",
+  "auth": "username_password",
+  "description": "HamQTH.com callsign lookup",
+  "fields": [
+    "call",
+    "name",
+    "gridsquare",
+    "country"
+  ]
+}

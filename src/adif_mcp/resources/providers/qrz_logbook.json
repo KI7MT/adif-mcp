@@ -1,8 +1,8 @@
 {
-  "name": "QRZ XML",
-  "slug": "qrz",
-  "auth": "username_password",
-  "description": "QRZ XML Logbook",
+  "name": "QRZ Logbook",
+  "slug": "qrz_logbook",
+  "auth": "api_key",
+  "description": "QRZ Logbook API",
   "fields": [
     "station_call",
     "call",
