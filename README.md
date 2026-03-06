@@ -5,14 +5,14 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server for
 
 ## Overview
 
-adif-mcp gives AI agents safe, typed access to Amateur Radio logging data. It validates and parses ADIF records, searches the full ADIF 3.1.6 specification (fields, enumerations, data types), and provides geospatial utilities for Maidenhead locators. A plugin system supports service integrations for LoTW, eQSL, and QRZ.
+adif-mcp gives AI agents safe, typed access to Amateur Radio logging data. It validates and parses ADIF records, searches the full ADIF 3.1.6 specification (fields, enumerations, data types), and provides geospatial utilities for Maidenhead locators. It also provides persona management and keyring-backed credential storage used by the qso-graph family of MCP servers.
 
 [![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue)](https://www.python.org/)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 [![ADIF 3.1.6](https://img.shields.io/badge/ADIF-3.1.6-blue)](https://adif.org.uk/316/ADIF_316.htm)
 [![PyPI](https://img.shields.io/pypi/v/adif-mcp)](https://pypi.org/project/adif-mcp/)
-[![CI](https://github.com/KI7MT/adif-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/KI7MT/adif-mcp/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-adif--mcp.com-blue)](https://adif-mcp.com/)
+[![CI](https://github.com/qso-graph/adif-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/qso-graph/adif-mcp/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-qso--graph.io-blue)](https://qso-graph.io/)
 
 ## Quick Start
 
@@ -110,14 +110,15 @@ Add to `~/.gemini/settings.json` (global) or `.gemini/settings.json` (project):
 
 ## Tools
 
-adif-mcp exposes **7 tools** via the Model Context Protocol:
+adif-mcp exposes **8 tools** via the Model Context Protocol:
 
 | Category | Tool | Description |
 |----------|------|-------------|
 | **Validation** | `validate_adif_record` | Validate a raw ADIF string against the 3.1.6 spec |
 | **Validation** | `parse_adif` | Streaming parser for large ADIF files with pagination |
 | **Spec** | `read_specification_resource` | Retrieve raw JSON for any spec module (band, mode, fields) |
-| **Spec** | `search_enumerations` | Search administrative subdivision records |
+| **Spec** | `list_enumerations` | List all ADIF enumerations with entry counts |
+| **Spec** | `search_enumerations` | Search enumeration records by keyword |
 | **Geospatial** | `calculate_distance` | Great Circle distance (km) between two Maidenhead locators |
 | **Geospatial** | `calculate_heading` | Initial beam heading (azimuth) between two locators |
 | **System** | `get_version_info` | Active service version and ADIF spec version |
@@ -126,30 +127,35 @@ adif-mcp exposes **7 tools** via the Model Context Protocol:
 
 adif-mcp is the **foundation package** -- ADIF spec tools, persona management, and credential storage. Service integrations are separate MCP servers that depend on adif-mcp for identity and auth:
 
-| Package | Status | What It Does |
-|---------|--------|-------------|
-| `adif-mcp` | Published | ADIF 3.1.6 spec tools + persona/credential management |
-| `lotw-mcp` | Planned | LoTW confirmations, award tracking |
-| `eqsl-mcp` | Planned | eQSL inbox, confirmation status |
-| `qrz-mcp` | Planned | Callsign lookup, logbook queries |
-Each integration MCP uses `adif-mcp` for persona lookup and keyring-backed credentials. Operators install only the servers they need. This keeps each server focused, independently versioned, and free of unnecessary dependencies.
+| Package | PyPI | What It Does |
+|---------|------|-------------|
+| [`adif-mcp`](https://pypi.org/project/adif-mcp/) | v0.9.4 | ADIF 3.1.6 spec tools + persona/credential management |
+| [`lotw-mcp`](https://pypi.org/project/lotw-mcp/) | v0.2.0 | LoTW confirmations, QSOs, DXCC credits, user activity |
+| [`eqsl-mcp`](https://pypi.org/project/eqsl-mcp/) | v0.2.0 | eQSL inbox, verification, AG status, last upload |
+| [`qrz-mcp`](https://pypi.org/project/qrz-mcp/) | v0.2.0 | Callsign lookup, DXCC, logbook status/fetch |
+| [`hamqth-mcp`](https://pypi.org/project/hamqth-mcp/) | v0.2.0 | Callsign lookup, DXCC, bio, activity, DX spots, RBN |
+| [`pota-mcp`](https://pypi.org/project/pota-mcp/) | v0.1.1 | Parks on the Air spots, park info, stats, schedules |
+| [`sota-mcp`](https://pypi.org/project/sota-mcp/) | v0.1.1 | Summits on the Air spots, alerts, summit info, stats |
+| [`solar-mcp`](https://pypi.org/project/solar-mcp/) | v0.1.1 | Space weather conditions, forecasts, band outlook |
+| [`wspr-mcp`](https://pypi.org/project/wspr-mcp/) | v0.1.1 | WSPR beacon spots, propagation, band activity |
+| [`iota-mcp`](https://pypi.org/project/iota-mcp/) | v0.1.0 | Islands on the Air lookup, search, nearby groups |
+
+Authenticated servers use `adif-mcp` for persona lookup and keyring-backed credentials. Operators install only the servers they need. Each server is independently versioned with no unnecessary dependencies.
 
 ## Compliance & Provenance
 
 adif-mcp follows the [ADIF Specification](https://adif.org.uk) (currently 3.1.6) and uses **registered Program IDs** to identify all exports:
 
 - `ADIF-MCP` -- Core engine
-- `ADIF-MCP-LOTW` -- LoTW plugin
-- `ADIF-MCP-EQSL` -- eQSL plugin
-- `ADIF-MCP-QRZ` -- QRZ plugin
+- `ADIF-MCP-LOTW` -- LoTW server
+- `ADIF-MCP-EQSL` -- eQSL server
+- `ADIF-MCP-QRZ` -- QRZ server
 
 The project uses **APP_ fields** for provenance when augmenting records:
 
 - `APP_ADIF-MCP_OP` -- operation performed (`normalize`, `validate`, `merge`)
-- `APP_ADIF-MCP-LOTW_ACTION` -- LoTW plugin operation
+- `APP_ADIF-MCP-LOTW_ACTION` -- LoTW server operation
 - `APP_ADIF-MCP-EQSL_TIME` -- timestamp of eQSL merge
-
-See the [Program ID & APP_ Field Policy](https://adif-mcp.com/program-id-policy/) for full details.
 
 ## License
 

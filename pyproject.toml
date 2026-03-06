@@ -1,7 +1,7 @@
 [project]
 name = "adif-mcp"
-version = "0.9.4"
-description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ)"
+version = "0.9.5"
+description = "ADIF MCP server — spec tools, persona management, and credential storage for qso-graph"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "KI7MT" }]
@@ -82,10 +82,10 @@ all = [
 ]
 
 [project.urls]
-"Homepage" = "https://adif-mcp.com"
+"Homepage" = "https://qso-graph.io"
 "Repository" = "https://github.com/qso-graph/adif-mcp"
 "Issues" = "https://github.com/qso-graph/adif-mcp/issues"
-"Documentation" = "https://adif-mcp.com/"
+"Documentation" = "https://qso-graph.io/"
 "ADIF Spec" = "https://adif.org.uk/316/ADIF_316.htm"
 
 [project.scripts]
