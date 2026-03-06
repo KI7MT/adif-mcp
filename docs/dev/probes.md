@@ -31,19 +31,16 @@ If either is missing, `PersonaManager.require()` raises a typed error.
 uv run adif-mcp provider index-check --provider eqsl    --persona MyEQSL
 uv run adif-mcp provider index-check --provider lotw    --persona MyLOTW
 uv run adif-mcp provider index-check --provider qrz     --persona MyQRZ
-uv run adif-mcp provider index-check --provider clublog --persona MyCLUBLOG
 
 # GET probes (network)
 uv run adif-mcp provider probe --provider eqsl    --persona MyEQSL    --timeout 30
 uv run adif-mcp provider probe --provider lotw    --persona MyLOTW    --timeout 30
 uv run adif-mcp provider probe --provider qrz     --persona MyQRZ     --timeout 30
-uv run adif-mcp provider probe --provider clublog --persona MyCLUBLOG --timeout 30
 ```
 
 Sample Output
 ```bash
 [OK] lotw GET /lotwuser/lotwreport.adi?login=k***t&password=<redacted>&qso_qslsince=2025-09-03 http=200 bytes=6284
-[error] clublog GET /logsearchjson.php?call=G7VJR&log=G3TXF&year=2099&api=<redacted> net=HTTPError: HTTP Error 403: Forbidden
 ```
 
 |Code|Meaning

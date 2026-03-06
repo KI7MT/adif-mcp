@@ -61,13 +61,11 @@ uv run pytest -q -k "manifest"
 uv run adif-mcp provider index-check --provider lotw   --persona MyLOTW
 uv run adif-mcp provider index-check --provider eqsl   --persona MyEQSL
 uv run adif-mcp provider index-check --provider qrz    --persona MyQRZ
-uv run adif-mcp provider index-check --provider clublog --persona MyCLUBLOG
 
 # Network GET (safe probe)
 uv run adif-mcp provider probe --provider lotw   --persona MyLOTW    --timeout 30
 uv run adif-mcp provider probe --provider eqsl   --persona MyEQSL    --timeout 30
 uv run adif-mcp provider probe --provider qrz    --persona MyQRZ     --timeout 30
-uv run adif-mcp provider probe --provider clublog --persona MyCLUBLOG --timeout 30
 
 # Make helpers
 make probe-index

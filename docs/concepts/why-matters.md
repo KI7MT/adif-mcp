@@ -16,7 +16,7 @@ Traditionally, getting those answers means exporting ADIF, writing scripts, logg
 
 - **Backbone** — Spec-compliant, schema-driven access to ADIF data.
 - **Agents** — Chat/voice tools ask natural-language questions over your logs.
-- **Integrations** — Connect to LoTW, eQSL, QRZ, Club Log (and more) in a typed, safe way.
+- **Integrations** — Connect to LoTW, eQSL, QRZ (and more) in a typed, safe way.
 
 > **In short:** ADIF-MCP handles the plumbing; agents handle the conversation.
 

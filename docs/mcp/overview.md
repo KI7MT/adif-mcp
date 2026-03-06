@@ -19,7 +19,7 @@ ADIF-MCP is an MCP server built with [FastMCP](https://github.com/jlowin/fastmcp
 AI Agent  <-->  MCP Protocol (stdio)  <-->  adif-mcp server
                                               |
                                               +-- ADIF 3.1.6 spec (30 bundled JSON modules)
-                                              +-- Plugin system (LoTW, eQSL, QRZ, Club Log)
+                                              +-- Plugin system (LoTW, eQSL, QRZ)
                                               +-- Persona & credential management
 ```
 

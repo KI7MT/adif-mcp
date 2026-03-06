@@ -50,8 +50,8 @@ You should never ( as a standard security practice, *never* write down or save p
 
 
 **Real Example** - The Example below is how I re-create my personans. KI7MT is my primary callsign. KE1HA was my previous call. Both call signs are
-merged in LoTW and eQSL for award purposes.The personas I used are for the major logging platforms: `MyEQSL`, `MyLOTW`, `MyQRZ`, `MyCLUBLOG`. The associated
-usernames and passwored are stored in macOS Keychain with `set-credentials`, For things like contests, or special events, use an event handle, for example:
+merged in LoTW and eQSL for award purposes.The personas I used are for the major logging platforms: `MyEQSL`, `MyLOTW`, `MyQRZ`. The associated
+usernames and passwords are stored in macOS Keychain with `set-credentials`. For things like contests, or special events, use an event handle, for example:
 `CQ-WW-CW-2025-W7X` or whatever makes sense as the identifier.
 
 ```bash
@@ -61,7 +61,6 @@ usernames and passwored are stored in macOS Keychain with `set-credentials`, For
 #   export EQSL_USER=... EQSL_PASS=...
 #   export LOTW_USER=... LOTW_PASS=...
 #   export QRZ_USER=...  QRZ_KEY=...
-#   export CLUBLOG_USER=... CLUBLOG_KEY=...
 #
 function reset-personas () {
   set -euo pipefail
@@ -73,7 +72,6 @@ uv run adif-mcp persona remove-all --yes || true
 uv run adif-mcp persona add --name MyEQSL    --callsign KI7MT --start 2009-12-22
 uv run adif-mcp persona add --name MyLOTW    --callsign KI7MT --start 2009-12-22
 uv run adif-mcp persona add --name MyQRZ     --callsign KI7MT --start 2009-12-22
-uv run adif-mcp persona add --name MyCLUBLOG --callsign KI7MT --start 2009-12-22
 
 # add login credentials and save to macOS Keychain for safe keeping
 # WinCred for Windows
@@ -81,7 +79,6 @@ uv run adif-mcp persona add --name MyCLUBLOG --callsign KI7MT --start 2009-12-22
 uv run adif-mcp persona set-credential --persona MyEQSL    --provider eqsl    --username "${EQSL_USER}"    --password "${EQSL_PASS}"
 uv run adif-mcp persona set-credential --persona MyLOTW    --provider lotw    --username "${LOTW_USER}"    --password "${LOTW_PASS}"
 uv run adif-mcp persona set-credential --persona MyQRZ     --provider qrz     --username "${QRZ_USER}"     --password "${QRZ_KEY}"
-uv run adif-mcp persona set-credential --persona MyCLUBLOG --provider clublog --username "${CLUBLOG_USER}" --password "${CLUBLOG_KEY}"
 
 # Add my previous call sign as a persona, using my Primay account ( KI7MT ) for login
 # Again, KE1HA is merged in LoTW and eQSL. If yours is not, add the appropriate user and password for those accounts.
@@ -89,7 +86,6 @@ uv run adif-mcp persona add --name KE1HA --callsign KE1HA --start 2001-04-16 --e
 uv run adif-mcp persona set-credential --persona KE1HA --provider eqsl     --username "${EQSL_USER}"    --password "${EQSL_PASS}"
 uv run adif-mcp persona set-credential --persona KE1HA --provider lotw     --username "${LOTW_USER}"    --password "${LOTW_PASS}"
 uv run adif-mcp persona set-credential --persona KE1HA --provider qrz      --username "${QRZ_USER}"     --password "${QRZ_KEY}"
-uv run adif-mcp persona set-credential --persona KE1HA --provider clublog  --username "${CLUBLOG_USER}" --password "${CLUBLOG_KEY}"
 
 # Print out my list of personans in verbose mode
 uv run adif-mcp persona list --verbose

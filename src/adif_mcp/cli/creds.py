@@ -258,7 +258,7 @@ def register_cli(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]
     # --- set ---
     s = sp.add_parser("set", help="Save credentials.")
     s.add_argument("persona", help="Persona name")
-    s.add_argument("provider", help="Provider (eqsl, lotw, qrz, clublog)")
+    s.add_argument("provider", help="Provider (eqsl, lotw, qrz)")
     s.add_argument("--username", default=None, help="Username/login")
     s.add_argument("--password", default=None, help="Password (unsafe on CLI)")
     s.add_argument("--api-key", default=None, help="API key/token")

@@ -24,7 +24,7 @@ def test_adif_catalog_fields_nonempty() -> None:
 def test_list_and_load_provider() -> None:
     """TODO: add docstrings for: test list and load provilages"""
     provs = list_providers()
-    assert {"eqsl", "lotw", "qrz", "clublog"}.issubset(set(provs))
+    assert {"eqsl", "lotw", "qrz"}.issubset(set(provs))
     eqsl = load_provider("eqsl")
     assert "fields" in eqsl
 

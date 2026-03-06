@@ -7,8 +7,7 @@ flowchart LR
   C --> D[LoTW]
   C --> E[eQSL]
   C --> F[QRZ]
-  C --> G[Club Log]
 
   classDef service fill:#eef,stroke:#36c,stroke-width:1px;
-  class D,E,F,G service;
+  class D,E,F service;
 ~~~

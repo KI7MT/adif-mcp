@@ -108,7 +108,7 @@ Run smoke tests:
 make smoke-all
 ```
 
-Expected: probes and CLI run without errors (Clublog probe may return HTTP 403 by design).
+Expected: probes and CLI run without errors.
 
 ### Final Step: The MCP Handshake
 

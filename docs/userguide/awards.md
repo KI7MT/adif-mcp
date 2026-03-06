@@ -48,7 +48,7 @@ This matrix captures **who sponsors what** and how MCP can expose it to operator
    - MCP maps these to canonical `QsoRecord` fields.
 
 2. **Provider Layer**
-   - LoTW, eQSL, QRZ, Club Log expose *subsets* of ADIF fields.
+   - LoTW, eQSL, QRZ expose *subsets* of ADIF fields.
    - MCP normalizes them to a common schema.
 
 3. **Persona Layer**

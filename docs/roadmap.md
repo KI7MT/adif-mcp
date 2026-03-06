@@ -25,7 +25,7 @@
 ### Packaging
 - PyPI: `pip install adif-mcp`
 - CLI entry point: `adif-mcp`
-- Registered ADIF Program IDs (ADIF-MCP, ADIF-MCP-LOTW, ADIF-MCP-EQSL, ADIF-MCP-QRZ, ADIF-MCP-CLUBLOG)
+- Registered ADIF Program IDs (ADIF-MCP, ADIF-MCP-LOTW, ADIF-MCP-EQSL, ADIF-MCP-QRZ)
 
 ## Current Focus
 
@@ -33,7 +33,6 @@
 - LoTW adapter: confirmation queries, award tracking
 - eQSL adapter: inbox queries, confirmation status
 - QRZ adapter: callsign lookup, logbook queries
-- Club Log adapter: DXCC matching, OQRS status
 
 ### ADIF Models
 - Pydantic models for typed QSO records

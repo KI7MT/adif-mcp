@@ -26,7 +26,7 @@ ADIF-MCP is a [Model Context Protocol](https://modelcontextprotocol.io/) server 
 
 - **Spec-compliant** -- full ADIF 3.1.6 bundled as structured JSON (30 modules)
 - **Sovereign** -- runs entirely on your machine, no cloud dependencies
-- **Extensible** -- plugin framework for LoTW, eQSL, QRZ, and Club Log
+- **Extensible** -- plugin framework for LoTW, eQSL, and QRZ
 - **Secure** -- credentials stored in your system keyring, never logged
 
 ## Project Ethos

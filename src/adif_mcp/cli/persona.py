@@ -398,7 +398,7 @@ def register_cli(
     s_add.add_argument(
         "--providers",
         nargs="*",
-        help="Initial providers to enable (e.g. eqsl lotw qrz clublog)",
+        help="Initial providers to enable (e.g. eqsl lotw qrz)",
     )
     s_add.add_argument("--force", action="store_true", help="Overwrite if exists")
     s_add.set_defaults(func=cmd_add)
@@ -429,7 +429,7 @@ def register_cli(
     s_sc.add_argument(
         "--provider",
         required=True,
-        choices=["eqsl", "lotw", "qrz", "clublog"],
+        choices=["eqsl", "lotw", "qrz", "hamqth"],
         help="Provider slug",
     )
     s_sc.add_argument("--username", help="Username/callsign", default=None)

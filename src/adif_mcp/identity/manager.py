@@ -72,15 +72,18 @@ class PersonaManager:
         """Return (username, secret) or raise typed errors for UX-friendly flow."""
         p = self.get_persona(persona)
         if p is None:
-            raise PersonaNotFound(f"No such persona: '{persona}'")
+            raise PersonaNotFound(persona, provider, f"No such persona: '{persona}'")
 
         ref: ProviderRef | None = p.providers.get(provider.lower())
         if ref is None:
-            raise ProviderRefMissing(f"Persona '{persona}' has no '{provider}' ref")
+            raise ProviderRefMissing(
+                persona, provider, f"Persona '{persona}' has no '{provider}' ref"
+            )
 
         username = ref.get("username")
         if not username:
             raise ProviderRefMissing(
+                persona, provider,
                 f"Persona '{persona}' has empty username for '{provider}'"
             )
 
@@ -88,6 +91,7 @@ class PersonaManager:
         secret = self.secrets.get(_SERVICE, key)
         if not secret:
             raise SecretMissing(
+                persona, provider,
                 f"Missing secret for {provider} on persona '{persona}' (keyring empty?)"
             )
         return username, secret

@@ -73,7 +73,7 @@ Set credential (non-secret ref + secret in keyring)
 ```
 uv run adif-mcp persona set-credential \
   --persona <PersonaName> \
-  --provider {lotw|eqsl|qrz|clublog} \
+  --provider {lotw|eqsl|qrz} \
   --username <account_username>
 # Prompts for password/token securely
 ```

@@ -9,7 +9,6 @@ adif-mcp uses a plugin architecture to connect with Amateur Radio logging servic
 | `adif-mcp-lotw` | [LoTW](https://lotw.arrl.org/) | In progress | ARRL Logbook of The World -- confirmations, awards, uploads |
 | `adif-mcp-eqsl` | [eQSL](https://www.eqsl.cc/) | In progress | Electronic QSL confirmations and awards |
 | `adif-mcp-qrz` | [QRZ](https://www.qrz.com/) | In progress | Callsign lookup and logbook integration |
-| `adif-mcp-clublog` | [Club Log](https://clublog.org/) | In progress | DXCC matching, OQRS, expedition logs |
 
 ## How Integrations Work
 
@@ -33,7 +32,6 @@ Operator Persona
         +-- LoTW adapter  --> lotw.arrl.org API
         +-- eQSL adapter  --> eqsl.cc API
         +-- QRZ adapter   --> xmldata.qrz.com API
-        +-- Club Log adapter --> clublog.org API
 ```
 
 ## Adding a New Integration

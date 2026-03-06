@@ -20,8 +20,6 @@ def build_request(
         return _eqsl_request(pm, persona)
     if p == "qrz":
         return _qrz_request(pm, persona)
-    if p == "clublog":
-        return _clublog_request(pm, persona)
     raise ValueError(f"Unknown provider: {provider!r}")
 
 
@@ -69,21 +67,5 @@ def _qrz_request(
         "username": username,
         "password": secret,
         "agent": "adif-mcp",
-    }
-    return url, headers, query
-
-
-def _clublog_request(
-    pm: PersonaManager, persona: str
-) -> tuple[str, dict[str, str], dict[str, Any]]:
-    """Club Log: logsearch JSON with future year to avoid heavy bodies."""
-    _username, secret = pm.require(persona, "clublog")
-    url = "https://clublog.org/logsearchjson.php"
-    headers: dict[str, str] = {}
-    query: dict[str, Any] = {
-        "call": "G7VJR",
-        "log": "G3TXF",
-        "year": "2099",
-        "api": secret,
     }
     return url, headers, query

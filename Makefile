@@ -6,7 +6,7 @@ PYTHON	?= python3
 
 # Persona Variables
 PERSONA ?= Primary
-PROVIDERS := eqsl lotw qrz clublog
+PROVIDERS := eqsl lotw qrz
 
 # Pull versions from pyproject.toml (Python 3.11+ for tomllib)
 PY_PROJ_VERSION := $(shell $(PYTHON) -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])" 2>/dev/null)

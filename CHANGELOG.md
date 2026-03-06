@@ -72,7 +72,7 @@ Shifted project architecture to a **Schema-First** model based on the authoritat
 - **Field Catalog:** Added `adif_catalog.json` to define primary fields for AI focus.
 
 ### Changed
-- **Server Refactor:** Removed `eqsl`, `lotw`, `qrz`, and `clublog` tool stubs to prevent model hallucinations.
+- **Server Refactor:** Removed `eqsl`, `lotw`, and `qrz` tool stubs to prevent model hallucinations.
 - **Type Safety:** Updated `server.py` to pass strict `mypy` type checking with `AnyUrl` and `importlib.resources`.
 - **Metadata:** Updated `adif_meta.json` with official ADIF Developers Group attribution.
 
@@ -132,7 +132,6 @@ Shifted project architecture to a **Schema-First** model based on the authoritat
 - **Integrations (Stubs)**:
     - `eqsl_query`: Queries eQSL inbox/status.
     - `lotw_query`: Queries LoTW reports.
-    - `clublog_query`: Queries ClubLog status and propagation.
     - `qrz_query`: Fetches QRZ bio/station data.
 - **Models**:
     - `QSO` (Pydantic V2) for strict ADIF validation.
@@ -341,7 +340,7 @@ Shifted project architecture to a **Schema-First** model based on the authoritat
 - `make keychain-test` target now exercises persona add/set/remove flows against macOS Keychain safely.
 - Extended pyproject.toml:
   - Defined `[project.optional-dependencies]` groups for dev tooling (ruff, mypy, pytest, interrogate, mkdocs, etc.).
-  - Added provider URLs (LoTW, eQSL, Club Log, QRZ) under `[project.urls]`.
+  - Added provider URLs (LoTW, eQSL, QRZ) under `[project.urls]`.
   - Config section `[tool.adif]` now OS-agnostic (`config_dir_name`, `personas_index`).
 - Makefile:
   - Added consistent `gate` and `smoke-all` targets with `uv run` for lint, type, test, interrogate.

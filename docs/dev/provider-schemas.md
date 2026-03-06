@@ -38,7 +38,7 @@ Example: resources/providers/eqsl.json
 - name: display label used in docs/UI.
 - fields: the normalized ADIF-ish keys our parser/normalizer expects.
 
-Other providers are similar (LoTW, QRZ, Club Log). QRZ currently omits RST fields intentionally.
+Other providers are similar (LoTW, QRZ). QRZ currently omits RST fields intentionally.
 
 ## Usage map (what consumes what)
 

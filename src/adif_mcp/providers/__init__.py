@@ -5,6 +5,6 @@ from __future__ import annotations
 from typing import Literal
 
 # Literal across the package for mypy strictness.
-ProviderKey = Literal["lotw", "eqsl", "qrz", "clublog"]
+ProviderKey = Literal["lotw", "eqsl", "qrz"]
 
 __all__ = ["ProviderKey"]

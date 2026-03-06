@@ -1,13 +1,13 @@
 [project]
 name = "adif-mcp"
 version = "0.9.1"
-description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ, Clublog)"
+description = "ADIF MCP core engine with plugin support (LoTW, eQSL, QRZ)"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "KI7MT" }]
 keywords = [
     "amateur-radio", "ham-radio", "adif", "mcp", "model-context-protocol",
-    "lotw", "eqsl", "qrz", "clublog", "qso-logging", "ai-agents",
+    "lotw", "eqsl", "qrz", "qso-logging", "ai-agents",
 ]
 # Support modern CPython, develop on 3.13, run on 3.11+
 requires-python = ">=3.11"

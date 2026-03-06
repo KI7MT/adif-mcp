@@ -5,7 +5,7 @@ Core [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server for
 
 ## Overview
 
-adif-mcp gives AI agents safe, typed access to Amateur Radio logging data. It validates and parses ADIF records, searches the full ADIF 3.1.6 specification (fields, enumerations, data types), and provides geospatial utilities for Maidenhead locators. A plugin system supports service integrations for LoTW, eQSL, QRZ, and Club Log.
+adif-mcp gives AI agents safe, typed access to Amateur Radio logging data. It validates and parses ADIF records, searches the full ADIF 3.1.6 specification (fields, enumerations, data types), and provides geospatial utilities for Maidenhead locators. A plugin system supports service integrations for LoTW, eQSL, and QRZ.
 
 [![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue)](https://www.python.org/)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
@@ -132,8 +132,6 @@ adif-mcp is the **foundation package** -- ADIF spec tools, persona management, a
 | `lotw-mcp` | Planned | LoTW confirmations, award tracking |
 | `eqsl-mcp` | Planned | eQSL inbox, confirmation status |
 | `qrz-mcp` | Planned | Callsign lookup, logbook queries |
-| `clublog-mcp` | Planned | DXCC matching, OQRS, expedition logs |
-
 Each integration MCP uses `adif-mcp` for persona lookup and keyring-backed credentials. Operators install only the servers they need. This keeps each server focused, independently versioned, and free of unnecessary dependencies.
 
 ## Compliance & Provenance
@@ -144,7 +142,6 @@ adif-mcp follows the [ADIF Specification](https://adif.org.uk) (currently 3.1.6)
 - `ADIF-MCP-LOTW` -- LoTW plugin
 - `ADIF-MCP-EQSL` -- eQSL plugin
 - `ADIF-MCP-QRZ` -- QRZ plugin
-- `ADIF-MCP-CLUBLOG` -- Club Log plugin
 
 The project uses **APP_ fields** for provenance when augmenting records:
 

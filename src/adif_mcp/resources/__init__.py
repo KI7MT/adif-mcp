@@ -3,7 +3,7 @@
 Provides easy access to the following
 - adif_meta.json
 - adif_catalog.json
-- { lotw,eqsl,clublog,wrz,usage }.json
+- { lotw,eqsl,qrz,usage }.json
 - manifest.v1.json
 - usage.json
 """
@@ -133,7 +133,7 @@ def get_provider_schema(provider: str) -> dict[str, Any]:
     Load the JSON schema/field map for a given provider.
 
     Args:
-        provider: Provider key (e.g., "eqsl", "lotw", "clublog", "qrz").
+        provider: Provider key (e.g., "eqsl", "lotw", "qrz").
 
     Returns:
         dict[str, Any]: Parsed provider JSON definition.

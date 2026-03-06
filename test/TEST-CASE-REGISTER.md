@@ -558,12 +558,10 @@ FT8 was rushed into the ADIF spec as its own MODE before the MODE/SUBMODE policy
 |---------|-------------|-------------|-----------------|
 | LoTW | MODE=FT8 → DATA group | MODE=MFSK + SUBMODE=FT4 | Yes |
 | eQSL | MODE=FT8 accepted | MODE=MFSK + SUBMODE=FT4 | Yes |
-| Club Log | MODE=FT8 accepted | MODE only (SUBMODE dropped) | No |
 | QRZ | ADIF standard, lossless | ADIF standard, lossless | Yes |
 | WSJT-X | Exports MODE=FT8 | Exports MODE=MFSK + SUBMODE=FT4 | Yes |
 
 **Key anomalies**:
-- Club Log drops SUBMODE entirely — only stores MODE field
 - DXKeeper flattens SUBMODE into Mode, loses original MODE
 - Some loggers export "DIGI" or "DATA" as MODE — not valid ADIF, correctly rejected
 - LoTW collapses all digital modes to DATA for award matching (Mode Groups)
@@ -586,4 +584,3 @@ FT8 was rushed into the ADIF spec as its own MODE before the MODE/SUBMODE policy
 | ADIF Program ID Register | https://adif.org.uk/programids.html |
 | FT8/FT4 Mode vs Submode Discussion | https://wsjtx.groups.io/g/main/topic/85236332 |
 | eQSL ADIF Content Specs | https://www.eqsl.cc/qslcard/ADIFContentSpecs.cfm |
-| Club Log ADIF Fields | https://clublog.freshdesk.com/support/solutions/articles/53202 |
