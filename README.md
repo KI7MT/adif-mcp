@@ -129,7 +129,7 @@ adif-mcp is the **foundation package** -- ADIF spec tools, persona management, a
 
 | Package | PyPI | What It Does |
 |---------|------|-------------|
-| [`adif-mcp`](https://pypi.org/project/adif-mcp/) | v0.9.4 | ADIF 3.1.6 spec tools + persona/credential management |
+| [`adif-mcp`](https://pypi.org/project/adif-mcp/) | v0.9.5 | ADIF 3.1.6 spec tools + persona/credential management |
 | [`lotw-mcp`](https://pypi.org/project/lotw-mcp/) | v0.2.0 | LoTW confirmations, QSOs, DXCC credits, user activity |
 | [`eqsl-mcp`](https://pypi.org/project/eqsl-mcp/) | v0.2.0 | eQSL inbox, verification, AG status, last upload |
 | [`qrz-mcp`](https://pypi.org/project/qrz-mcp/) | v0.2.0 | Callsign lookup, DXCC, logbook status/fetch |
