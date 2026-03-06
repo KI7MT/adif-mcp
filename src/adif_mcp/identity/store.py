@@ -65,6 +65,7 @@ class PersonaStore:
         """Initialize the store with a JSON index path."""
         self.index_path = index_path or personas_index_path()
         self._personas: dict[str, Persona] = {}
+        self._mtime: float = 0.0
         self._load()
 
     # -------- JSON IO --------
@@ -76,8 +77,10 @@ class PersonaStore:
         if not self.index_path.exists():
             self.index_path.parent.mkdir(parents=True, exist_ok=True)
             self.index_path.write_text(_dumps({"personas": {}}), encoding="utf-8")
+            self._mtime = self.index_path.stat().st_mtime
             return
 
+        self._mtime = self.index_path.stat().st_mtime
         data: dict[str, Any] = json.loads(self.index_path.read_text(encoding="utf-8"))
         raw = cast(dict[str, _PersonaJSON], data.get("personas", {}))
 
@@ -96,6 +99,15 @@ class PersonaStore:
                 providers=providers_map,
             )
 
+    def _refresh(self) -> None:
+        """Re-read from disk if the file has changed."""
+        try:
+            mtime = self.index_path.stat().st_mtime
+        except OSError:
+            return
+        if mtime != self._mtime:
+            self._load()
+
     def _save(self) -> None:
         """Persist the current in-memory map to disk."""
         out: dict[str, _PersonaJSON] = {}
@@ -113,11 +125,21 @@ class PersonaStore:
 
     def list(self) -> builtins.list[Persona]:
         """Return all personas, sorted by name."""
+        self._refresh()
         return [self._personas[k] for k in sorted(self._personas)]
 
     def get(self, name: str) -> Persona | None:
-        """Return a persona by name (or None)."""
-        return self._personas.get(name)
+        """Return a persona by name (case-insensitive) or None."""
+        self._refresh()
+        p = self._personas.get(name)
+        if p is not None:
+            return p
+        # Case-insensitive fallback
+        name_lower = name.lower()
+        for key, persona in self._personas.items():
+            if key.lower() == name_lower:
+                return persona
+        return None
 
     # -------- Mutations --------
 

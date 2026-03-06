@@ -23,38 +23,33 @@ class PersonaManager:
         return self.store.get(name)
 
     def get_provider_username(self, persona: str, provider: str) -> str | None:
-        """Return the stored (non-secret) username for persona/provider."""
+        """Return the username for persona/provider from the OS keyring."""
         p = self.get_persona(persona)
         if p is None:
             return None
-        ref: ProviderRef | None = p.providers.get(provider.lower())
-        if ref is None:
+        if provider.lower() not in p.providers:
             return None
-        user = ref.get("username")
-        return user if user else None
+        creds = get_creds(persona, provider)
+        return creds.username if creds else None
 
     # -------- Strict API --------
 
     def require(self, persona: str, provider: str) -> tuple[str, str]:
-        """Return (username, secret) or raise typed errors for UX-friendly flow."""
+        """Return (username, secret) from the OS keyring.
+
+        The persona index confirms the persona/provider relationship exists.
+        All credentials come from the keyring — never from the index file.
+        """
         p = self.get_persona(persona)
         if p is None:
             raise PersonaNotFound(persona, provider, f"No such persona: '{persona}'")
 
-        ref: ProviderRef | None = p.providers.get(provider.lower())
-        if ref is None:
+        if provider.lower() not in p.providers:
             raise ProviderRefMissing(
                 persona, provider, f"Persona '{persona}' has no '{provider}' ref"
             )
 
-        username = ref.get("username")
-        if not username:
-            raise ProviderRefMissing(
-                persona, provider,
-                f"Persona '{persona}' has empty username for '{provider}'"
-            )
-
-        # Use the credentials module (same key format as CLI)
+        # All credential data comes from the OS keyring — every time
         creds = get_creds(persona, provider)
         if not creds:
             raise SecretMissing(
@@ -63,12 +58,20 @@ class PersonaManager:
                 f"(run: adif-mcp creds set {persona} {provider})"
             )
 
-        # Return password or api_key depending on what's stored
+        username = creds.username
+        if not username:
+            raise SecretMissing(
+                persona, provider,
+                f"No username for {provider} on persona '{persona}' "
+                f"(run: adif-mcp creds set {persona} {provider})"
+            )
+
         secret = creds.password or creds.api_key
         if not secret:
             raise SecretMissing(
                 persona, provider,
-                f"No password/api_key for {provider} on persona '{persona}'"
+                f"No password/api_key for {provider} on persona '{persona}' "
+                f"(run: adif-mcp creds set {persona} {provider})"
             )
         return username, secret
 
