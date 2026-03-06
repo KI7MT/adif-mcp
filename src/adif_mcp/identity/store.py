@@ -161,6 +161,7 @@ class PersonaStore:
         if start and end and end < start:
             raise ValueError("end date cannot be earlier than start date")
 
+        name = name.lower()
         callsign_norm = callsign.upper()
 
         existing = self._personas.get(name)

@@ -1,6 +1,6 @@
 [project]
 name = "adif-mcp"
-version = "0.9.5"
+version = "0.9.6"
 description = "ADIF MCP server — spec tools, persona management, and credential storage for qso-graph"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
@@ -18,6 +18,7 @@ dependencies = [
     "click>=8.1.7",
     "fastmcp>=3.0",
     "keyring>=25.6.0",
+    "keyrings.alt>=5.0",
     "requests>=2.32.5",
     "typing-extensions>=4.15.0",
 ]

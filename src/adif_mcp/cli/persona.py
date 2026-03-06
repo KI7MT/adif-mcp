@@ -56,7 +56,7 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 def cmd_add(args: argparse.Namespace) -> int:
     """Add a new persona to the JSON index."""
-    name = args.name.strip()
+    name = args.name.strip().lower()
     if not name:
         print("persona --name is required")
         return 1

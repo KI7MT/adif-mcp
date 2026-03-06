@@ -117,6 +117,35 @@ def cmd_delete(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_reset(args: argparse.Namespace) -> int:
+    """Delete ALL personas and ALL credentials — factory reset."""
+    if not args.yes:
+        print("Refusing to reset without --yes (this deletes ALL personas and credentials)")
+        return 2
+    if keyring is None:
+        print("Install keyring: uv pip install keyring")
+        return 2
+
+    store = PersonaStore()
+    personas = store.list()
+    cred_count = 0
+
+    # Delete all keyring entries for every persona/provider
+    for p in personas:
+        for prov in list(p.providers.keys()):
+            if delete_creds(p.name, prov):
+                cred_count += 1
+
+    # Remove all personas
+    persona_count = 0
+    for p in personas:
+        store.remove(p.name)
+        persona_count += 1
+
+    print(f"Reset complete: {persona_count} persona(s), {cred_count} credential(s) deleted.")
+    return 0
+
+
 def cmd_list(args: argparse.Namespace) -> int:
     """Explain where keyring entries live."""
     if keyring is None:
@@ -223,6 +252,11 @@ def register_cli(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]
     # --- list ---
     list_parser = sp.add_parser("list", help="Explain where entries live.")
     list_parser.set_defaults(func=cmd_list)
+
+    # --- reset ---
+    r = sp.add_parser("reset", help="Delete ALL personas and credentials (factory reset).")
+    r.add_argument("--yes", action="store_true", help="Confirm destructive op")
+    r.set_defaults(func=cmd_reset)
 
     # --- doctor ---
     doc = sp.add_parser("doctor", help="Check creds across personas/providers.")
