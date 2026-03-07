@@ -58,14 +58,20 @@ def test_all_urls_https():
 
 
 def test_error_messages_safe():
-    """Verify http_probe.py has credential redaction machinery."""
-    probe_path = os.path.join(SRC_DIR, "probes", "http_probe.py")
-    with open(probe_path) as fh:
-        src = fh.read()
-    assert "_redact_text" in src, "http_probe.py missing _redact_text() usage"
-    assert "_endpoint_for_print" in src, (
-        "http_probe.py missing _endpoint_for_print()"
+    """Credentials never interpolated in error messages."""
+    dangerous = re.compile(
+        r'\{(password|api_key|secret|creds\.password|creds\.api_key)\}',
+        re.IGNORECASE,
     )
+    for path in _all_py_sources():
+        with open(path) as fh:
+            for i, line in enumerate(fh, 1):
+                if line.lstrip().startswith("#"):
+                    continue
+                matches = dangerous.findall(line)
+                assert not matches, (
+                    f"Credential interpolation in {path}:{i}: {line.strip()}"
+                )
 
 
 def test_no_eval_exec():
