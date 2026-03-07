@@ -1,6 +1,6 @@
 [project]
 name = "adif-mcp"
-version = "0.9.6"
+version = "1.0.0"
 description = "ADIF MCP server — spec parsing, validation, and field enumeration tools"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
@@ -70,14 +70,9 @@ test = [
   "cli-test-helpers>=0.3.0",
 ]
 
-# Optional provider integration ( macOS )
-keyring = ["keyring>=25.2"]
-
 # Convenience bundle
 all = [
-  # bring in dev + test + keyring
   "adif-mcp[dev,test]",
-  "adif-mcp[keyring]",
 ]
 
 [project.urls]
