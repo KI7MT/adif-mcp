@@ -8,7 +8,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
 
-from adif_mcp.identity.store import PersonaStore
+from qso_graph_auth.identity.store import PersonaStore
 
 
 def _parse_yyyymmdd(d: str) -> date:

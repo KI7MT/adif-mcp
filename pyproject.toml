@@ -1,7 +1,7 @@
 [project]
 name = "adif-mcp"
 version = "0.9.6"
-description = "ADIF MCP server — spec tools, persona management, and credential storage for qso-graph"
+description = "ADIF MCP server — spec parsing, validation, and field enumeration tools"
 readme = "README.md"
 license = { text = "GPL-3.0-or-later" }
 authors = [{ name = "KI7MT" }]
@@ -17,8 +17,6 @@ dependencies = [
     "aiofiles>=25.1.0",
     "click>=8.1.7",
     "fastmcp>=3.0",
-    "keyring>=25.6.0",
-    "keyrings.alt>=5.0",
     "requests>=2.32.5",
     "typing-extensions>=4.15.0",
 ]

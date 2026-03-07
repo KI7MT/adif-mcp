@@ -10,8 +10,8 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, Literal, TypedDict
 
-from adif_mcp.identity import PersonaManager
-from adif_mcp.providers.adapters import build_request
+from qso_graph_auth.identity import PersonaManager
+from qso_graph_auth.providers.adapters import build_request
 
 # ---------------------------
 # Types
