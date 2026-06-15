@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- Docstring in `list_enumerations` said "25 ADIF 3.1.7 enumerations" but actual count is 26 (per live tool and spec resources). Updated to remove hardcoded count for accuracy.
+
 ## [1.1.0] - 2026-05-16
 
 ### Added
