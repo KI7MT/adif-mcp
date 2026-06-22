@@ -545,7 +545,7 @@ def read_specification_resource(resource_name: str) -> str:
 
 @mcp.tool()
 def list_enumerations() -> Dict[str, Any]:
-    """Lists all 25 ADIF 3.1.7 enumerations with record counts and fields."""
+    """Lists all ADIF 3.1.7 enumerations with record counts and fields."""
     result: Dict[str, Any] = {}
     for enum_name, fields in ENUMERATION_FIELDS.items():
         records = _load_enum_records(enum_name)
